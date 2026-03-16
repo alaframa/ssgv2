@@ -1,23 +1,40 @@
-// middleware.ts
-
-export { default } from "next-auth/middleware";
-
+import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
+ 
 /**
- * LOOP PREVENTION:
- * Only protect dashboard paths. /login and /api/auth/** are NEVER in this
- * matcher — they stay public. This is the key to avoiding /login→/→/login.
+ * Auth middleware:
+ *
+ * - Unauthenticated user hits ANY protected path → redirect to /login
+ * - Authenticated user hits an unknown/404 path  → Next.js serves not-found.tsx
+ *
+ * Public paths (no auth needed):
+ *   /login, /register, /forgot-password, /api/auth/**
+ *
+ * Everything else is protected. If unauthenticated, next-auth/middleware
+ * redirects to the signIn page defined in authOptions.pages.signIn (/login).
  */
+export default withAuth({
+  pages: {
+    signIn: "/login",
+  },
+});
+ 
 export const config = {
   matcher: [
-    "/",
-    "/customers/:path*",
-    "/orders/:path*",
-    "/delivery/:path*",
-    "/warehouse/:path*",
-    "/gasback/:path*",
-    "/reports/:path*",
-    "/recon/:path*",
-    "/users/:path*",
-    "/settings/:path*",
+    /*
+     * Match ALL paths EXCEPT:
+     *   - /login, /register, /forgot-password  (public auth pages)
+     *   - /api/auth/**                          (NextAuth endpoints)
+     *   - /_next/**                             (Next.js internals)
+     *   - /favicon.ico, /robots.txt, etc.       (static files)
+     */
+    "/((?!login|register|forgot-password|api/auth|_next/static|_next/image|favicon\\.ico|robots\\.txt).*)",
   ],
 };
+ 
+
+
+
+
+
+
