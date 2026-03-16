@@ -126,6 +126,7 @@ model Branch {
   emptyReturns     EmptyReturn[]
   cylinderWriteoffs CylinderWriteoff[]
   warehouseStocks  WarehouseStock[]
+  cylinderHoldings CustomerCylinderHolding[]
   gasbackLedgers   GasbackLedger[]
   gasbackClaims    GasbackClaim[]
   monthlyRecons    MonthlyRecon[]

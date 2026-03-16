@@ -1,7 +1,3 @@
-// package.json
-// This is the FULL package.json for ssg-v2.
-// Key addition: the "prisma" → "seed" script at the bottom.
-
 {
   "name": "ssg-v2",
   "version": "0.1.0",
@@ -26,11 +22,12 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.27",
     "eslint": "^8",
     "eslint-config-next": "14.2.29",
-    "postcss": "^8",
+    "postcss": "^8.5.8",
     "prisma": "^5.22.0",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.19",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   },
