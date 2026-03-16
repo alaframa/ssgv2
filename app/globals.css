@@ -6,9 +6,9 @@
 
 /* ── DESIGN TOKENS ─────────────────────────────────── */
 :root {
-  --bg-base: #f4f6fb;
-  --surface: #ffffff;
-  --surface-raised: #f8fafc;
+  --bg-base: #c3c5ca;
+  --surface: #c2bcbc;
+  --surface-raised: #d2d4d6;
   --border: #e2e8f0;
   --border-focus: #3b82f6;
   --text-primary: #0f172a;
