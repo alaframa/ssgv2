@@ -5,16 +5,29 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LABELS: Record<string, string> = {
-  customers: "Pelanggan",      orders: "Purchase Order",
-  delivery: "Delivery Order",  warehouse: "Gudang",
-  gasback: "Gasback",          reports: "Laporan",
-  recon: "Rekonsiliasi",       users: "Pengguna",
-  settings: "Pengaturan",      add: "Tambah",
-  edit: "Edit",                claims: "Klaim",
-  inbound: "Penerimaan",       "empty-return": "Return Kosong",
-  writeoff: "Hapus Buku",      "rekap-kirim": "Rekap Kirim",
-  "stock-tabung": "Stock Tabung", "do-vs-po": "DO vs PO",
+  customers: "Pelanggan",
+  suppliers: "Supplier",
+  employees: "Karyawan",
+  orders: "Purchase Order",
+  delivery: "Delivery Order",
+  warehouse: "Gudang",
+  gasback: "Gasback",
+  reports: "Laporan",
+  recon: "Rekonsiliasi",
+  users: "Pengguna",
+  settings: "Pengaturan",
+  add: "Tambah",
+  edit: "Edit",
+  claims: "Klaim",
+  inbound: "Penerimaan",
+  "empty-return": "Return Kosong",
+  writeoff: "Hapus Buku",
+  "rekap-kirim": "Rekap Kirim",
+  "stock-tabung": "Stock Tabung",
+  "do-vs-po": "DO vs PO",
   pencapaian: "Pencapaian",
+  "hmt-quota": "HMT Quota",
+  roles: "Role",
 };
 
 export default function Breadcrumb() {
