@@ -22,7 +22,7 @@ type Do = {
     customer: { name: string; code: string };
   };
   driver: { id: string; displayName: string } | null;
-  kenek: { id: string; displayName: string } | null;
+  kenek:  { id: string; displayName: string } | null;
 };
 
 type Employee = {
@@ -31,19 +31,22 @@ type Employee = {
   roles: Array<{ role: string }>;
 };
 
-const STATUS_TRANSITIONS: Record<string, Array<{ value: string; label: string; color: string }>> = {
+const STATUS_TRANSITIONS: Record<
+  string,
+  Array<{ value: string; label: string; color: string }>
+> = {
   PENDING: [
     { value: "IN_TRANSIT", label: "🚛 Berangkat (IN_TRANSIT)", color: "btn-pri" },
-    { value: "CANCELLED", label: "✕ Batalkan", color: "btn-gho text-red-500 border-red-300" },
+    { value: "CANCELLED",  label: "✕ Batalkan", color: "btn-gho text-red-500 border-red-300" },
   ],
   IN_TRANSIT: [
     { value: "DELIVERED", label: "✓ Tandai DELIVERED", color: "btn-pri" },
-    { value: "PARTIAL", label: "~ Sebagian PARTIAL", color: "btn-gho" },
-    { value: "CANCELLED", label: "✕ Batalkan", color: "btn-gho text-red-500 border-red-300" },
+    { value: "PARTIAL",   label: "~ Sebagian PARTIAL",  color: "btn-gho" },
+    { value: "CANCELLED", label: "✕ Batalkan",          color: "btn-gho text-red-500 border-red-300" },
   ],
   PARTIAL: [
     { value: "DELIVERED", label: "✓ Selesaikan DELIVERED", color: "btn-pri" },
-    { value: "CANCELLED", label: "✕ Batalkan", color: "btn-gho text-red-500 border-red-300" },
+    { value: "CANCELLED", label: "✕ Batalkan",             color: "btn-gho text-red-500 border-red-300" },
   ],
 };
 
@@ -51,22 +54,22 @@ export default function DeliveryEditPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const [order, setOrder] = useState<Do | null>(null);
-  const [drivers, setDrivers] = useState<Employee[]>([]);
-  const [keneks, setKeneks] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [order,     setOrder]     = useState<Do | null>(null);
+  const [drivers,   setDrivers]   = useState<Employee[]>([]);
+  const [keneks,    setKeneks]    = useState<Employee[]>([]);
+  const [loading,   setLoading]   = useState(true);
+  const [submitting,setSubmitting]= useState(false);
+  const [error,     setError]     = useState("");
+  const [successMsg,setSuccessMsg]= useState("");
 
   const [form, setForm] = useState({
     kg12Delivered: 0,
     kg50Delivered: 0,
-    driverId: "",
-    kenetId: "",
-    vehicleNo: "",
+    driverId:      "",
+    kenetId:       "",
+    vehicleNo:     "",
     supplierPoRef: "",
-    notes: "",
+    notes:         "",
   });
 
   useEffect(() => {
@@ -77,7 +80,7 @@ export default function DeliveryEditPage() {
           fetch(`/api/employees?limit=100`),
         ]);
 
-        const [doData, empData]: [Do, { records?: Employee[] } | Employee[]] = await Promise.all([
+        const [doData, empJson] = await Promise.all([
           doRes.json(),
           empRes.json(),
         ]);
@@ -86,19 +89,24 @@ export default function DeliveryEditPage() {
         setForm({
           kg12Delivered: doData.kg12Delivered ?? doData.kg12Released,
           kg50Delivered: doData.kg50Delivered ?? doData.kg50Released,
-          driverId: doData.driverId ?? "",
-          kenetId: doData.kenetId ?? "",
-          vehicleNo: doData.vehicleNo ?? "",
+          driverId:      doData.driverId      ?? "",
+          kenetId:       doData.kenetId       ?? "",
+          vehicleNo:     doData.vehicleNo     ?? "",
           supplierPoRef: doData.supplierPoRef ?? "",
-          notes: doData.notes ?? "",
+          notes:         doData.notes         ?? "",
         });
 
-        const empList: Employee[] = Array.isArray(empData)
-          ? empData
-          : (empData as { records?: Employee[] }).records ?? [];
+        // /api/employees returns { employees: [...] }
+        const empList: Employee[] = Array.isArray(empJson)
+          ? empJson
+          : Array.isArray(empJson.employees)
+          ? empJson.employees
+          : Array.isArray(empJson.records)
+          ? empJson.records
+          : [];
 
         setDrivers(empList.filter((e) => e.roles.some((r) => r.role === "DRIVER")));
-        setKeneks(empList.filter((e) => e.roles.some((r) => r.role === "KENEK")));
+        setKeneks(empList.filter((e)  => e.roles.some((r) => r.role === "KENEK")));
       } catch {
         setError("Gagal memuat data");
       } finally {
@@ -114,16 +122,14 @@ export default function DeliveryEditPage() {
     setSubmitting(true);
     try {
       const payload: Record<string, unknown> = {
-        status: newStatus,
-        ...form,
-        driverId: form.driverId || null,
-        kenetId: form.kenetId || null,
-        vehicleNo: form.vehicleNo || null,
-        supplierPoRef: form.supplierPoRef || null,
-        notes: form.notes || null,
+        status:       newStatus,
+        driverId:     form.driverId     || null,
+        kenetId:      form.kenetId      || null,
+        vehicleNo:    form.vehicleNo    || null,
+        supplierPoRef:form.supplierPoRef|| null,
+        notes:        form.notes        || null,
       };
 
-      // For DELIVERED/PARTIAL, include delivered qty
       if (newStatus === "DELIVERED" || newStatus === "PARTIAL") {
         payload.kg12Delivered = form.kg12Delivered;
         payload.kg50Delivered = form.kg50Delivered;
@@ -140,7 +146,7 @@ export default function DeliveryEditPage() {
         return;
       }
       setSuccessMsg(`Status berhasil diubah ke ${newStatus}`);
-      setTimeout(() => router.push(`/delivery/${id}`), 1200);
+      setTimeout(() => router.push(`/delivery/${id}`), 1000);
     } catch {
       setError("Terjadi kesalahan jaringan");
     } finally {
@@ -172,7 +178,7 @@ export default function DeliveryEditPage() {
       title={`Edit DO ${order.doNumber}`}
       subtitle={`Status saat ini: ${order.status} — ${order.customerPo.customer.name}`}
     >
-      {error && <div className="form-error-banner mb-4">{error}</div>}
+      {error      && <div className="form-error-banner mb-4">{error}</div>}
       {successMsg && (
         <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
           {successMsg}
@@ -233,53 +239,51 @@ export default function DeliveryEditPage() {
           </div>
         </div>
 
-        {/* Delivered Qty (show only when IN_TRANSIT or PARTIAL) */}
+        {/* Delivered qty — only when IN_TRANSIT or PARTIAL */}
         {(order.status === "IN_TRANSIT" || order.status === "PARTIAL") && (
-          <>
-            <div className="pt-3 pb-2 border-t border-[var(--border)]">
-              <p className="text-sm font-medium text-[var(--text-secondary)] mb-3">
-                Penerimaan (qty yang diterima pelanggan)
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="form-group">
-                  <label className="form-label">
-                    Penerimaan 12kg
-                    <span className="text-[var(--text-muted)] font-normal ml-1">
-                      (max: {order.kg12Released})
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={order.kg12Released}
-                    value={form.kg12Delivered}
-                    onChange={(e) =>
-                      setForm({ ...form, kg12Delivered: parseInt(e.target.value) || 0 })
-                    }
-                    className="input-field"
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">
-                    Penerimaan 50kg
-                    <span className="text-[var(--text-muted)] font-normal ml-1">
-                      (max: {order.kg50Released})
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={order.kg50Released}
-                    value={form.kg50Delivered}
-                    onChange={(e) =>
-                      setForm({ ...form, kg50Delivered: parseInt(e.target.value) || 0 })
-                    }
-                    className="input-field"
-                  />
-                </div>
+          <div className="pt-3 border-t border-[var(--border)]">
+            <p className="text-sm font-medium text-[var(--text-secondary)] mb-3">
+              Penerimaan (qty yang diterima pelanggan)
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="form-group">
+                <label className="form-label">
+                  Penerimaan 12kg
+                  <span className="text-[var(--text-muted)] font-normal ml-1">
+                    (max {order.kg12Released})
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={order.kg12Released}
+                  value={form.kg12Delivered}
+                  onChange={(e) =>
+                    setForm({ ...form, kg12Delivered: parseInt(e.target.value) || 0 })
+                  }
+                  className="input-field"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Penerimaan 50kg
+                  <span className="text-[var(--text-muted)] font-normal ml-1">
+                    (max {order.kg50Released})
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={order.kg50Released}
+                  value={form.kg50Delivered}
+                  onChange={(e) =>
+                    setForm({ ...form, kg50Delivered: parseInt(e.target.value) || 0 })
+                  }
+                  className="input-field"
+                />
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Notes */}
@@ -293,12 +297,12 @@ export default function DeliveryEditPage() {
           />
         </div>
 
-        {/* Status Action Buttons */}
+        {/* Status Buttons */}
         <div className="pt-4 border-t border-[var(--border)]">
-          <p className="text-sm text-[var(--text-muted)] mb-3">Ubah Status:</p>
+          <p className="text-sm text-[var(--text-muted)] mb-3">Ubah Status DO:</p>
           {transitions.length === 0 ? (
             <p className="text-sm text-[var(--text-muted)] italic">
-              Status {order.status} tidak bisa diubah lagi
+              Status {order.status} sudah final, tidak bisa diubah.
             </p>
           ) : (
             <div className="flex flex-wrap gap-3">

@@ -15,8 +15,8 @@ type Customer = {
 
 const CHANNEL_OPTIONS = [
   { value: "WHATSAPP", label: "WhatsApp" },
-  { value: "PHONE", label: "Telepon" },
-  { value: "WALK_IN", label: "Walk-in" },
+  { value: "PHONE",    label: "Telepon" },
+  { value: "WALK_IN",  label: "Walk-in" },
   { value: "SALES_VISIT", label: "Sales Visit" },
 ];
 
@@ -41,14 +41,25 @@ export default function CustomerPoAddPage() {
     const fetchCustomers = async () => {
       setLoadingCustomers(true);
       try {
-        const params = new URLSearchParams({ limit: "200" });
+        const params = new URLSearchParams({ page: "1", pageSize: "200" });
         if (activeBranchId) params.set("branchId", activeBranchId);
         const res = await fetch(`/api/customers?${params}`);
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        setCustomers(data.records ?? data);
-      } catch {
-        setError("Gagal memuat data pelanggan");
+        if (!res.ok) throw new Error("Gagal memuat pelanggan");
+        const json = await res.json();
+
+        // /api/customers returns { data: [...], meta: {...} }
+        let list: Customer[] = [];
+        if (Array.isArray(json)) {
+          list = json;
+        } else if (Array.isArray(json.data)) {
+          list = json.data;
+        } else if (Array.isArray(json.records)) {
+          list = json.records;
+        }
+
+        setCustomers(list);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Gagal memuat data pelanggan");
       } finally {
         setLoadingCustomers(false);
       }
@@ -78,7 +89,7 @@ export default function CustomerPoAddPage() {
           ...form,
           branchId: activeBranchId,
           channel: form.channel || null,
-          notes: form.notes || null,
+          notes:   form.notes   || null,
         }),
       });
       const data = await res.json();
@@ -110,22 +121,29 @@ export default function CustomerPoAddPage() {
           <label className="form-label">
             Pelanggan <span className="text-red-500">*</span>
           </label>
-          <select
-            value={form.customerId}
-            onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-            className="input-field"
-            disabled={loadingCustomers}
-            required
-          >
-            <option value="">
-              {loadingCustomers ? "Memuat data pelanggan..." : "Pilih pelanggan..."}
-            </option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name} ({c.code})
-              </option>
-            ))}
-          </select>
+          {loadingCustomers ? (
+            <div className="input-field text-[var(--text-muted)] text-sm bg-[var(--surface-raised)]">
+              Memuat data pelanggan...
+            </div>
+          ) : customers.length === 0 ? (
+            <div className="input-field text-amber-600 text-sm bg-amber-50 border-amber-200">
+              Tidak ada pelanggan ditemukan untuk cabang ini
+            </div>
+          ) : (
+            <select
+              value={form.customerId}
+              onChange={(e) => setForm({ ...form, customerId: e.target.value })}
+              className="input-field"
+              required
+            >
+              <option value="">Pilih pelanggan...</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.code})
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Qty */}
@@ -180,7 +198,11 @@ export default function CustomerPoAddPage() {
         </div>
 
         <div className="flex gap-3 mt-6">
-          <button type="submit" disabled={submitting} className="btn-pri flex-1">
+          <button
+            type="submit"
+            disabled={submitting || loadingCustomers || customers.length === 0}
+            className="btn-pri flex-1"
+          >
             {submitting ? "Menyimpan..." : "Buat CPO"}
           </button>
           <button

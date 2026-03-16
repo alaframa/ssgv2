@@ -1,11 +1,10 @@
 // app/(dashboard)/delivery/add/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useBranch } from "@/lib/branch-context";
 import FormPageLayout from "@/components/FormPageLayout";
-import { Suspense } from "react";
 
 type Cpo = {
   id: string;
@@ -48,9 +47,8 @@ function DeliveryAddForm() {
     notes: "",
   });
 
-  // When CPO changes, prefill qty
+  // Prefill qty when CPO selected
   const selectedCpo = cpos.find((c) => c.id === form.customerPoId);
-
   useEffect(() => {
     if (selectedCpo) {
       setForm((f) => ({
@@ -59,43 +57,49 @@ function DeliveryAddForm() {
         kg50Released: selectedCpo.kg50Qty,
       }));
     }
-  }, [form.customerPoId, selectedCpo]);
+  }, [form.customerPoId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoadingData(true);
       try {
-        const params = new URLSearchParams({ status: "CONFIRMED", limit: "100" });
-        if (activeBranchId) params.set("branchId", activeBranchId);
+        const cpoParams = new URLSearchParams({ status: "CONFIRMED", limit: "100" });
+        if (activeBranchId) cpoParams.set("branchId", activeBranchId);
+
+        const empParams = new URLSearchParams({ limit: "100" });
+        if (activeBranchId) empParams.set("branchId", activeBranchId);
 
         const [cpoRes, empRes] = await Promise.all([
-          fetch(`/api/customer-po?${params}`),
-          fetch(`/api/employees?limit=100${activeBranchId ? `&branchId=${activeBranchId}` : ""}`),
+          fetch(`/api/customer-po?${cpoParams}`),
+          fetch(`/api/employees?${empParams}`),
         ]);
 
-        const [cpoData, empData] = await Promise.all([
+        const [cpoJson, empJson] = await Promise.all([
           cpoRes.json(),
           empRes.json(),
         ]);
 
-        const cpoList: Cpo[] = cpoData.records ?? [];
-        const empList: Employee[] = empData.records ?? empData;
+        // /api/customer-po returns { records: [...] }
+        const cpoList: Cpo[] = Array.isArray(cpoJson)
+          ? cpoJson
+          : Array.isArray(cpoJson.records)
+          ? cpoJson.records
+          : [];
+
+        // /api/employees returns { employees: [...] }
+        const empList: Employee[] = Array.isArray(empJson)
+          ? empJson
+          : Array.isArray(empJson.employees)
+          ? empJson.employees
+          : Array.isArray(empJson.records)
+          ? empJson.records
+          : [];
 
         setCpos(cpoList);
-
-        // Filter by role
-        setDrivers(
-          empList.filter((e) =>
-            e.roles.some((r) => r.role === "DRIVER")
-          )
-        );
-        setKeneks(
-          empList.filter((e) =>
-            e.roles.some((r) => r.role === "KENEK")
-          )
-        );
-      } catch {
-        setError("Gagal memuat data");
+        setDrivers(empList.filter((e) => e.roles.some((r) => r.role === "DRIVER")));
+        setKeneks(empList.filter((e) => e.roles.some((r) => r.role === "KENEK")));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Gagal memuat data");
       } finally {
         setLoadingData(false);
       }
@@ -123,12 +127,12 @@ function DeliveryAddForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
-          branchId: activeBranchId,
-          driverId: form.driverId || null,
-          kenetId: form.kenetId || null,
+          branchId:     activeBranchId,
+          driverId:     form.driverId     || null,
+          kenetId:      form.kenetId      || null,
           supplierPoRef: form.supplierPoRef || null,
-          vehicleNo: form.vehicleNo || null,
-          notes: form.notes || null,
+          vehicleNo:    form.vehicleNo    || null,
+          notes:        form.notes        || null,
         }),
       });
       const data = await res.json();
@@ -174,9 +178,9 @@ function DeliveryAddForm() {
               </option>
             ))}
           </select>
-          {cpos.length === 0 && !loadingData && (
+          {!loadingData && cpos.length === 0 && (
             <p className="text-xs text-amber-500 mt-1">
-              Tidak ada CPO berstatus CONFIRMED. Konfirmasi CPO dulu.
+              Tidak ada CPO berstatus CONFIRMED. Konfirmasi CPO dulu di menu PO Pelanggan.
             </p>
           )}
         </div>
@@ -203,7 +207,9 @@ function DeliveryAddForm() {
               type="number"
               min={0}
               value={form.kg12Released}
-              onChange={(e) => setForm({ ...form, kg12Released: parseInt(e.target.value) || 0 })}
+              onChange={(e) =>
+                setForm({ ...form, kg12Released: parseInt(e.target.value) || 0 })
+              }
               className="input-field"
             />
           </div>
@@ -213,7 +219,9 @@ function DeliveryAddForm() {
               type="number"
               min={0}
               value={form.kg50Released}
-              onChange={(e) => setForm({ ...form, kg50Released: parseInt(e.target.value) || 0 })}
+              onChange={(e) =>
+                setForm({ ...form, kg50Released: parseInt(e.target.value) || 0 })
+              }
               className="input-field"
             />
           </div>
@@ -306,7 +314,13 @@ function DeliveryAddForm() {
 
 export default function DeliveryAddPage() {
   return (
-    <Suspense fallback={<div className="page-container"><div className="card p-8 text-center">Memuat form...</div></div>}>
+    <Suspense
+      fallback={
+        <div className="page-container">
+          <div className="card p-8 text-center text-[var(--text-muted)]">Memuat form...</div>
+        </div>
+      }
+    >
       <DeliveryAddForm />
     </Suspense>
   );
