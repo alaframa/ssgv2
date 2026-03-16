@@ -1,0 +1,448 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum BranchCode {
+  SBY
+  YOG
+}
+
+enum CylinderSize {
+  KG12
+  KG50
+}
+
+enum PoStatus {
+  DRAFT
+  SUBMITTED
+  CONFIRMED
+  PARTIALLY_RECEIVED
+  COMPLETED
+  CANCELLED
+}
+
+enum DoStatus {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+  PARTIAL
+  CANCELLED
+}
+
+enum CustomerType {
+  RETAIL
+  AGEN
+  INDUSTRI
+}
+
+enum WriteoffReason {
+  RUSAK_BERAT
+  HILANG
+  KADALUARSA_UJI
+  BOCOR_PARAH
+}
+
+enum ReconciliationStatus {
+  OPEN
+  LOCKED
+}
+
+enum GasbackTxType {
+  CREDIT
+  DEBIT
+  ADJUSTMENT
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  BRANCH_MANAGER
+  WAREHOUSE_STAFF
+  SALES_STAFF
+  FINANCE
+  READONLY
+}
+
+enum OrderChannel {
+  WHATSAPP
+  PHONE
+  WALK_IN
+  SALES_VISIT
+}
+
+enum ReturnSource {
+  CUSTOMER
+  DRIVER
+  DEPOT
+}
+
+enum CylinderStatus {
+  WAREHOUSE_FULL
+  WAREHOUSE_EMPTY
+  IN_TRANSIT
+  WITH_CUSTOMER
+  RETURNED_TO_SUPPLIER
+  WRITTEN_OFF
+}
+
+enum EmployeeRoleType {
+  DRIVER
+  KENEK
+  WAREHOUSE
+  ADMIN
+  FINANCE
+  SALES
+  BRANCH_MANAGER
+  MECHANIC
+  OTHER
+}
+
+// ─── Tables ───────────────────────────────────────────────────────────────────
+
+model Branch {
+  id        String     @id @default(cuid())
+  code      BranchCode @unique
+  name      String     @db.VarChar(120)
+  address   String?    @db.Text
+  phone     String?    @db.VarChar(30)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  suppliers        SupplierHmtQuota[]
+  customers        Customer[]
+  employees        Employee[]
+  supplierPos      SupplierPo[]
+  inboundReceivings InboundReceiving[]
+  customerPos      CustomerPo[]
+  deliveryOrders   DeliveryOrder[]
+  emptyReturns     EmptyReturn[]
+  cylinderWriteoffs CylinderWriteoff[]
+  warehouseStocks  WarehouseStock[]
+  gasbackLedgers   GasbackLedger[]
+  gasbackClaims    GasbackClaim[]
+  monthlyRecons    MonthlyRecon[]
+  users            User[]
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  code      String   @unique @db.VarChar(20)
+  name      String   @db.VarChar(200)
+  npwp      String?  @db.VarChar(30)
+  address   String?  @db.Text
+  phone     String?  @db.VarChar(30)
+  email     String?  @db.VarChar(120)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hmtQuotas SupplierHmtQuota[]
+  pos       SupplierPo[]
+}
+
+model SupplierHmtQuota {
+  id           String       @id @default(cuid())
+  supplierId   String
+  branchId     String
+  cylinderSize CylinderSize
+  periodMonth  Int
+  periodYear   Int
+  quotaQty     Int
+  pricePerUnit Decimal      @db.Decimal(14, 2)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+  branch   Branch   @relation(fields: [branchId], references: [id])
+
+  @@unique([supplierId, branchId, cylinderSize, periodMonth, periodYear])
+}
+
+model Customer {
+  id              String       @id @default(cuid())
+  branchId        String
+  code            String       @unique @db.VarChar(30)
+  name            String       @db.VarChar(200)
+  customerType    CustomerType
+  phone           String?      @db.VarChar(30)
+  email           String?      @db.VarChar(120)
+  address         String?      @db.Text
+  npwp            String?      @db.VarChar(30)
+  creditLimitKg12 Int          @default(0)
+  creditLimitKg50 Int          @default(0)
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  branch           Branch                   @relation(fields: [branchId], references: [id])
+  customerPos      CustomerPo[]
+  emptyReturns     EmptyReturn[]
+  cylinderHoldings CustomerCylinderHolding[]
+  gasbackLedgers   GasbackLedger[]
+  gasbackClaims    GasbackClaim[]
+}
+
+model Employee {
+  id           String   @id @default(cuid())
+  branchId     String
+  userId       String?  @unique
+  employeeCode String   @unique @db.VarChar(20)
+  fullName     String   @db.VarChar(120)
+  displayName  String   @db.VarChar(60)
+  isActive     Boolean  @default(true)
+  joinDate     DateTime?
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  branch          Branch         @relation(fields: [branchId], references: [id])
+  user            User?          @relation(fields: [userId], references: [id])
+  roles           EmployeeRole[]
+  drivenOrders    DeliveryOrder[] @relation("Driver")
+  kenetOrders     DeliveryOrder[] @relation("Kenek")
+  drivenReturns   EmptyReturn[]
+}
+
+model EmployeeRole {
+  id         String           @id @default(cuid())
+  employeeId String
+  role       EmployeeRoleType
+  assignedAt DateTime         @default(now())
+  notes      String?          @db.Text
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+model SupplierPo {
+  id          String   @id @default(cuid())
+  branchId    String
+  supplierId  String
+  poNumber    String   @unique @db.VarChar(50)
+  status      PoStatus @default(DRAFT)
+  kg12Qty     Int      @default(0)
+  kg50Qty     Int      @default(0)
+  confirmedAt DateTime?
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  branch    Branch             @relation(fields: [branchId], references: [id])
+  supplier  Supplier           @relation(fields: [supplierId], references: [id])
+  inbounds  InboundReceiving[]
+}
+
+model InboundReceiving {
+  id           String   @id @default(cuid())
+  branchId     String
+  supplierPoId String
+  grNumber     String   @unique @db.VarChar(50)
+  receivedAt   DateTime
+  kg12Received Int      @default(0)
+  kg12Good     Int      @default(0)
+  kg12Reject   Int      @default(0)
+  kg50Received Int      @default(0)
+  kg50Good     Int      @default(0)
+  kg50Reject   Int      @default(0)
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  branch     Branch     @relation(fields: [branchId], references: [id])
+  supplierPo SupplierPo @relation(fields: [supplierPoId], references: [id])
+}
+
+model CustomerPo {
+  id         String       @id @default(cuid())
+  branchId   String
+  customerId String
+  poNumber   String       @unique @db.VarChar(50)
+  status     PoStatus     @default(DRAFT)
+  channel    OrderChannel?
+  kg12Qty    Int          @default(0)
+  kg50Qty    Int          @default(0)
+  notes      String?      @db.Text
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  branch         Branch          @relation(fields: [branchId], references: [id])
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  deliveryOrders DeliveryOrder[]
+}
+
+model DeliveryOrder {
+  id            String   @id @default(cuid())
+  branchId      String
+  customerPoId  String
+  doNumber      String   @unique @db.VarChar(30)
+  supplierPoRef String?  @db.VarChar(50)
+  driverId      String?
+  kenetId       String?
+  driverName    String?  @db.VarChar(120)
+  vehicleNo     String?  @db.VarChar(20)
+  status        DoStatus @default(PENDING)
+  kg12Released  Int      @default(0)
+  kg12Delivered Int      @default(0)
+  kg50Released  Int      @default(0)
+  kg50Delivered Int      @default(0)
+  deliveredAt   DateTime?
+  notes         String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  branch         Branch          @relation(fields: [branchId], references: [id])
+  customerPo     CustomerPo      @relation(fields: [customerPoId], references: [id])
+  driver         Employee?       @relation("Driver", fields: [driverId], references: [id])
+  kenek          Employee?       @relation("Kenek", fields: [kenetId], references: [id])
+  gasbackLedgers GasbackLedger[]
+}
+
+model EmptyReturn {
+  id           String       @id @default(cuid())
+  branchId     String
+  returnNumber String       @unique @db.VarChar(50)
+  source       ReturnSource
+  customerId   String?
+  driverId     String?
+  kg12Qty      Int          @default(0)
+  kg50Qty      Int          @default(0)
+  returnedAt   DateTime
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  branch   Branch    @relation(fields: [branchId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
+  driver   Employee? @relation(fields: [driverId], references: [id])
+}
+
+model CylinderWriteoff {
+  id             String         @id @default(cuid())
+  branchId       String
+  writeoffNumber String         @unique @db.VarChar(50)
+  reason         WriteoffReason
+  kg12Qty        Int            @default(0)
+  kg50Qty        Int            @default(0)
+  writeoffAt     DateTime
+  notes          String?        @db.Text
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id])
+}
+
+model WarehouseStock {
+  id               String   @id @default(cuid())
+  branchId         String
+  date             DateTime @db.Date
+  kg12FullQty      Int      @default(0)
+  kg12EmptyQty     Int      @default(0)
+  kg12OnTransitQty Int      @default(0)
+  kg12HmtQty       Int      @default(0)
+  kg12KuotaWo      Int      @default(0)
+  kg50FullQty      Int      @default(0)
+  kg50EmptyQty     Int      @default(0)
+  kg50OnTransitQty Int      @default(0)
+  kg50HmtQty       Int      @default(0)
+  kg50KuotaWo      Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@unique([branchId, date])
+}
+
+model CustomerCylinderHolding {
+  id          String   @id @default(cuid())
+  branchId    String
+  customerId  String
+  date        DateTime @db.Date
+  kg12HeldQty Int      @default(0)
+  kg50HeldQty Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  branch   Branch   @relation(fields: [branchId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([customerId, date])
+}
+
+model GasbackLedger {
+  id              String        @id @default(cuid())
+  branchId        String
+  customerId      String
+  txType          GasbackTxType
+  qty             Decimal       @db.Decimal(14, 4)
+  amount          Decimal       @db.Decimal(14, 2)
+  runningBalance  Decimal       @db.Decimal(14, 4)
+  deliveryOrderId String?
+  claimId         String?
+  txDate          DateTime
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+
+  branch        Branch         @relation(fields: [branchId], references: [id])
+  customer      Customer       @relation(fields: [customerId], references: [id])
+  deliveryOrder DeliveryOrder? @relation(fields: [deliveryOrderId], references: [id])
+  claim         GasbackClaim?  @relation(fields: [claimId], references: [id])
+}
+
+model GasbackClaim {
+  id          String    @id @default(cuid())
+  branchId    String
+  customerId  String
+  claimNumber String    @unique @db.VarChar(50)
+  qty         Decimal   @db.Decimal(14, 4)
+  amount      Decimal   @db.Decimal(14, 2)
+  isPaid      Boolean   @default(false)
+  paidAt      DateTime?
+  paymentRef  String?   @db.VarChar(100)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  branch         Branch          @relation(fields: [branchId], references: [id])
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  gasbackLedgers GasbackLedger[]
+}
+
+model MonthlyRecon {
+  id       String               @id @default(cuid())
+  branchId String
+  month    Int
+  year     Int
+  status   ReconciliationStatus @default(OPEN)
+  openedAt DateTime             @default(now())
+  lockedAt DateTime?
+  notes    String?              @db.Text
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  branch Branch @relation(fields: [branchId], references: [id])
+
+  @@unique([branchId, month, year])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @db.VarChar(120)
+  role         UserRole
+  branchId     String?
+  isActive     Boolean  @default(true)
+  employeeId   String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  branch   Branch?   @relation(fields: [branchId], references: [id])
+  employee Employee?
+}

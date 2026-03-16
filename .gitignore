@@ -1,0 +1,41 @@
+# .gitignore
+
+# ─── Environment ─────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Next.js ─────────────────────────────────────────────────────────────────
+.next/
+out/
+
+# ─── Node ────────────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Prisma ──────────────────────────────────────────────────────────────────
+# Keep schema.prisma and migrations in git.
+# Ignore generated client if you regenerate on deploy.
+# prisma/generated/
+
+# ─── Build outputs ────────────────────────────────────────────────────────────
+dist/
+build/
+
+# ─── OS / Editor ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+*.tsbuildinfo
+.vercel
