@@ -243,7 +243,7 @@ model SupplierPo {
 model InboundReceiving {
   id           String   @id @default(cuid())
   branchId     String
-  supplierPoId String
+  supplierPoId String?                    
   grNumber     String   @unique @db.VarChar(50)
   receivedAt   DateTime
   kg12Received Int      @default(0)
@@ -257,7 +257,7 @@ model InboundReceiving {
   updatedAt    DateTime @updatedAt
 
   branch     Branch     @relation(fields: [branchId], references: [id])
-  supplierPo SupplierPo @relation(fields: [supplierPoId], references: [id])
+  supplierPo SupplierPo? @relation(fields: [supplierPoId], references: [id])
 }
 
 model CustomerPo {

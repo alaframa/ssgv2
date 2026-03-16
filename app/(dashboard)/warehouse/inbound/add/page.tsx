@@ -15,8 +15,17 @@ interface SupplierPo {
   supplier: { name: string };
 }
 
-function today(): string {
-  return new Date().toISOString().slice(0, 10);
+function todayStr(): string {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function toInt(s: string): number {
+  const n = parseInt(s, 10);
+  return isNaN(n) ? 0 : Math.max(0, n);
 }
 
 export default function InboundAddPage() {
@@ -28,37 +37,37 @@ export default function InboundAddPage() {
 
   const [supplierPoId, setSupplierPoId] = useState("");
   const [grNumber, setGrNumber] = useState("");
-  const [receivedAt, setReceivedAt] = useState(today());
-  const [kg12Received, setKg12Received] = useState("");
-  const [kg12Good, setKg12Good] = useState("");
-  const [kg12Reject, setKg12Reject] = useState("");
-  const [kg50Received, setKg50Received] = useState("");
-  const [kg50Good, setKg50Good] = useState("");
-  const [kg50Reject, setKg50Reject] = useState("");
+  const [receivedAt, setReceivedAt] = useState(todayStr());
+  const [kg12Received, setKg12Received] = useState("0");
+  const [kg12Good, setKg12Good] = useState("0");
+  const [kg12Reject, setKg12Reject] = useState("0");
+  const [kg50Received, setKg50Received] = useState("0");
+  const [kg50Good, setKg50Good] = useState("0");
+  const [kg50Reject, setKg50Reject] = useState("0");
   const [notes, setNotes] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
-  // Load confirmed POs for this branch
   useEffect(() => {
     if (!activeBranchId) return;
     setPosLoading(true);
-    fetch(`/api/orders?branchId=${activeBranchId}&status=CONFIRMED,SUBMITTED,PARTIALLY_RECEIVED&limit=100`)
+    fetch(
+      `/api/orders?branchId=${activeBranchId}&status=CONFIRMED,SUBMITTED,PARTIALLY_RECEIVED&limit=100`
+    )
       .then((r) => r.json())
       .then((d) => setPos(d.records ?? []))
       .catch(() => setPos([]))
       .finally(() => setPosLoading(false));
   }, [activeBranchId]);
 
-  // Auto-fill qty from selected PO
   useEffect(() => {
     if (!supplierPoId) return;
     const po = pos.find((p) => p.id === supplierPoId);
     if (po) {
-      if (!kg12Received) setKg12Received(String(po.kg12Qty));
-      if (!kg50Received) setKg50Received(String(po.kg50Qty));
+      if (po.kg12Qty > 0) setKg12Received(String(po.kg12Qty));
+      if (po.kg50Qty > 0) setKg50Received(String(po.kg50Qty));
     }
   }, [supplierPoId]); // eslint-disable-line
 
@@ -66,19 +75,22 @@ export default function InboundAddPage() {
     e.preventDefault();
     setError("");
     setFieldErrors({});
-    setSaving(true);
 
+    if (!grNumber.trim()) { setError("Nomor GR wajib diisi"); return; }
+    if (!receivedAt) { setError("Tanggal wajib diisi"); return; }
+
+    setSaving(true);
     try {
       const body: Record<string, unknown> = {
         branchId: activeBranchId,
         grNumber: grNumber.trim(),
         receivedAt,
-        kg12Received: Number(kg12Received) || 0,
-        kg12Good: Number(kg12Good) || 0,
-        kg12Reject: Number(kg12Reject) || 0,
-        kg50Received: Number(kg50Received) || 0,
-        kg50Good: Number(kg50Good) || 0,
-        kg50Reject: Number(kg50Reject) || 0,
+        kg12Received: toInt(kg12Received),
+        kg12Good: toInt(kg12Good),
+        kg12Reject: toInt(kg12Reject),
+        kg50Received: toInt(kg50Received),
+        kg50Good: toInt(kg50Good),
+        kg50Reject: toInt(kg50Reject),
         notes: notes.trim() || null,
       };
       if (supplierPoId) body.supplierPoId = supplierPoId;
@@ -89,21 +101,26 @@ export default function InboundAddPage() {
         body: JSON.stringify(body),
       });
 
-      const data = await res.json();
+      const json = await res.json();
 
-      if (res.status === 409) {
-        setError(data.error);
+      if (res.status === 409) { setError(json.error); return; }
+      if (res.status === 423) { setError("Periode dikunci — tidak bisa menambahkan GR."); return; }
+
+      if (res.status === 422) {
+        const issues = json.issues as Record<string, string[]> | undefined;
+        if (issues) {
+          setFieldErrors(issues);
+          const msg = Object.entries(issues)
+            .map(([k, v]) => `${k}: ${(v as string[]).join(", ")}`)
+            .join(" | ");
+          setError("Validasi gagal — " + msg);
+        } else {
+          setError(json.error ?? "Validasi gagal");
+        }
         return;
       }
-      if (res.status === 423) {
-        setError("Periode ini sudah dikunci. Tidak bisa menambahkan GR.");
-        return;
-      }
-      if (!res.ok) {
-        setError(data.error ?? "Terjadi kesalahan");
-        if (data.issues) setFieldErrors(data.issues);
-        return;
-      }
+
+      if (!res.ok) { setError(json.error ?? "Terjadi kesalahan"); return; }
 
       router.push("/warehouse?tab=inbound");
     } catch {
@@ -120,7 +137,6 @@ export default function InboundAddPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/warehouse?tab=inbound"
@@ -137,26 +153,21 @@ export default function InboundAddPage() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400">
+        <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-sm text-red-400 break-words">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Supplier PO */}
         <div className="card p-5 space-y-4">
-          <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">
-            Referensi PO
-          </h2>
+          <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide">Referensi PO</h2>
 
           <div>
             <label className="form-label">Supplier PO (Opsional)</label>
             {posLoading ? (
-              <div className="form-input flex items-center text-[var(--text-muted)] text-sm">
-                Memuat daftar PO...
-              </div>
+              <div className="form-input text-[var(--text-muted)] text-sm">Memuat daftar PO...</div>
             ) : pos.length === 0 ? (
-              <div className="form-input flex items-center text-[var(--text-muted)] text-sm italic">
+              <div className="form-input text-[var(--text-muted)] text-sm italic">
                 Tidak ada PO aktif — GR tanpa PO
               </div>
             ) : (
@@ -173,138 +184,86 @@ export default function InboundAddPage() {
                 ))}
               </select>
             )}
-            {fe("supplierPoId")}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="form-label">
-                Nomor GR <span className="text-red-400">*</span>
-              </label>
+              <label className="form-label">Nomor GR <span className="text-red-400">*</span></label>
               <input
                 className="form-input"
                 placeholder="cth: GR-SBY-2026-001"
                 value={grNumber}
                 onChange={(e) => setGrNumber(e.target.value)}
-                required
               />
               {fe("grNumber")}
             </div>
             <div>
-              <label className="form-label">
-                Tanggal Terima <span className="text-red-400">*</span>
-              </label>
+              <label className="form-label">Tanggal Terima <span className="text-red-400">*</span></label>
               <input
                 type="date"
                 className="form-input"
                 value={receivedAt}
                 onChange={(e) => setReceivedAt(e.target.value)}
-                required
               />
               {fe("receivedAt")}
             </div>
           </div>
         </div>
 
-        {/* KG12 */}
         <div className="card p-5 space-y-4">
           <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide flex items-center gap-2">
-            <span className="w-5 h-5 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">12</span>
+            <span className="w-5 h-5 rounded bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">12</span>
             Tabung 12 Kg
           </h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="form-label">Diterima</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg12Received}
-                onChange={(e) => setKg12Received(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg12Received} onChange={(e) => setKg12Received(e.target.value)} />
             </div>
             <div>
               <label className="form-label">Baik (Good)</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg12Good}
-                onChange={(e) => setKg12Good(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg12Good} onChange={(e) => setKg12Good(e.target.value)} />
               {fe("kg12Good")}
             </div>
             <div>
               <label className="form-label">Reject</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg12Reject}
-                onChange={(e) => setKg12Reject(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg12Reject} onChange={(e) => setKg12Reject(e.target.value)} />
             </div>
           </div>
-          {kg12Good && (
+          {toInt(kg12Good) > 0 && (
             <p className="text-xs text-blue-400">
-              ✓ Stock 12 kg akan bertambah <strong>{Number(kg12Good)} tabung</strong>
+              ✓ Stock 12 kg akan bertambah <strong>{toInt(kg12Good)} tabung</strong>
             </p>
           )}
         </div>
 
-        {/* KG50 */}
         <div className="card p-5 space-y-4">
           <h2 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wide flex items-center gap-2">
-            <span className="w-5 h-5 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">50</span>
+            <span className="w-5 h-5 rounded bg-amber-500/20 flex items-center justify-center text-[10px] font-bold text-amber-400">50</span>
             Tabung 50 Kg
           </h2>
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="form-label">Diterima</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg50Received}
-                onChange={(e) => setKg50Received(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg50Received} onChange={(e) => setKg50Received(e.target.value)} />
             </div>
             <div>
               <label className="form-label">Baik (Good)</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg50Good}
-                onChange={(e) => setKg50Good(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg50Good} onChange={(e) => setKg50Good(e.target.value)} />
               {fe("kg50Good")}
             </div>
             <div>
               <label className="form-label">Reject</label>
-              <input
-                type="number"
-                min="0"
-                className="form-input"
-                placeholder="0"
-                value={kg50Reject}
-                onChange={(e) => setKg50Reject(e.target.value)}
-              />
+              <input type="number" min="0" className="form-input" value={kg50Reject} onChange={(e) => setKg50Reject(e.target.value)} />
             </div>
           </div>
-          {kg50Good && (
+          {toInt(kg50Good) > 0 && (
             <p className="text-xs text-amber-400">
-              ✓ Stock 50 kg akan bertambah <strong>{Number(kg50Good)} tabung</strong>
+              ✓ Stock 50 kg akan bertambah <strong>{toInt(kg50Good)} tabung</strong>
             </p>
           )}
         </div>
 
-        {/* Notes */}
         <div className="card p-5">
           <label className="form-label">Catatan</label>
           <textarea
@@ -315,13 +274,8 @@ export default function InboundAddPage() {
           />
         </div>
 
-        {/* Actions */}
         <div className="flex items-center gap-3 pt-1">
-          <button
-            type="submit"
-            disabled={saving}
-            className="btn-pri px-6"
-          >
+          <button type="submit" disabled={saving} className="btn-pri px-6">
             {saving ? "Menyimpan..." : "Simpan GR"}
           </button>
           <Link href="/warehouse?tab=inbound" className="btn-gho px-5">
