@@ -7,7 +7,6 @@ import * as path from "path";
 
 const prisma = new PrismaClient();
 
-// ─── Load seed data ───────────────────────────────────────────────────────────
 const seedData = JSON.parse(
   fs.readFileSync(path.join(__dirname, "seed-data.json"), "utf-8")
 );
@@ -17,7 +16,7 @@ const OPENING_DATE = new Date("2026-03-02");
 async function main() {
   console.log("🌱 Seeding SSG V2 database...");
 
-  // ── 1. Branches ─────────────────────────────────────────────────────────────
+  // ── 1. Branches ──────────────────────────────────────────────────────────────
   const branchMap: Record<string, string> = {};
   for (const b of seedData.static_seed.branches) {
     const branch = await prisma.branch.upsert({
@@ -67,14 +66,12 @@ async function main() {
   }
   console.log("  ✓ HMT Quotas (March 2026)");
 
-  // ── 4. Customers (SBY + YOG from gasback_opening) ───────────────────────────
+  // ── 4. Customers ─────────────────────────────────────────────────────────────
   const customerMap: Record<string, Record<string, string>> = { SBY: {}, YOG: {} };
 
   for (const branchCode of ["SBY", "YOG"] as const) {
     const customers: any[] = seedData.gasback_opening[branchCode].customers;
-    const typePrefix: Record<string, string> = { RETAIL: "RET", AGEN: "AGN", INDUSTRI: "IND" };
     let seq = 1;
-
     for (const c of customers) {
       const code = `${branchCode}-RET-${String(seq).padStart(4, "0")}`;
       const customer = await prisma.customer.upsert({
@@ -93,7 +90,12 @@ async function main() {
     console.log(`  ✓ Customers ${branchCode}: ${customers.length} rows`);
   }
 
-  // ── 5. GasbackLedger — opening ADJUSTMENT entries ───────────────────────────
+  // ── 5. GasbackLedger — opening ADJUSTMENT entries ────────────────────────────
+  // Delete then re-create so re-runs stay clean
+  await prisma.gasbackLedger.deleteMany({
+    where: { txType: GasbackTxType.ADJUSTMENT, txDate: OPENING_DATE },
+  });
+
   let gasbackCount = 0;
   for (const branchCode of ["SBY", "YOG"] as const) {
     const customers: any[] = seedData.gasback_opening[branchCode].customers;
@@ -119,7 +121,7 @@ async function main() {
   }
   console.log(`  ✓ GasbackLedger ADJUSTMENT entries: ${gasbackCount} rows`);
 
-  // ── 6. CustomerCylinderHolding — opening snapshot ───────────────────────────
+  // ── 6. CustomerCylinderHolding — opening snapshot ────────────────────────────
   let holdingCount = 0;
   for (const branchCode of ["SBY", "YOG"] as const) {
     const holdings: any[] = seedData.stock_tabung_opening[branchCode].customer_holdings;
@@ -127,8 +129,10 @@ async function main() {
       const customerId = customerMap[branchCode][h.name];
       if (!customerId) continue;
       if (!h.held_kg12 && !h.held_kg50) continue;
-      await prisma.customerCylinderHolding.create({
-        data: {
+      await prisma.customerCylinderHolding.upsert({
+        where: { customerId_date: { customerId, date: OPENING_DATE } },
+        update: {},
+        create: {
           branchId: branchMap[branchCode],
           customerId,
           date: OPENING_DATE,
@@ -141,7 +145,7 @@ async function main() {
   }
   console.log(`  ✓ CustomerCylinderHolding opening rows: ${holdingCount}`);
 
-  // ── 7. WarehouseStock — opening snapshot per branch ──────────────────────────
+  // ── 7. WarehouseStock — opening snapshot ─────────────────────────────────────
   for (const branchCode of ["SBY", "YOG"] as const) {
     const s = seedData.stock_tabung_opening[branchCode];
     await prisma.warehouseStock.upsert({
@@ -159,17 +163,19 @@ async function main() {
   }
   console.log("  ✓ WarehouseStock opening snapshot");
 
-  // ── 8. Employees (SBY) ───────────────────────────────────────────────────────
-  const employees: any[] = seedData.employees.employees;
-  let empSeq: Record<string, number> = {};
+  // ── 8. Employees ─────────────────────────────────────────────────────────────
+  const employees: any[] = seedData.employees.records;
+  const rolePrefix: Record<string, string> = {
+    DRIVER: "DRV", KENEK: "KNK", WAREHOUSE: "WRH", ADMIN: "ADM",
+  };
+  const empSeq: Record<string, number> = {};
+
   for (const e of employees) {
-    const rolePrefix: Record<string, string> = { DRIVER: "DRV", KENEK: "KNK", WAREHOUSE: "WRH", ADMIN: "ADM" };
     const role = e.roles[0];
     const prefix = rolePrefix[role] ?? "OTH";
     const branchCode = e.branch as string;
     empSeq[`${branchCode}-${prefix}`] = (empSeq[`${branchCode}-${prefix}`] ?? 0) + 1;
-    const seq = empSeq[`${branchCode}-${prefix}`];
-    const empCode = `${branchCode}-${prefix}-${String(seq).padStart(3, "0")}`;
+    const empCode = `${branchCode}-${prefix}-${String(empSeq[`${branchCode}-${prefix}`]).padStart(3, "0")}`;
 
     const emp = await prisma.employee.upsert({
       where: { employeeCode: empCode },
@@ -182,10 +188,16 @@ async function main() {
       },
     });
 
-    for (const r of e.roles) {
-      await prisma.employeeRole.create({
-        data: { employeeId: emp.id, role: r },
-      });
+    // Only insert roles if none exist yet (idempotent)
+    const existingRoles = await prisma.employeeRole.findMany({
+      where: { employeeId: emp.id },
+    });
+    if (existingRoles.length === 0) {
+      for (const r of e.roles) {
+        await prisma.employeeRole.create({
+          data: { employeeId: emp.id, role: r },
+        });
+      }
     }
   }
   console.log(`  ✓ Employees: ${employees.length} rows`);
@@ -207,7 +219,7 @@ async function main() {
     });
   }
   console.log(`  ✓ Users: admin@ssg.id, manager.sby@ssg.id, manager.yog@ssg.id`);
-  console.log(`  ✓ Default password: ${PASSWORD}`);
+  console.log(`  ✓ Default password: ssg2026`);
 
   console.log("\n✅ Seed complete.");
 }
