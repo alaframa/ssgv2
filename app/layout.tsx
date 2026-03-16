@@ -1,22 +1,22 @@
 // app/layout.tsx
- 
+
 import type { Metadata } from "next";
 import "./globals.css";
- 
+
 export const metadata: Metadata = {
   title: "SSG Gas Distribution V2",
   description: "Internal admin platform — PT. Arsygas Nix Indonesia",
 };
- 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+
+/**
+ * Root layout — plain Server Component, NO SessionProvider here.
+ * SessionProvider only lives in app/(dashboard)/layout.tsx
+ * to avoid wrapping the /login page and causing auth loops.
+ */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
       <body>{children}</body>
     </html>
   );
 }
- 
