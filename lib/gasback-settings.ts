@@ -1,4 +1,5 @@
 // lib/gasback-settings.ts
+
 import { prisma } from "@/lib/prisma";
 
 export const GASBACK_DEFAULTS = {
@@ -11,20 +12,40 @@ export const GASBACK_DEFAULTS = {
 
 export type GasbackSettingKey = keyof typeof GASBACK_DEFAULTS;
 
+/**
+ * Reads gasback settings from SystemSetting table.
+ * Falls back to GASBACK_DEFAULTS if:
+ *  - The SystemSetting model hasn't been migrated yet (table doesn't exist)
+ *  - Any individual key is missing
+ */
 export async function getGasbackSettings(): Promise<typeof GASBACK_DEFAULTS> {
-  const rows = await prisma.systemSetting.findMany({
-    where: { key: { in: Object.keys(GASBACK_DEFAULTS) } },
-    select: { key: true, value: true },
-  });
   const result = { ...GASBACK_DEFAULTS };
-  for (const row of rows) {
-    if (row.key in result) {
-      (result as Record<string, string>)[row.key] = row.value;
-    }
+
+  // Guard: if prisma.systemSetting doesn't exist (schema not yet migrated), return defaults
+  if (!(prisma as any).systemSetting) {
+    return result;
   }
+
+  try {
+    const rows = await (prisma as any).systemSetting.findMany({
+      where: { key: { in: Object.keys(GASBACK_DEFAULTS) } },
+      select: { key: true, value: true },
+    });
+    for (const row of rows as { key: string; value: string }[]) {
+      if (row.key in result) {
+        (result as Record<string, string>)[row.key] = row.value;
+      }
+    }
+  } catch {
+    // Table might not exist yet — silently use defaults
+  }
+
   return result;
 }
 
+/**
+ * Returns numeric gasback rates. Always safe to call — never throws.
+ */
 export async function getGasbackRates(): Promise<{ rateKg12: number; rateKg50: number }> {
   const s = await getGasbackSettings();
   return {

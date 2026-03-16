@@ -451,6 +451,7 @@ model User {
 }
 
 
+
 model SystemSetting {
   id        String   @id @default(cuid())
   key       String   @unique @db.VarChar(100)
