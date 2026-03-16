@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { GASBACK_DEFAULTS } from "../../../settings/gasback/route";
+import { GASBACK_DEFAULTS, getGasbackSettings } from "@/lib/gasback-settings";
 
 // GET /api/gasback/summary?branchId=xxx&search=xxx&page=1&limit=30
 export async function GET(req: NextRequest) {
@@ -19,21 +19,12 @@ export async function GET(req: NextRequest) {
 
   if (!branchId) return NextResponse.json({ error: "branchId required" }, { status: 400 });
 
-  // Effective branchId filter for non-super-admins
   const effectiveBranchId =
     session.user.role === "SUPER_ADMIN" ? branchId : session.user.branchId!;
 
-  // Load gasback settings for threshold display
-  const settingRows = await prisma.systemSetting.findMany({
-    where: { key: { in: Object.keys(GASBACK_DEFAULTS) } },
-  });
-  const settings: Record<string, string> = { ...GASBACK_DEFAULTS };
-  for (const r of settingRows) settings[r.key] = r.value;
-
+  const settings = await getGasbackSettings();
   const threshold = parseFloat(settings.redemption_threshold_kg);
 
-  // Get per-customer latest running balance via raw subquery approach
-  // We use groupBy to get the latest ledger entry per customer
   const customerWhere = {
     branchId: effectiveBranchId,
     isActive: true,
@@ -62,7 +53,6 @@ export async function GET(req: NextRequest) {
     prisma.customer.count({ where: customerWhere }),
   ]);
 
-  // Branch totals
   const [creditAgg, debitAgg] = await Promise.all([
     prisma.gasbackLedger.aggregate({
       where: { branchId: effectiveBranchId, txType: "CREDIT" },
@@ -78,12 +68,6 @@ export async function GET(req: NextRequest) {
   const totalDebit   = Number(debitAgg._sum.amount  ?? 0);
   const totalBalance = totalCredit - totalDebit;
 
-  // Count customers eligible for redemption
-  const eligibleCount = customers.filter((c) => {
-    const bal = c.gasbackLedgers[0] ? Number(c.gasbackLedgers[0].runningBalance) : 0;
-    return bal >= threshold;
-  }).length;
-
   const rows = customers.map((c) => {
     const balance     = c.gasbackLedgers[0] ? Number(c.gasbackLedgers[0].runningBalance) : 0;
     const balanceDate = c.gasbackLedgers[0]?.txDate ?? null;
@@ -95,6 +79,8 @@ export async function GET(req: NextRequest) {
       progress: threshold > 0 ? Math.min(100, (balance / threshold) * 100) : 0,
     };
   });
+
+  const eligibleCount = rows.filter((r) => r.canRedeem).length;
 
   return NextResponse.json({
     customers: rows,

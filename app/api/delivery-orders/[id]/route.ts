@@ -3,25 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getGasbackRates } from "@/lib/gasback-settings";
 
-// ── Fallback constants (used if SystemSetting row is missing) ─────────────────
-const DEFAULT_RATE_KG12 = 0.5;
-const DEFAULT_RATE_KG50 = 0.5;
-
-/** Read gasback rates from SystemSetting table, fall back to defaults */
-async function getGasbackRates(): Promise<{ rateKg12: number; rateKg50: number }> {
-  const rows = await prisma.systemSetting.findMany({
-    where: { key: { in: ["gasback_rate_kg12", "gasback_rate_kg50"] } },
-    select: { key: true, value: true },
-  });
-  const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
-  return {
-    rateKg12: parseFloat(map["gasback_rate_kg12"] ?? "") || DEFAULT_RATE_KG12,
-    rateKg50: parseFloat(map["gasback_rate_kg50"] ?? "") || DEFAULT_RATE_KG50,
-  };
-}
-
-// ── GET /api/delivery-orders/[id] ─────────────────────────────────────────────
+// GET /api/delivery-orders/[id]
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -51,7 +35,7 @@ export async function GET(
   return NextResponse.json(order);
 }
 
-// ── PATCH /api/delivery-orders/[id] ──────────────────────────────────────────
+// PATCH /api/delivery-orders/[id]
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -76,7 +60,7 @@ export async function PATCH(
   });
   if (!order) return NextResponse.json({ error: "DO tidak ditemukan" }, { status: 404 });
 
-  // ── Validate status transition ────────────────────────────────────────────
+  // Validate status transition
   const validTransitions: Record<string, string[]> = {
     PENDING:    ["IN_TRANSIT", "CANCELLED"],
     IN_TRANSIT: ["DELIVERED", "PARTIAL", "CANCELLED"],
@@ -96,36 +80,31 @@ export async function PATCH(
 
   // Fields that can be updated freely
   const updateData: Record<string, unknown> = {};
-  if (driverId     !== undefined) updateData.driverId     = driverId     || null;
-  if (kenetId      !== undefined) updateData.kenetId      = kenetId      || null;
-  if (vehicleNo    !== undefined) updateData.vehicleNo    = vehicleNo    || null;
+  if (driverId      !== undefined) updateData.driverId      = driverId      || null;
+  if (kenetId       !== undefined) updateData.kenetId       = kenetId       || null;
+  if (vehicleNo     !== undefined) updateData.vehicleNo     = vehicleNo     || null;
   if (supplierPoRef !== undefined) updateData.supplierPoRef = supplierPoRef || null;
-  if (notes        !== undefined) updateData.notes        = notes        || null;
+  if (notes         !== undefined) updateData.notes         = notes         || null;
 
-  // ── DELIVERED / PARTIAL: full transaction ─────────────────────────────────
-  if (
-    status === "DELIVERED" ||
-    status === "PARTIAL"
-  ) {
-    const kg12Del = typeof kg12Delivered === "number" ? kg12Delivered : order.kg12Released;
-    const kg50Del = typeof kg50Delivered === "number" ? kg50Delivered : order.kg50Released;
+  // DELIVERED / PARTIAL: full transaction
+  if (status === "DELIVERED" || status === "PARTIAL") {
+    const kg12Del    = typeof kg12Delivered === "number" ? kg12Delivered : order.kg12Released;
+    const kg50Del    = typeof kg50Delivered === "number" ? kg50Delivered : order.kg50Released;
     const customerId = order.customerPo.customerId;
-    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const today      = new Date(); today.setHours(0, 0, 0, 0);
 
-    // Read gasback rates dynamically from SystemSetting
+    // Read gasback rates from SystemSetting (falls back to 0.5 if not set)
     const { rateKg12, rateKg50 } = await getGasbackRates();
 
-    // Get current gasback running balance
     const lastLedger = await prisma.gasbackLedger.findFirst({
       where: { customerId },
       orderBy: { createdAt: "desc" },
     });
-    const prevBalance    = lastLedger ? Number(lastLedger.runningBalance) : 0;
-    const gasbackQty     = kg12Del + kg50Del;
-    const gasbackAmount  = kg12Del * rateKg12 + kg50Del * rateKg50;
+    const prevBalance       = lastLedger ? Number(lastLedger.runningBalance) : 0;
+    const gasbackQty        = kg12Del + kg50Del;
+    const gasbackAmount     = kg12Del * rateKg12 + kg50Del * rateKg50;
     const newRunningBalance = prevBalance + gasbackAmount;
 
-    // Cylinder holding delta
     const net12 = order.kg12Released - kg12Del;
     const net50 = order.kg50Released - kg50Del;
 
@@ -161,7 +140,6 @@ export async function PATCH(
     }
 
     const [updatedDo] = await prisma.$transaction([
-      // 1. Update DO
       prisma.deliveryOrder.update({
         where: { id: params.id },
         data: {
@@ -172,7 +150,6 @@ export async function PATCH(
           deliveredAt: new Date(),
         },
       }),
-      // 2. GasbackLedger CREDIT (uses dynamic rate)
       prisma.gasbackLedger.create({
         data: {
           branchId: order.branchId,
@@ -186,9 +163,7 @@ export async function PATCH(
           notes: `DO ${order.doNumber} — ${kg12Del}×12kg(@${rateKg12}) + ${kg50Del}×50kg(@${rateKg50})`,
         },
       }),
-      // 3. CustomerCylinderHolding
       holdingOp,
-      // 4. WarehouseStock: onTransit-- + empty += kg delivered
       prisma.warehouseStock.upsert({
         where: { branchId_date: { branchId: order.branchId, date: today } },
         update: {
@@ -209,7 +184,7 @@ export async function PATCH(
     return NextResponse.json(updatedDo);
   }
 
-  // ── Simple update (IN_TRANSIT, CANCELLED, or field-only) ──────────────────
+  // Simple update (IN_TRANSIT, CANCELLED, or field-only)
   const updated = await prisma.deliveryOrder.update({
     where: { id: params.id },
     data: {

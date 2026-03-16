@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useBranch } from "@/lib/branch-context";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -17,6 +16,7 @@ interface Driver {
   id: string;
   displayName: string;
   employeeCode: string;
+  roles?: { role: string }[];
 }
 
 type ReturnSource = "CUSTOMER" | "DRIVER" | "DEPOT";
@@ -32,8 +32,7 @@ function sourceLabel(s: ReturnSource) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AddReturnPage() {
-  const router   = useRouter();
-  const { data: session } = useSession();
+  const router = useRouter();
   const { activeBranchId } = useBranch();
 
   // Form state
@@ -47,36 +46,50 @@ export default function AddReturnPage() {
   const [notes,        setNotes]        = useState("");
 
   // Lookup data
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [drivers,   setDrivers]   = useState<Driver[]>([]);
+  const [customers,   setCustomers]   = useState<Customer[]>([]);
+  const [drivers,     setDrivers]     = useState<Driver[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
   // Submission state
   const [submitting, setSubmitting] = useState(false);
   const [error,      setError]      = useState<string | null>(null);
 
-  // Load customers + drivers
+  // ── Load customers + drivers ───────────────────────────────────────────────
   const loadLookups = useCallback(async () => {
     if (!activeBranchId) return;
     setLoadingData(true);
     try {
       const [custRes, drvRes] = await Promise.all([
-        fetch(`/api/customers?branchId=${activeBranchId}&limit=500`),
+        // /api/customers returns { data: [...], meta: {...} }
+        // use pageSize param (not limit) and large page to get all
+        fetch(`/api/customers?branchId=${activeBranchId}&pageSize=500&page=1`),
         fetch(`/api/employees?branchId=${activeBranchId}&limit=200`),
       ]);
+
       if (custRes.ok) {
-        const d = await custRes.json();
-        setCustomers(d.customers ?? d.records ?? []);
+        const json = await custRes.json();
+        // Handle all possible response shapes
+        const list: Customer[] =
+          Array.isArray(json)         ? json :
+          Array.isArray(json.data)    ? json.data :
+          Array.isArray(json.records) ? json.records :
+          Array.isArray(json.customers) ? json.customers :
+          [];
+        setCustomers(list);
       }
+
       if (drvRes.ok) {
-        const d = await drvRes.json();
-        const all: Driver[] = d.employees ?? d.records ?? [];
-        // Only show DRIVER role employees
-        const drivers = all.filter((e: any) =>
-          e.roles?.some((r: any) => r.role === "DRIVER")
-        );
-        setDrivers(drivers);
+        const json = await drvRes.json();
+        const all: Driver[] =
+          Array.isArray(json)            ? json :
+          Array.isArray(json.employees)  ? json.employees :
+          Array.isArray(json.records)    ? json.records :
+          [];
+        // Only DRIVER role employees
+        setDrivers(all.filter((e) => e.roles?.some((r) => r.role === "DRIVER")));
       }
+    } catch (e) {
+      console.error("Failed to load lookups:", e);
     } finally {
       setLoadingData(false);
     }
@@ -84,7 +97,7 @@ export default function AddReturnPage() {
 
   useEffect(() => { loadLookups(); }, [loadLookups]);
 
-  // Reset linked FK when source changes
+  // Reset FK when source changes
   useEffect(() => {
     setCustomerId("");
     setDriverId("");
@@ -95,23 +108,14 @@ export default function AddReturnPage() {
     e.preventDefault();
     setError(null);
 
-    if (!activeBranchId) {
-      setError("Pilih branch terlebih dahulu");
-      return;
-    }
-    if (!returnNumber.trim()) {
-      setError("Nomor return harus diisi");
-      return;
-    }
-    if (kg12Qty === 0 && kg50Qty === 0) {
-      setError("Minimal satu jenis tabung harus diisi");
-      return;
-    }
+    if (!activeBranchId) { setError("Pilih branch terlebih dahulu"); return; }
+    if (!returnNumber.trim()) { setError("Nomor return harus diisi"); return; }
+    if (kg12Qty === 0 && kg50Qty === 0) { setError("Minimal satu jenis tabung harus diisi"); return; }
 
     setSubmitting(true);
     try {
       const payload = {
-        branchId: activeBranchId,
+        branchId:     activeBranchId,
         returnNumber: returnNumber.trim(),
         returnedAt,
         source,
@@ -134,8 +138,8 @@ export default function AddReturnPage() {
       }
 
       router.push("/warehouse?tab=returns");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan");
     } finally {
       setSubmitting(false);
     }
@@ -157,8 +161,27 @@ export default function AddReturnPage() {
         </button>
         <div>
           <h1 className="text-lg font-bold text-[var(--text-primary)]">Return Tabung Kosong</h1>
-          <p className="text-xs text-[var(--text-muted)]">Catat penerimaan tabung kosong dari pelanggan / driver / depo</p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Catat penerimaan tabung kosong dari pelanggan / driver / depo
+          </p>
         </div>
+      </div>
+
+      {/* ── Info box: gasback flow ─────────────────────────────────────────── */}
+      <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 px-4 py-3 space-y-1.5">
+        <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
+          💡 Cara Kerja Gasback dari Return
+        </p>
+        <p className="text-xs text-amber-300/80 leading-relaxed">
+          <strong>Gasback dikreditkan otomatis saat DO DELIVERED</strong> — bukan dari return tabung kosong.
+          Setiap tabung yang terkirim = +0.5 kg gasback ke saldo pelanggan.
+        </p>
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+          Form ini hanya mencatat <strong>tabung fisik</strong> yang kembali ke gudang (stok kosong naik).
+          Untuk melihat saldo gasback pelanggan → buka halaman{" "}
+          <a href="/gasback" className="text-[var(--accent)] hover:underline font-medium">Gasback</a>{" "}
+          lalu klik nama pelanggan.
+        </p>
       </div>
 
       {/* Form */}
@@ -181,7 +204,7 @@ export default function AddReturnPage() {
               className="form-input"
               placeholder="mis. RET-SBY-001"
               value={returnNumber}
-              onChange={e => setReturnNumber(e.target.value)}
+              onChange={(e) => setReturnNumber(e.target.value)}
               required
             />
           </div>
@@ -194,7 +217,7 @@ export default function AddReturnPage() {
               type="date"
               className="form-input"
               value={returnedAt}
-              onChange={e => setReturnedAt(e.target.value)}
+              onChange={(e) => setReturnedAt(e.target.value)}
               required
             />
           </div>
@@ -204,7 +227,7 @@ export default function AddReturnPage() {
         <div className="form-group">
           <label className="form-label">Sumber Return <span className="text-red-400">*</span></label>
           <div className="flex gap-3 flex-wrap">
-            {(["CUSTOMER", "DRIVER", "DEPOT"] as ReturnSource[]).map(s => (
+            {(["CUSTOMER", "DRIVER", "DEPOT"] as ReturnSource[]).map((s) => (
               <button
                 key={s}
                 type="button"
@@ -225,18 +248,33 @@ export default function AddReturnPage() {
         {source === "CUSTOMER" && (
           <div className="form-group">
             <label className="form-label" htmlFor="customerId">Pelanggan</label>
-            <select
-              id="customerId"
-              className="form-input"
-              value={customerId}
-              onChange={e => setCustomerId(e.target.value)}
-              disabled={loadingData}
-            >
-              <option value="">— Pilih Pelanggan (opsional) —</option>
-              {customers.map(c => (
-                <option key={c.id} value={c.id}>{c.name} ({c.code})</option>
-              ))}
-            </select>
+            {loadingData ? (
+              <div className="input-field flex items-center gap-2 text-[var(--text-muted)] text-sm">
+                <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"/>
+                Memuat daftar pelanggan...
+              </div>
+            ) : customers.length === 0 ? (
+              <div className="input-field text-[var(--text-muted)] text-sm">
+                Tidak ada pelanggan ditemukan untuk branch ini
+              </div>
+            ) : (
+              <select
+                id="customerId"
+                className="input-field"
+                value={customerId}
+                onChange={(e) => setCustomerId(e.target.value)}
+              >
+                <option value="">— Pilih Pelanggan (opsional) —</option>
+                {customers.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.code})
+                  </option>
+                ))}
+              </select>
+            )}
+            <p className="text-xs text-[var(--text-muted)]">
+              {customers.length > 0 ? `${customers.length} pelanggan tersedia` : ""}
+            </p>
           </div>
         )}
 
@@ -244,33 +282,43 @@ export default function AddReturnPage() {
         {source === "DRIVER" && (
           <div className="form-group">
             <label className="form-label" htmlFor="driverId">Driver</label>
-            <select
-              id="driverId"
-              className="form-input"
-              value={driverId}
-              onChange={e => setDriverId(e.target.value)}
-              disabled={loadingData}
-            >
-              <option value="">— Pilih Driver (opsional) —</option>
-              {drivers.map(d => (
-                <option key={d.id} value={d.id}>{d.displayName} ({d.employeeCode})</option>
-              ))}
-            </select>
+            {loadingData ? (
+              <div className="input-field flex items-center gap-2 text-[var(--text-muted)] text-sm">
+                <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"/>
+                Memuat...
+              </div>
+            ) : (
+              <select
+                id="driverId"
+                className="input-field"
+                value={driverId}
+                onChange={(e) => setDriverId(e.target.value)}
+              >
+                <option value="">— Pilih Driver (opsional) —</option>
+                {drivers.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.displayName} ({d.employeeCode})
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         )}
 
         {/* Quantities */}
         <div>
-          <p className="form-label mb-2">Jumlah Tabung Kosong <span className="text-red-400">*</span></p>
+          <p className="form-label mb-2">
+            Jumlah Tabung Kosong <span className="text-red-400">*</span>
+          </p>
           <div className="grid grid-cols-2 gap-4">
             <div className="card p-4 border border-[var(--border)] space-y-2">
               <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">12 kg</p>
               <input
                 type="number"
                 min="0"
-                className="form-input text-center text-xl font-mono"
+                className="input-field text-center text-xl font-mono"
                 value={kg12Qty}
-                onChange={e => setKg12Qty(Math.max(0, parseInt(e.target.value) || 0))}
+                onChange={(e) => setKg12Qty(Math.max(0, parseInt(e.target.value) || 0))}
               />
               <p className="text-xs text-[var(--text-muted)] text-center">tabung</p>
             </div>
@@ -279,9 +327,9 @@ export default function AddReturnPage() {
               <input
                 type="number"
                 min="0"
-                className="form-input text-center text-xl font-mono"
+                className="input-field text-center text-xl font-mono"
                 value={kg50Qty}
-                onChange={e => setKg50Qty(Math.max(0, parseInt(e.target.value) || 0))}
+                onChange={(e) => setKg50Qty(Math.max(0, parseInt(e.target.value) || 0))}
               />
               <p className="text-xs text-[var(--text-muted)] text-center">tabung</p>
             </div>
@@ -293,11 +341,11 @@ export default function AddReturnPage() {
           <label className="form-label" htmlFor="notes">Catatan</label>
           <textarea
             id="notes"
-            className="form-input"
+            className="input-field"
             rows={3}
             placeholder="Catatan tambahan (opsional)"
             value={notes}
-            onChange={e => setNotes(e.target.value)}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 
@@ -306,8 +354,12 @@ export default function AddReturnPage() {
           <div className="rounded-lg bg-blue-500/5 border border-blue-500/20 px-4 py-3 space-y-1">
             <p className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Dampak ke Stock</p>
             <div className="flex gap-6 text-sm text-[var(--text-secondary)]">
-              {kg12Qty > 0 && <span>KG12 Kosong <span className="text-green-400 font-mono">+{kg12Qty}</span></span>}
-              {kg50Qty > 0 && <span>KG50 Kosong <span className="text-green-400 font-mono">+{kg50Qty}</span></span>}
+              {kg12Qty > 0 && (
+                <span>KG12 Kosong <span className="text-green-400 font-mono">+{kg12Qty}</span></span>
+              )}
+              {kg50Qty > 0 && (
+                <span>KG50 Kosong <span className="text-green-400 font-mono">+{kg50Qty}</span></span>
+              )}
             </div>
           </div>
         )}
@@ -321,7 +373,7 @@ export default function AddReturnPage() {
           >
             Batal
           </button>
-          <button type="submit" className="btn-pri" disabled={submitting}>
+          <button type="submit" className="btn-pri" disabled={submitting || loadingData}>
             {submitting ? "Menyimpan..." : "Simpan Return"}
           </button>
         </div>

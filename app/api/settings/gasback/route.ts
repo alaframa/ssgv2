@@ -3,17 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-// Default values used if no DB row yet
-export const GASBACK_DEFAULTS = {
-  gasback_rate_kg12:        "0.5",   // kg gasback credited per 12kg cylinder delivered
-  gasback_rate_kg50:        "0.5",   // kg gasback credited per 50kg cylinder delivered
-  redemption_threshold_kg:  "240",   // kg of gasback balance needed for 1 free refill
-  free_refill_size:         "12",    // which cylinder size (12 or 50) is the free reward
-  return_ratio_denominator: "20",    // every N kg of returned gas = 1 kg gasback (manual note only, for display)
-};
-
-export type GasbackSettings = typeof GASBACK_DEFAULTS;
+import { GASBACK_DEFAULTS } from "@/lib/gasback-settings";
 
 // GET /api/settings/gasback
 export async function GET() {
@@ -46,7 +36,7 @@ export async function PUT(req: NextRequest) {
   try { body = await req.json(); }
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-  const keys = Object.keys(GASBACK_DEFAULTS) as (keyof GasbackSettings)[];
+  const keys = Object.keys(GASBACK_DEFAULTS);
   const updater = session.user.name ?? session.user.email ?? "unknown";
 
   await prisma.$transaction(
@@ -54,14 +44,9 @@ export async function PUT(req: NextRequest) {
       .filter((k) => body[k] !== undefined)
       .map((k) =>
         prisma.systemSetting.upsert({
-          where: { key: k },
+          where:  { key: k },
           update: { value: String(body[k]), updatedBy: updater },
-          create: {
-            key: k,
-            value: String(body[k]),
-            label: k,
-            updatedBy: updater,
-          },
+          create: { key: k, value: String(body[k]), label: k, updatedBy: updater },
         })
       )
   );
