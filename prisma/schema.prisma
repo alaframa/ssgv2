@@ -116,21 +116,21 @@ model Branch {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  suppliers        SupplierHmtQuota[]
-  customers        Customer[]
-  employees        Employee[]
-  supplierPos      SupplierPo[]
+  suppliers         SupplierHmtQuota[]
+  customers         Customer[]
+  employees         Employee[]
+  supplierPos       SupplierPo[]
   inboundReceivings InboundReceiving[]
-  customerPos      CustomerPo[]
-  deliveryOrders   DeliveryOrder[]
-  emptyReturns     EmptyReturn[]
+  customerPos       CustomerPo[]
+  deliveryOrders    DeliveryOrder[]
+  emptyReturns      EmptyReturn[]
   cylinderWriteoffs CylinderWriteoff[]
-  warehouseStocks  WarehouseStock[]
-  cylinderHoldings CustomerCylinderHolding[]
-  gasbackLedgers   GasbackLedger[]
-  gasbackClaims    GasbackClaim[]
-  monthlyRecons    MonthlyRecon[]
-  users            User[]
+  warehouseStocks   WarehouseStock[]
+  cylinderHoldings  CustomerCylinderHolding[]
+  gasbackLedgers    GasbackLedger[]
+  gasbackClaims     GasbackClaim[]
+  monthlyRecons     MonthlyRecon[]
+  users             User[]
 }
 
 model Supplier {
@@ -157,6 +157,7 @@ model SupplierHmtQuota {
   periodMonth  Int
   periodYear   Int
   quotaQty     Int
+  usedQty      Int          @default(0)
   pricePerUnit Decimal      @db.Decimal(14, 2)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
@@ -183,7 +184,7 @@ model Customer {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 
-  branch           Branch                   @relation(fields: [branchId], references: [id])
+  branch           Branch                    @relation(fields: [branchId], references: [id])
   customerPos      CustomerPo[]
   emptyReturns     EmptyReturn[]
   cylinderHoldings CustomerCylinderHolding[]
@@ -192,24 +193,24 @@ model Customer {
 }
 
 model Employee {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   branchId     String
-  userId       String?  @unique
-  employeeCode String   @unique @db.VarChar(20)
-  fullName     String   @db.VarChar(120)
-  displayName  String   @db.VarChar(60)
-  isActive     Boolean  @default(true)
+  userId       String?   @unique
+  employeeCode String    @unique @db.VarChar(20)
+  fullName     String    @db.VarChar(120)
+  displayName  String    @db.VarChar(60)
+  isActive     Boolean   @default(true)
   joinDate     DateTime?
-  notes        String?  @db.Text
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  branch          Branch         @relation(fields: [branchId], references: [id])
-  user            User?          @relation(fields: [userId], references: [id])
-  roles           EmployeeRole[]
-  drivenOrders    DeliveryOrder[] @relation("Driver")
-  kenetOrders     DeliveryOrder[] @relation("Kenek")
-  drivenReturns   EmptyReturn[]
+  branch        Branch          @relation(fields: [branchId], references: [id])
+  user          User?           @relation(fields: [userId], references: [id])
+  roles         EmployeeRole[]
+  drivenOrders  DeliveryOrder[] @relation("Driver")
+  kenetOrders   DeliveryOrder[] @relation("Kenek")
+  drivenReturns EmptyReturn[]
 }
 
 model EmployeeRole {
@@ -223,17 +224,17 @@ model EmployeeRole {
 }
 
 model SupplierPo {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   branchId    String
   supplierId  String
-  poNumber    String   @unique @db.VarChar(50)
-  status      PoStatus @default(DRAFT)
-  kg12Qty     Int      @default(0)
-  kg50Qty     Int      @default(0)
+  poNumber    String    @unique @db.VarChar(50)
+  status      PoStatus  @default(DRAFT)
+  kg12Qty     Int       @default(0)
+  kg50Qty     Int       @default(0)
   confirmedAt DateTime?
-  notes       String?  @db.Text
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   branch    Branch             @relation(fields: [branchId], references: [id])
   supplier  Supplier           @relation(fields: [supplierId], references: [id])
@@ -241,37 +242,37 @@ model SupplierPo {
 }
 
 model InboundReceiving {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   branchId     String
-  supplierPoId String?                    
-  grNumber     String   @unique @db.VarChar(50)
+  supplierPoId String?
+  grNumber     String    @unique @db.VarChar(50)
   receivedAt   DateTime
-  kg12Received Int      @default(0)
-  kg12Good     Int      @default(0)
-  kg12Reject   Int      @default(0)
-  kg50Received Int      @default(0)
-  kg50Good     Int      @default(0)
-  kg50Reject   Int      @default(0)
-  notes        String?  @db.Text
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  kg12Received Int       @default(0)
+  kg12Good     Int       @default(0)
+  kg12Reject   Int       @default(0)
+  kg50Received Int       @default(0)
+  kg50Good     Int       @default(0)
+  kg50Reject   Int       @default(0)
+  notes        String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  branch     Branch     @relation(fields: [branchId], references: [id])
+  branch     Branch      @relation(fields: [branchId], references: [id])
   supplierPo SupplierPo? @relation(fields: [supplierPoId], references: [id])
 }
 
 model CustomerPo {
-  id         String       @id @default(cuid())
+  id         String        @id @default(cuid())
   branchId   String
   customerId String
-  poNumber   String       @unique @db.VarChar(50)
-  status     PoStatus     @default(DRAFT)
+  poNumber   String        @unique @db.VarChar(50)
+  status     PoStatus      @default(DRAFT)
   channel    OrderChannel?
-  kg12Qty    Int          @default(0)
-  kg50Qty    Int          @default(0)
-  notes      String?      @db.Text
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  kg12Qty    Int           @default(0)
+  kg50Qty    Int           @default(0)
+  notes      String?       @db.Text
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
   branch         Branch          @relation(fields: [branchId], references: [id])
   customer       Customer        @relation(fields: [customerId], references: [id])
@@ -279,24 +280,25 @@ model CustomerPo {
 }
 
 model DeliveryOrder {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   branchId      String
   customerPoId  String
-  doNumber      String   @unique @db.VarChar(30)
-  supplierPoRef String?  @db.VarChar(50)
+  doNumber      String    @unique @db.VarChar(30)
+  doDate        DateTime  @db.Date
+  supplierPoRef String?   @db.VarChar(50)
   driverId      String?
   kenetId       String?
-  driverName    String?  @db.VarChar(120)
-  vehicleNo     String?  @db.VarChar(20)
-  status        DoStatus @default(PENDING)
-  kg12Released  Int      @default(0)
-  kg12Delivered Int      @default(0)
-  kg50Released  Int      @default(0)
-  kg50Delivered Int      @default(0)
+  driverName    String?   @db.VarChar(120)
+  vehicleNo     String?   @db.VarChar(20)
+  status        DoStatus  @default(PENDING)
+  kg12Released  Int       @default(0)
+  kg12Delivered Int       @default(0)
+  kg50Released  Int       @default(0)
+  kg50Delivered Int       @default(0)
   deliveredAt   DateTime?
-  notes         String?  @db.Text
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  notes         String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   branch         Branch          @relation(fields: [branchId], references: [id])
   customerPo     CustomerPo      @relation(fields: [customerPoId], references: [id])
@@ -416,16 +418,16 @@ model GasbackClaim {
 }
 
 model MonthlyRecon {
-  id       String               @id @default(cuid())
-  branchId String
-  month    Int
-  year     Int
-  status   ReconciliationStatus @default(OPEN)
-  openedAt DateTime             @default(now())
-  lockedAt DateTime?
-  notes    String?              @db.Text
-  createdAt DateTime            @default(now())
-  updatedAt DateTime            @updatedAt
+  id        String               @id @default(cuid())
+  branchId  String
+  month     Int
+  year      Int
+  status    ReconciliationStatus @default(OPEN)
+  openedAt  DateTime             @default(now())
+  lockedAt  DateTime?
+  notes     String?              @db.Text
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
 
   branch Branch @relation(fields: [branchId], references: [id])
 
