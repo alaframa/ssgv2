@@ -1231,3 +1231,96 @@ a:hover { color: var(--accent-hover); }
 .animate-fade-in   { animation: fadeIn  200ms ease forwards; }
 .animate-slide-up  { animation: slideUp 220ms ease forwards; }
 .animate-pulse     { animation: pulse 1.5s ease-in-out infinite; }
+
+/* ── SPRINT 7 ALIASES ─────────────────────────────────
+   Paste these at the very bottom of app/globals.css
+   (after all existing @layer blocks)
+────────────────────────────────────────────────────── */
+
+/* Card wrapper for forms */
+.form-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+/* Field group: label + input stacked */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Alias: input-field covers <input>, <select>, <textarea> */
+.input-field {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  font-family: inherit;
+  background: var(--surface-raised);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  outline: none;
+  appearance: auto;
+  resize: vertical;
+}
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+.input-field:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  background: var(--surface);
+}
+.input-field:disabled {
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Error banner at top of form */
+.form-error-banner {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--error-bg);
+  border: 1.5px solid var(--error-border, #fca5a5);
+  color: var(--error);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Page container used in list pages */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Page title + desc */
+.page-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.page-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Section title inside a card */
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
