@@ -109,7 +109,7 @@ body {
   }
 
   .form-textarea {
-    @apply w-full px-3 py-2.5 rounded-lg text-sm bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-blue-500/10 disabled:bg-[var(--surface-raised)] disabled:cursor-not-allowed resize-vertical transition-colors duration-150;
+    @apply w-full px-3 py-2.5 rounded-lg text-sm bg-[var(--surface)] text-[var(--text-primary)] border border-[var(--border)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--border-focus)] focus:ring-2 focus:ring-blue-500/10 disabled:bg-[var(--surface-raised)] disabled:cursor-not-allowed resize-y transition-colors duration-150;
   }
 
   .form-error {
