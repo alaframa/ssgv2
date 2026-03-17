@@ -91,7 +91,6 @@ async function main() {
   }
 
   // ── 5. GasbackLedger — opening ADJUSTMENT entries ────────────────────────────
-  // Delete then re-create so re-runs stay clean
   await prisma.gasbackLedger.deleteMany({
     where: { txType: GasbackTxType.ADJUSTMENT, txDate: OPENING_DATE },
   });
@@ -188,7 +187,6 @@ async function main() {
       },
     });
 
-    // Only insert roles if none exist yet (idempotent)
     const existingRoles = await prisma.employeeRole.findMany({
       where: { employeeId: emp.id },
     });
@@ -220,6 +218,64 @@ async function main() {
   }
   console.log(`  ✓ Users: admin@ssg.id, manager.sby@ssg.id, manager.yog@ssg.id`);
   console.log(`  ✓ Default password: ssg2026`);
+
+  // ── 10. CylinderType — default size configurations ───────────────────────────
+  //
+  // These are the nominal weight specs for each cylinder size category.
+  // Staff can adjust them later via Settings → Jenis Tabung.
+  //
+  // KG12: typical Pertamina / Arsygas 12 kg LPG cylinder
+  //   tare  ≈ 14.5 kg  (empty shell)
+  //   full  ≈ 26.5 kg  (shell + 12 kg gas)
+  //
+  // KG50: typical industrial 50 kg LPG cylinder
+  //   tare  ≈ 33.5 kg  (empty shell)
+  //   full  ≈ 83.5 kg  (shell + 50 kg gas)
+  //
+  // Note: "12 kg" and "50 kg" are SIZE LABELS, not guaranteed exact gas weights.
+  // Individual cylinders may vary. Actual tare can be set per cylinder unit.
+  const cylinderTypes = [
+    {
+      size:          "KG12" as const,
+      label:         "Tabung 12 Kg",
+      nominalTareKg: 14.5,
+      nominalFullKg: 26.5,
+    },
+    {
+      size:          "KG50" as const,
+      label:         "Tabung 50 Kg",
+      nominalTareKg: 33.5,
+      nominalFullKg: 83.5,
+    },
+  ];
+
+  for (const ct of cylinderTypes) {
+    await (prisma as any).cylinderType.upsert({
+      where:  { size: ct.size },
+      update: { label: ct.label, nominalTareKg: ct.nominalTareKg, nominalFullKg: ct.nominalFullKg },
+      create: ct,
+    });
+  }
+  console.log("  ✓ CylinderType: KG12 (tare 14.5 kg, full 26.5 kg), KG50 (tare 33.5 kg, full 83.5 kg)");
+
+  // ── 11. SystemSetting — gasback defaults ─────────────────────────────────────
+  const systemSettings = [
+    { key: "gasback_mode",             value: "LEGACY", label: "Mode Gasback (LEGACY | WEIGHT)" },
+    { key: "gasback_rate_kg12",        value: "0.5",    label: "Gasback rate per tabung 12kg (kg)" },
+    { key: "gasback_rate_kg50",        value: "0.5",    label: "Gasback rate per tabung 50kg (kg)" },
+    { key: "redemption_threshold_kg",  value: "240",    label: "Threshold saldo minimum untuk klaim (kg)" },
+    { key: "free_refill_size",         value: "12",     label: "Ukuran isi gratis saat klaim (kg)" },
+    { key: "return_ratio_denominator", value: "20",     label: "Rasio return manual (per kg gasback)" },
+  ];
+
+  for (const s of systemSettings) {
+    await prisma.systemSetting.upsert({
+      where:  { key: s.key },
+      update: {}, // don't overwrite if already customised
+      create: { key: s.key, value: s.value, label: s.label },
+    });
+  }
+  console.log("  ✓ SystemSetting: gasback defaults seeded (won't overwrite customised values)");
 
   console.log("\n✅ Seed complete.");
 }

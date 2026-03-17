@@ -5,30 +5,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LABELS: Record<string, string> = {
-  customers:      "Pelanggan",
-  suppliers:      "Supplier",
-  employees:      "Karyawan",
-  "supplier-po":  "PO Supplier",
-  "customer-po":  "PO Pelanggan",
-  delivery:       "Delivery Order",
-  warehouse:      "Gudang",
-  gasback:        "Gasback",
-  reports:        "Laporan",
-  recon:          "Rekonsiliasi",
-  users:          "Pengguna",
-  settings:       "Pengaturan",
-  add:            "Tambah",
-  edit:           "Edit",
-  claims:         "Klaim",
-  inbound:        "Penerimaan",
-  returns:        "Return Kosong",
-  writeoff:       "Hapus Buku",
-  "rekap-kirim":  "Rekap Kirim",
-  "stock-tabung": "Stock Tabung",
-  "do-vs-po":     "DO vs PO",
-  pencapaian:     "Pencapaian",
-  "hmt-quota":    "HMT Quota",
-  roles:          "Role",
+  customers:           "Pelanggan",
+  suppliers:           "Supplier",
+  employees:           "Karyawan",
+  "supplier-po":       "PO Supplier",
+  "customer-po":       "PO Pelanggan",
+  delivery:            "Delivery Order",
+  warehouse:           "Gudang",
+  gasback:             "Gasback",
+  reports:             "Laporan",
+  recon:               "Rekonsiliasi",
+  users:               "Pengguna",
+  settings:            "Pengaturan",
+  add:                 "Tambah",
+  edit:                "Edit",
+  claims:              "Klaim",
+  inbound:             "Penerimaan",
+  returns:             "Return Kosong",
+  writeoff:            "Hapus Buku",
+  "rekap-kirim":       "Rekap Kirim",
+  "stock-tabung":      "Stock Tabung",
+  "do-vs-po":          "DO vs PO",
+  pencapaian:          "Pencapaian",
+  "hmt-quota":         "HMT Quota",
+  roles:               "Role",
+  // ── Cylinder tracking ──────────────────────────────────────────────────────
+  cylinders:           "Tabung Serial",
+  register:            "Daftar Tabung",
+  weigh:               "Timbang Return",
+  history:             "Riwayat",
+  "cylinder-types":    "Jenis Tabung",
+  ledger:              "Ledger",
 };
 
 export default function Breadcrumb() {
@@ -43,9 +50,9 @@ export default function Breadcrumb() {
     <nav className="flex items-center gap-1.5 text-sm">
       {segments.map((seg, idx) => {
         const isLast = idx === segments.length - 1;
-        const href = "/" + segments.slice(0, idx + 1).join("/");
-        const isId = seg.length > 20 && !LABELS[seg];
-        const label = isId ? "Detail" : (LABELS[seg] ?? seg);
+        const href   = "/" + segments.slice(0, idx + 1).join("/");
+        const isId   = seg.length > 20 && !LABELS[seg];
+        const label  = isId ? "Detail" : (LABELS[seg] ?? seg);
 
         return (
           <span key={href} className="flex items-center gap-1.5">

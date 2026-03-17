@@ -91,6 +91,19 @@ const NAV = [
       </svg>
     ),
   },
+  // ── NEW: Individual Cylinder Tracking ──────────────────────────────────────
+  {
+    href: "/cylinders",
+    label: "Tabung Serial",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        {/* Cylinder / container icon */}
+        <ellipse cx="12" cy="5" rx="7" ry="2.5"/>
+        <path d="M5 5v14c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5V5"/>
+        <path d="M5 12c0 1.38 3.13 2.5 7 2.5s7-1.12 7-2.5"/>
+      </svg>
+    ),
+  },
   {
     href: "/gasback",
     label: "Gasback",
@@ -108,7 +121,7 @@ const NAV = [
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10"/>
         <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
+        <line x1="6"  y1="20" x2="6"  y2="14"/>
       </svg>
     ),
   },
@@ -117,8 +130,10 @@ const NAV = [
     label: "Rekonsiliasi",
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="9 11 12 14 22 4"/>
-        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8"  y1="2" x2="8"  y2="6"/>
+        <line x1="3"  y1="10" x2="21" y2="10"/>
       </svg>
     ),
   },
@@ -128,17 +143,13 @@ const NAV = [
     adminOnly: true,
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
-        <line x1="19" y1="8" x2="23" y2="8"/>
-        <line x1="21" y1="6" x2="21" y2="10"/>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
     ),
   },
   {
-    href: "/settings/gasback",
+    href: "/settings",
     label: "Pengaturan",
-    // visible to SUPER_ADMIN, BRANCH_MANAGER, FINANCE
     settingsOnly: true,
     icon: (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -167,9 +178,7 @@ export default function Sidebar({ user }: SidebarProps) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   const items = NAV.filter((n) => {
-    // adminOnly: only SUPER_ADMIN
     if ((n as { adminOnly?: boolean }).adminOnly && user.role !== "SUPER_ADMIN") return false;
-    // settingsOnly: SUPER_ADMIN, BRANCH_MANAGER, FINANCE
     if ((n as { settingsOnly?: boolean }).settingsOnly && !SETTINGS_ROLES.includes(user.role)) return false;
     return true;
   });

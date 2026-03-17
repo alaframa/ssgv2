@@ -4,123 +4,85 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useBranch } from "@/lib/branch-context";
+import Link from "next/link";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 interface Customer {
   id: string;
   code: string;
   name: string;
 }
-
-interface Driver {
+interface Employee {
   id: string;
   displayName: string;
-  employeeCode: string;
-  roles?: { role: string }[];
+  roles: { role: string }[];
 }
 
-type ReturnSource = "CUSTOMER" | "DRIVER" | "DEPOT";
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
-function sourceLabel(s: ReturnSource) {
-  return s === "CUSTOMER" ? "Pelanggan" : s === "DRIVER" ? "Driver" : "Depo";
-}
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AddReturnPage() {
-  const router = useRouter();
+  const router             = useRouter();
   const { activeBranchId } = useBranch();
 
-  // Form state
-  const [returnNumber, setReturnNumber] = useState("");
-  const [returnedAt,   setReturnedAt]   = useState(todayISO());
-  const [source,       setSource]       = useState<ReturnSource>("CUSTOMER");
-  const [customerId,   setCustomerId]   = useState("");
-  const [driverId,     setDriverId]     = useState("");
-  const [kg12Qty,      setKg12Qty]      = useState(0);
-  const [kg50Qty,      setKg50Qty]      = useState(0);
-  const [notes,        setNotes]        = useState("");
+  const [source,      setSource]      = useState("CUSTOMER");
+  const [customerId,  setCustomerId]  = useState("");
+  const [driverId,    setDriverId]    = useState("");
+  const [kg12Qty,     setKg12Qty]     = useState(0);
+  const [kg50Qty,     setKg50Qty]     = useState(0);
+  const [returnedAt,  setReturnedAt]  = useState(
+    new Date().toISOString().slice(0, 16)
+  );
+  const [notes,       setNotes]       = useState("");
+  const [submitting,  setSubmitting]  = useState(false);
+  const [error,       setError]       = useState<string | null>(null);
 
-  // Lookup data
   const [customers,   setCustomers]   = useState<Customer[]>([]);
-  const [drivers,     setDrivers]     = useState<Driver[]>([]);
-  const [loadingData, setLoadingData] = useState(false);
+  const [drivers,     setDrivers]     = useState<Employee[]>([]);
+  const [gasbackMode, setGasbackMode] = useState<string>("LEGACY");
 
-  // Submission state
-  const [submitting, setSubmitting] = useState(false);
-  const [error,      setError]      = useState<string | null>(null);
-
-  // ── Load customers + drivers ───────────────────────────────────────────────
-  const loadLookups = useCallback(async () => {
+  // Load customers, employees, and gasback mode setting
+  const loadOptions = useCallback(async () => {
     if (!activeBranchId) return;
-    setLoadingData(true);
     try {
-      const [custRes, drvRes] = await Promise.all([
-        // /api/customers returns { data: [...], meta: {...} }
-        // use pageSize param (not limit) and large page to get all
-        fetch(`/api/customers?branchId=${activeBranchId}&pageSize=500&page=1`),
-        fetch(`/api/employees?branchId=${activeBranchId}&limit=200`),
+      const [custRes, empRes, settingRes] = await Promise.all([
+        fetch(`/api/customers?branchId=${activeBranchId}&limit=500&status=active`),
+        fetch(`/api/employees?branchId=${activeBranchId}&limit=100`),
+        fetch(`/api/settings?key=gasback_mode`).catch(() => null),
       ]);
 
       if (custRes.ok) {
-        const json = await custRes.json();
-        // Handle all possible response shapes
-        const list: Customer[] =
-          Array.isArray(json)         ? json :
-          Array.isArray(json.data)    ? json.data :
-          Array.isArray(json.records) ? json.records :
-          Array.isArray(json.customers) ? json.customers :
-          [];
-        setCustomers(list);
+        const d = await custRes.json();
+        setCustomers(d.customers ?? d.data ?? []);
       }
-
-      if (drvRes.ok) {
-        const json = await drvRes.json();
-        const all: Driver[] =
-          Array.isArray(json)            ? json :
-          Array.isArray(json.employees)  ? json.employees :
-          Array.isArray(json.records)    ? json.records :
-          [];
-        // Only DRIVER role employees
-        setDrivers(all.filter((e) => e.roles?.some((r) => r.role === "DRIVER")));
+      if (empRes.ok) {
+        const d = await empRes.json();
+        const list: Employee[] = d.employees ?? d.records ?? (Array.isArray(d) ? d : []);
+        setDrivers(list.filter((e) => e.roles.some((r) => r.role === "DRIVER")));
+      }
+      if (settingRes && settingRes.ok) {
+        const d = await settingRes.json();
+        setGasbackMode(d.value ?? "LEGACY");
       }
     } catch (e) {
-      console.error("Failed to load lookups:", e);
-    } finally {
-      setLoadingData(false);
+      console.error(e);
     }
   }, [activeBranchId]);
 
-  useEffect(() => { loadLookups(); }, [loadLookups]);
+  useEffect(() => { loadOptions(); }, [loadOptions]);
 
-  // Reset FK when source changes
-  useEffect(() => {
-    setCustomerId("");
-    setDriverId("");
-  }, [source]);
-
-  // ── Submit ─────────────────────────────────────────────────────────────────
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     setError(null);
 
-    if (!activeBranchId) { setError("Pilih branch terlebih dahulu"); return; }
-    if (!returnNumber.trim()) { setError("Nomor return harus diisi"); return; }
-    if (kg12Qty === 0 && kg50Qty === 0) { setError("Minimal satu jenis tabung harus diisi"); return; }
+    if (!activeBranchId) { setError("Branch belum dipilih"); return; }
+    if (kg12Qty === 0 && kg50Qty === 0) { setError("Masukkan minimal satu jumlah tabung"); return; }
+    if (source === "CUSTOMER" && !customerId) { setError("Pilih pelanggan untuk source CUSTOMER"); return; }
+    if (source === "DRIVER" && !driverId) { setError("Pilih driver untuk source DRIVER"); return; }
 
     setSubmitting(true);
     try {
       const payload = {
-        branchId:     activeBranchId,
-        returnNumber: returnNumber.trim(),
-        returnedAt,
+        branchId:   activeBranchId,
         source,
-        customerId: source === "CUSTOMER" && customerId ? customerId : null,
-        driverId:   source === "DRIVER"   && driverId   ? driverId   : null,
+        returnedAt: new Date(returnedAt).toISOString(),
+        customerId: source === "CUSTOMER" ? customerId : null,
+        driverId:   source === "DRIVER"   ? driverId   : null,
         kg12Qty,
         kg50Qty,
         notes: notes.trim() || null,
@@ -145,7 +107,6 @@ export default function AddReturnPage() {
     }
   }
 
-  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div className="px-4 py-6 max-w-2xl mx-auto space-y-6">
       {/* Header */}
@@ -167,218 +128,174 @@ export default function AddReturnPage() {
         </div>
       </div>
 
-      {/* ── Info box: gasback flow ─────────────────────────────────────────── */}
-      <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 px-4 py-3 space-y-1.5">
-        <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
-          💡 Cara Kerja Gasback dari Return
-        </p>
-        <p className="text-xs text-amber-300/80 leading-relaxed">
-          <strong>Gasback dikreditkan otomatis saat DO DELIVERED</strong> — bukan dari return tabung kosong.
-          Setiap tabung yang terkirim = +0.5 kg gasback ke saldo pelanggan.
-        </p>
-        <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-          Form ini hanya mencatat <strong>tabung fisik</strong> yang kembali ke gudang (stok kosong naik).
-          Untuk melihat saldo gasback pelanggan → buka halaman{" "}
-          <a href="/gasback" className="text-[var(--accent)] hover:underline font-medium">Gasback</a>{" "}
-          lalu klik nama pelanggan.
-        </p>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="card p-6 space-y-5">
-        {error && (
-          <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
-            {error}
-          </div>
-        )}
-
-        {/* Return Number + Date */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="form-group">
-            <label className="form-label" htmlFor="returnNumber">
-              Nomor Return <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="returnNumber"
-              type="text"
-              className="form-input"
-              placeholder="mis. RET-SBY-001"
-              value={returnNumber}
-              onChange={(e) => setReturnNumber(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="returnedAt">
-              Tanggal Return <span className="text-red-400">*</span>
-            </label>
-            <input
-              id="returnedAt"
-              type="date"
-              className="form-input"
-              value={returnedAt}
-              onChange={(e) => setReturnedAt(e.target.value)}
-              required
-            />
-          </div>
+      {/* ── Info box: gasback flow — changes based on current mode ─────────── */}
+      {gasbackMode === "WEIGHT" ? (
+        <div className="rounded-lg bg-blue-500/8 border border-blue-500/20 px-4 py-3 space-y-1.5">
+          <p className="text-xs font-semibold text-blue-400 uppercase tracking-wide">
+            ⚖️ Mode Gasback: WEIGHT (Timbang per Tabung)
+          </p>
+          <p className="text-xs text-blue-300/80 leading-relaxed">
+            Sistem sedang dalam mode <strong>timbang per tabung</strong>.
+            Setelah mencatat return ini, lanjutkan ke{" "}
+            <Link href="/cylinders/weigh" className="underline font-semibold">Tabung Serial → Timbang Return</Link>
+            {" "}untuk menimbang setiap tabung secara individual.
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Gasback dihitung dari <strong>sisa gas aktual</strong> (berat kembali − tare) saat ditimbang,
+            bukan otomatis saat DO dikirim.
+          </p>
         </div>
+      ) : (
+        <div className="rounded-lg bg-amber-500/8 border border-amber-500/20 px-4 py-3 space-y-1.5">
+          <p className="text-xs font-semibold text-amber-400 uppercase tracking-wide">
+            💡 Cara Kerja Gasback (Mode Legacy)
+          </p>
+          <p className="text-xs text-amber-300/80 leading-relaxed">
+            <strong>Gasback dikreditkan otomatis saat DO DELIVERED</strong> — menggunakan tarif flat per tabung.
+            Form ini hanya mencatat <strong>tabung fisik</strong> yang kembali ke gudang (stok kosong naik).
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            Untuk timbang tabung individual dan gasback berbasis berat aktual, aktifkan mode WEIGHT di{" "}
+            <Link href="/settings/gasback" className="text-[var(--accent)] hover:underline font-medium">
+              Settings → Gasback
+            </Link>.
+          </p>
+        </div>
+      )}
+
+      {/* ── Form ─────────────────────────────────────────────────────────────── */}
+      <div className="card p-5 space-y-4">
 
         {/* Source */}
-        <div className="form-group">
-          <label className="form-label">Sumber Return <span className="text-red-400">*</span></label>
-          <div className="flex gap-3 flex-wrap">
-            {(["CUSTOMER", "DRIVER", "DEPOT"] as ReturnSource[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => setSource(s)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  source === s
-                    ? "bg-blue-600 border-blue-600 text-white"
-                    : "border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
-                }`}
-              >
-                {sourceLabel(s)}
-              </button>
-            ))}
-          </div>
+        <div>
+          <label className="form-label">Sumber Return *</label>
+          <select
+            className="input-field"
+            value={source}
+            onChange={(e) => { setSource(e.target.value); setCustomerId(""); setDriverId(""); }}
+          >
+            <option value="CUSTOMER">Pelanggan</option>
+            <option value="DRIVER">Driver</option>
+            <option value="DEPOT">Depo</option>
+          </select>
         </div>
 
-        {/* Conditional FK: Customer */}
+        {/* Customer / Driver selector */}
         {source === "CUSTOMER" && (
-          <div className="form-group">
-            <label className="form-label" htmlFor="customerId">Pelanggan</label>
-            {loadingData ? (
-              <div className="input-field flex items-center gap-2 text-[var(--text-muted)] text-sm">
-                <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"/>
-                Memuat daftar pelanggan...
-              </div>
-            ) : customers.length === 0 ? (
-              <div className="input-field text-[var(--text-muted)] text-sm">
-                Tidak ada pelanggan ditemukan untuk branch ini
-              </div>
-            ) : (
-              <select
-                id="customerId"
-                className="input-field"
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-              >
-                <option value="">— Pilih Pelanggan (opsional) —</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.code})
-                  </option>
-                ))}
-              </select>
-            )}
-            <p className="text-xs text-[var(--text-muted)]">
-              {customers.length > 0 ? `${customers.length} pelanggan tersedia` : ""}
-            </p>
+          <div>
+            <label className="form-label">Pelanggan *</label>
+            <select
+              className="input-field"
+              value={customerId}
+              onChange={(e) => setCustomerId(e.target.value)}
+            >
+              <option value="">— Pilih Pelanggan —</option>
+              {customers.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name} ({c.code})
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
-        {/* Conditional FK: Driver */}
         {source === "DRIVER" && (
-          <div className="form-group">
-            <label className="form-label" htmlFor="driverId">Driver</label>
-            {loadingData ? (
-              <div className="input-field flex items-center gap-2 text-[var(--text-muted)] text-sm">
-                <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin"/>
-                Memuat...
-              </div>
-            ) : (
-              <select
-                id="driverId"
-                className="input-field"
-                value={driverId}
-                onChange={(e) => setDriverId(e.target.value)}
-              >
-                <option value="">— Pilih Driver (opsional) —</option>
-                {drivers.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.displayName} ({d.employeeCode})
-                  </option>
-                ))}
-              </select>
-            )}
+          <div>
+            <label className="form-label">Driver *</label>
+            <select
+              className="input-field"
+              value={driverId}
+              onChange={(e) => setDriverId(e.target.value)}
+            >
+              <option value="">— Pilih Driver —</option>
+              {drivers.map((d) => (
+                <option key={d.id} value={d.id}>{d.displayName}</option>
+              ))}
+            </select>
           </div>
         )}
 
         {/* Quantities */}
-        <div>
-          <p className="form-label mb-2">
-            Jumlah Tabung Kosong <span className="text-red-400">*</span>
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="card p-4 border border-[var(--border)] space-y-2">
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">12 kg</p>
-              <input
-                type="number"
-                min="0"
-                className="input-field text-center text-xl font-mono"
-                value={kg12Qty}
-                onChange={(e) => setKg12Qty(Math.max(0, parseInt(e.target.value) || 0))}
-              />
-              <p className="text-xs text-[var(--text-muted)] text-center">tabung</p>
-            </div>
-            <div className="card p-4 border border-[var(--border)] space-y-2">
-              <p className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wide">50 kg</p>
-              <input
-                type="number"
-                min="0"
-                className="input-field text-center text-xl font-mono"
-                value={kg50Qty}
-                onChange={(e) => setKg50Qty(Math.max(0, parseInt(e.target.value) || 0))}
-              />
-              <p className="text-xs text-[var(--text-muted)] text-center">tabung</p>
-            </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="form-label">Tabung 12 kg</label>
+            <input
+              className="input-field font-mono"
+              type="number"
+              min="0"
+              value={kg12Qty}
+              onChange={(e) => setKg12Qty(parseInt(e.target.value) || 0)}
+            />
+          </div>
+          <div>
+            <label className="form-label">Tabung 50 kg</label>
+            <input
+              className="input-field font-mono"
+              type="number"
+              min="0"
+              value={kg50Qty}
+              onChange={(e) => setKg50Qty(parseInt(e.target.value) || 0)}
+            />
           </div>
         </div>
 
-        {/* Notes */}
-        <div className="form-group">
-          <label className="form-label" htmlFor="notes">Catatan</label>
-          <textarea
-            id="notes"
+        {/* Date */}
+        <div>
+          <label className="form-label">Tanggal & Waktu Return *</label>
+          <input
             className="input-field"
-            rows={3}
-            placeholder="Catatan tambahan (opsional)"
+            type="datetime-local"
+            value={returnedAt}
+            onChange={(e) => setReturnedAt(e.target.value)}
+          />
+        </div>
+
+        {/* Notes */}
+        <div>
+          <label className="form-label">Catatan</label>
+          <textarea
+            className="input-field min-h-[70px]"
+            placeholder="Opsional..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 
-        {/* Stock impact preview */}
-        {(kg12Qty > 0 || kg50Qty > 0) && (
-          <div className="rounded-lg bg-blue-500/5 border border-blue-500/20 px-4 py-3 space-y-1">
-            <p className="text-xs font-semibold text-blue-400 uppercase tracking-wide">Dampak ke Stock</p>
-            <div className="flex gap-6 text-sm text-[var(--text-secondary)]">
-              {kg12Qty > 0 && (
-                <span>KG12 Kosong <span className="text-green-400 font-mono">+{kg12Qty}</span></span>
-              )}
-              {kg50Qty > 0 && (
-                <span>KG50 Kosong <span className="text-green-400 font-mono">+{kg50Qty}</span></span>
-              )}
-            </div>
+        {error && (
+          <div className="rounded-lg bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm text-red-400">
+            {error}
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex gap-3">
           <button
-            type="button"
+            className="btn-pri flex-1 text-sm"
+            onClick={handleSubmit}
+            disabled={submitting}
+          >
+            {submitting ? "Menyimpan…" : "Simpan Return"}
+          </button>
+          <button
+            className="btn-gho text-sm"
             onClick={() => router.push("/warehouse?tab=returns")}
-            className="btn-gho"
+            disabled={submitting}
           >
             Batal
           </button>
-          <button type="submit" className="btn-pri" disabled={submitting || loadingData}>
-            {submitting ? "Menyimpan..." : "Simpan Return"}
-          </button>
         </div>
-      </form>
+      </div>
+
+      {/* Quick link to weigh in WEIGHT mode */}
+      {gasbackMode === "WEIGHT" && (
+        <div className="text-center">
+          <Link
+            href="/cylinders/weigh"
+            className="btn-pri text-sm"
+          >
+            ⚖️ Lanjut Timbang Tabung →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
-

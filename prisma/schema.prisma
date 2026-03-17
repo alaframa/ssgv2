@@ -105,6 +105,24 @@ enum EmployeeRoleType {
   OTHER
 }
 
+// NEW: custody event types for individual cylinder tracking
+enum CylinderEventType {
+  RECEIVED_FROM_SUPPLIER   // GR inbound — cylinder arrives at warehouse full
+  DISPATCHED_TO_CUSTOMER   // DO dispatched — cylinder leaves warehouse
+  RETURNED_FROM_CUSTOMER   // Empty return — cylinder comes back, weighed here
+  TRANSFERRED_BETWEEN_BRANCH
+  WRITTEN_OFF
+  INSPECTION               // Periodic inspection / test
+}
+
+// NEW: condition flags
+enum CylinderCondition {
+  GOOD
+  DAMAGED
+  NEEDS_INSPECTION
+  CONDEMNED
+}
+
 // ─── Tables ───────────────────────────────────────────────────────────────────
 
 model Branch {
@@ -131,6 +149,9 @@ model Branch {
   gasbackClaims     GasbackClaim[]
   monthlyRecons     MonthlyRecon[]
   users             User[]
+  // NEW: individual cylinder units registered to this branch
+  cylinderUnits     CylinderUnit[]
+  cylinderEvents    CylinderEvent[]
 }
 
 model Supplier {
@@ -190,6 +211,8 @@ model Customer {
   cylinderHoldings CustomerCylinderHolding[]
   gasbackLedgers   GasbackLedger[]
   gasbackClaims    GasbackClaim[]
+  // NEW: individual cylinder events (custody history)
+  cylinderEvents   CylinderEvent[]
 }
 
 model Employee {
@@ -305,6 +328,8 @@ model DeliveryOrder {
   driver         Employee?       @relation("Driver", fields: [driverId], references: [id])
   kenek          Employee?       @relation("Kenek", fields: [kenetId], references: [id])
   gasbackLedgers GasbackLedger[]
+  // NEW: link to individual cylinder dispatch events
+  cylinderEvents CylinderEvent[]
 }
 
 model EmptyReturn {
@@ -324,6 +349,8 @@ model EmptyReturn {
   branch   Branch    @relation(fields: [branchId], references: [id])
   customer Customer? @relation(fields: [customerId], references: [id])
   driver   Employee? @relation(fields: [driverId], references: [id])
+  // NEW: link to individual cylinder return/weigh events
+  cylinderEvents CylinderEvent[]
 }
 
 model CylinderWriteoff {
@@ -338,7 +365,9 @@ model CylinderWriteoff {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  branch Branch @relation(fields: [branchId], references: [id])
+  branch         Branch          @relation(fields: [branchId], references: [id])
+  // NEW: individual cylinder write-off events
+  cylinderEvents CylinderEvent[]
 }
 
 model WarehouseStock {
@@ -389,6 +418,8 @@ model GasbackLedger {
   runningBalance  Decimal       @db.Decimal(14, 4)
   deliveryOrderId String?
   claimId         String?
+  // NEW: link to cylinder return event that triggered this credit
+  cylinderEventId String?
   txDate          DateTime
   notes           String?       @db.Text
   createdAt       DateTime      @default(now())
@@ -397,6 +428,7 @@ model GasbackLedger {
   customer      Customer       @relation(fields: [customerId], references: [id])
   deliveryOrder DeliveryOrder? @relation(fields: [deliveryOrderId], references: [id])
   claim         GasbackClaim?  @relation(fields: [claimId], references: [id])
+  cylinderEvent CylinderEvent? @relation(fields: [cylinderEventId], references: [id])
 }
 
 model GasbackClaim {
@@ -409,6 +441,7 @@ model GasbackClaim {
   isPaid      Boolean   @default(false)
   paidAt      DateTime?
   paymentRef  String?   @db.VarChar(100)
+  notes       String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -450,8 +483,6 @@ model User {
   employee Employee?
 }
 
-
-
 model SystemSetting {
   id        String   @id @default(cuid())
   key       String   @unique @db.VarChar(100)
@@ -461,4 +492,117 @@ model SystemSetting {
   updatedBy String?  @db.VarChar(120)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ─── NEW: Individual Cylinder Tracking ───────────────────────────────────────
+//
+// DESIGN DECISIONS:
+// 1. CylinderType = named size category (e.g. "12kg", "50kg") — NOT literal weight.
+//    The tare weight, nominal full weight, and nominal gas content are configured
+//    per CylinderType in SystemSetting (e.g. cylinder_type_12kg_tare_kg = 14.5).
+//
+// 2. CylinderUnit = one physical cylinder with a serial code.
+//    weightEmpty  = tare weight (the cylinder shell, no gas)
+//    weightFull   = weight when full of gas (set when received from supplier)
+//    The difference = nominal gas content for that unit.
+//
+// 3. Gasback is calculated when the EMPTY cylinder is RETURNED and WEIGHED:
+//    gasbackKg = weightFull - weightReturned
+//    (gas remaining = what the customer still had left = their "credit" back to us)
+//    This gets credited to the customer's gasback balance.
+//
+// 4. CylinderEvent = audit log of every custody/location change.
+//    Each event records: who had it, where it went, any weight measurement.
+
+model CylinderType {
+  id              String       @id @default(cuid())
+  // e.g. "KG12" or "KG50" — maps to the CylinderSize enum for compatibility
+  size            CylinderSize @unique
+  // Human-readable label, e.g. "Tabung 12 Kg" — configurable
+  label           String       @db.VarChar(60)
+  // Nominal tare weight (kg) — just the empty cylinder shell, no gas
+  // Used as default when registering a new cylinder if individual tare not measured
+  nominalTareKg   Decimal      @db.Decimal(8, 3)
+  // Nominal full weight (kg) — cylinder + full gas
+  nominalFullKg   Decimal      @db.Decimal(8, 3)
+  // Derived: nominalFullKg - nominalTareKg = nominal gas content
+  // Gasback threshold: if returnedWeight > (nominalFullKg - gasbackMinKg), no credit
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  cylinders CylinderUnit[]
+}
+
+model CylinderUnit {
+  id           String            @id @default(cuid())
+  branchId     String
+  // Serial code printed on the cylinder — unique across ALL branches
+  serialCode   String            @unique @db.VarChar(60)
+  // Which size category this cylinder belongs to
+  typeId       String
+  // Individual measured tare weight (kg) — set on registration/inspection
+  // If null, falls back to CylinderType.nominalTareKg
+  tareWeightKg Decimal?          @db.Decimal(8, 3)
+  // Current status
+  status       CylinderStatus    @default(WAREHOUSE_FULL)
+  // Current condition
+  condition    CylinderCondition @default(GOOD)
+  // Which customer currently holds this cylinder (null = in warehouse or transit)
+  currentCustomerId String?
+  // Free text location note for warehouse (e.g. "Rak A-3")
+  locationNote String?           @db.VarChar(120)
+  // Damage/notes
+  notes        String?           @db.Text
+  // Soft delete / written off
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  branch          Branch          @relation(fields: [branchId], references: [id])
+  type            CylinderType    @relation(fields: [typeId], references: [id])
+  events          CylinderEvent[]
+}
+
+model CylinderEvent {
+  id              String            @id @default(cuid())
+  branchId        String
+  cylinderUnitId  String
+  eventType       CylinderEventType
+  eventAt         DateTime
+
+  // ── Custody references (all optional — set depending on eventType) ──────────
+  // Which DO this cylinder was dispatched on (DISPATCHED_TO_CUSTOMER)
+  deliveryOrderId String?
+  // Which EmptyReturn record this cylinder came back on (RETURNED_FROM_CUSTOMER)
+  emptyReturnId   String?
+  // Which write-off record (WRITTEN_OFF)
+  writeoffId      String?
+  // Customer involved (WITH_CUSTOMER custody)
+  customerId      String?
+
+  // ── Weight measurements (recorded at warehouse when cylinder is WEIGHED) ────
+  // Weight when this cylinder LEFT warehouse (full) — set on DISPATCHED_TO_CUSTOMER
+  weightDispatchedKg Decimal?  @db.Decimal(8, 3)
+  // Weight when this cylinder RETURNED to warehouse — set on RETURNED_FROM_CUSTOMER
+  weightReturnedKg   Decimal?  @db.Decimal(8, 3)
+  // Computed: weightDispatchedKg - weightReturnedKg = gas consumed
+  // Gasback = gas remaining = nominally (weightDispatchedKg - tareWeight) but:
+  // gasbackKg = weightReturnedKg - tareWeight (what gas is left in the cylinder)
+  // This is recorded here for audit trail
+  gasbackKg          Decimal?  @db.Decimal(8, 3)
+
+  // ── Condition at time of event ──────────────────────────────────────────────
+  condition   CylinderCondition @default(GOOD)
+  notes       String?           @db.Text
+  recordedBy  String?           @db.VarChar(120) // user name who entered this
+  createdAt   DateTime          @default(now())
+
+  branch        Branch            @relation(fields: [branchId], references: [id])
+  cylinderUnit  CylinderUnit      @relation(fields: [cylinderUnitId], references: [id])
+  deliveryOrder DeliveryOrder?    @relation(fields: [deliveryOrderId], references: [id])
+  emptyReturn   EmptyReturn?      @relation(fields: [emptyReturnId], references: [id])
+  writeoff      CylinderWriteoff? @relation(fields: [writeoffId], references: [id])
+  customer      Customer?         @relation(fields: [customerId], references: [id])
+  // Gasback ledger entries that were created from this return weighing
+  gasbackLedgers GasbackLedger[]
 }

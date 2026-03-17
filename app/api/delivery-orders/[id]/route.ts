@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getGasbackRates } from "@/lib/gasback-settings";
+import { getGasbackRates, isWeightBasedGasback } from "@/lib/gasback-settings";
 
 // GET /api/delivery-orders/[id]
 export async function GET(
@@ -93,21 +93,17 @@ export async function PATCH(
     const customerId = order.customerPo.customerId;
     const today      = new Date(); today.setHours(0, 0, 0, 0);
 
-    // Read gasback rates from SystemSetting (falls back to 0.5 if not set)
-    const { rateKg12, rateKg50 } = await getGasbackRates();
-
-    const lastLedger = await prisma.gasbackLedger.findFirst({
-      where: { customerId },
-      orderBy: { createdAt: "desc" },
-    });
-    const prevBalance       = lastLedger ? Number(lastLedger.runningBalance) : 0;
-    const gasbackQty        = kg12Del + kg50Del;
-    const gasbackAmount     = kg12Del * rateKg12 + kg50Del * rateKg50;
-    const newRunningBalance = prevBalance + gasbackAmount;
+    // ── Check gasback mode ───────────────────────────────────────────────────
+    // In WEIGHT mode, gasback is NOT auto-credited here.
+    // It is credited per-cylinder when the cylinder is weighed on return
+    // via POST /api/cylinders/[id]/weigh-return.
+    // In LEGACY mode (default), credit at flat rate per cylinder delivered.
+    const weightMode = await isWeightBasedGasback();
 
     const net12 = order.kg12Released - kg12Del;
     const net50 = order.kg50Released - kg50Del;
 
+    // Customer cylinder holding update (always runs regardless of gasback mode)
     const existingHolding = await prisma.customerCylinderHolding.findUnique({
       where: { customerId_date: { customerId, date: today } },
     });
@@ -139,49 +135,74 @@ export async function PATCH(
       });
     }
 
-    const [updatedDo] = await prisma.$transaction([
-      prisma.deliveryOrder.update({
-        where: { id: params.id },
+    // Stock update (always runs)
+    const stockOp = prisma.warehouseStock.upsert({
+      where: { branchId_date: { branchId: order.branchId, date: today } },
+      update: {
+        kg12OnTransitQty: { decrement: order.kg12Released },
+        kg12EmptyQty:     { increment: kg12Del },
+        kg50OnTransitQty: { decrement: order.kg50Released },
+        kg50EmptyQty:     { increment: kg50Del },
+      },
+      create: {
+        branchId: order.branchId,
+        date: today,
+        kg12OnTransitQty: 0, kg12EmptyQty: kg12Del,
+        kg50OnTransitQty: 0, kg50EmptyQty: kg50Del,
+      },
+    });
+
+    const doUpdateOp = prisma.deliveryOrder.update({
+      where: { id: params.id },
+      data: {
+        ...updateData,
+        status: status as string,
+        kg12Delivered: kg12Del,
+        kg50Delivered: kg50Del,
+        deliveredAt: new Date(),
+      },
+    });
+
+    if (weightMode) {
+      // ── WEIGHT MODE: no auto gasback credit here ─────────────────────────
+      // Gasback will be credited individually when each cylinder is weighed.
+      // We still do: DO update + holding update + stock update.
+      const [updatedDo] = await prisma.$transaction([doUpdateOp, holdingOp, stockOp]);
+      return NextResponse.json({
+        ...updatedDo,
+        _gasbackMode: "WEIGHT",
+        _gasbackNote: "Gasback akan dihitung saat tabung ditimbang di gudang (mode WEIGHT aktif)",
+      });
+    } else {
+      // ── LEGACY MODE: auto-credit flat rate gasback on delivery ────────────
+      const { rateKg12, rateKg50 } = await getGasbackRates();
+
+      const lastLedger = await prisma.gasbackLedger.findFirst({
+        where: { customerId },
+        orderBy: { createdAt: "desc" },
+      });
+      const prevBalance       = lastLedger ? Number(lastLedger.runningBalance) : 0;
+      const gasbackQty        = kg12Del + kg50Del;
+      const gasbackAmount     = kg12Del * rateKg12 + kg50Del * rateKg50;
+      const newRunningBalance = prevBalance + gasbackAmount;
+
+      const gasbackOp = prisma.gasbackLedger.create({
         data: {
-          ...updateData,
-          status: status as string,
-          kg12Delivered: kg12Del,
-          kg50Delivered: kg50Del,
-          deliveredAt: new Date(),
-        },
-      }),
-      prisma.gasbackLedger.create({
-        data: {
-          branchId: order.branchId,
+          branchId:        order.branchId,
           customerId,
-          txType: "CREDIT",
-          qty: gasbackQty,
-          amount: gasbackAmount,
-          runningBalance: newRunningBalance,
+          txType:          "CREDIT",
+          qty:             gasbackQty,
+          amount:          gasbackAmount,
+          runningBalance:  newRunningBalance,
           deliveryOrderId: params.id,
-          txDate: new Date(),
+          txDate:          new Date(),
           notes: `DO ${order.doNumber} — ${kg12Del}×12kg(@${rateKg12}) + ${kg50Del}×50kg(@${rateKg50})`,
         },
-      }),
-      holdingOp,
-      prisma.warehouseStock.upsert({
-        where: { branchId_date: { branchId: order.branchId, date: today } },
-        update: {
-          kg12OnTransitQty: { decrement: order.kg12Released },
-          kg12EmptyQty:     { increment: kg12Del },
-          kg50OnTransitQty: { decrement: order.kg50Released },
-          kg50EmptyQty:     { increment: kg50Del },
-        },
-        create: {
-          branchId: order.branchId,
-          date: today,
-          kg12OnTransitQty: 0, kg12EmptyQty: kg12Del,
-          kg50OnTransitQty: 0, kg50EmptyQty: kg50Del,
-        },
-      }),
-    ]);
+      });
 
-    return NextResponse.json(updatedDo);
+      const [updatedDo] = await prisma.$transaction([doUpdateOp, gasbackOp, holdingOp, stockOp]);
+      return NextResponse.json(updatedDo);
+    }
   }
 
   // Simple update (IN_TRANSIT, CANCELLED, or field-only)
@@ -193,9 +214,9 @@ export async function PATCH(
     },
     include: {
       customerPo: { include: { customer: { select: { id: true, name: true, code: true } } } },
-      branch: { select: { code: true } },
-      driver: { select: { id: true, displayName: true } },
-      kenek:  { select: { id: true, displayName: true } },
+      branch:  { select: { code: true } },
+      driver:  { select: { id: true, displayName: true } },
+      kenek:   { select: { id: true, displayName: true } },
     },
   });
 
