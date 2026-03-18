@@ -1,118 +1,152 @@
 // app/api/reports/pencapaian/route.ts
-//
-// GET /api/reports/pencapaian
-// Monthly achievement: DO delivered vs HMT quota per branch per supplier.
-//
-// Query params:
-//   branchId  - optional
-//   year      - YYYY (default: current year)
-//   month     - MM (default: current month)
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-
-  const branchId =
-    session.user.role === "SUPER_ADMIN"
-      ? (searchParams.get("branchId") ?? undefined)
-      : session.user.branchId ?? undefined;
+  const monthParam  = searchParams.get("month");   // 1-12
+  const yearParam   = searchParams.get("year");    // e.g. 2026
+  const exportXlsx  = searchParams.get("export") === "1";
 
   const now   = new Date();
-  const year  = parseInt(searchParams.get("year")  ?? String(now.getFullYear()));
-  const month = parseInt(searchParams.get("month") ?? String(now.getMonth() + 1));
+  const month = monthParam  ? parseInt(monthParam,  10) : now.getMonth() + 1;
+  const year  = yearParam   ? parseInt(yearParam,   10) : now.getFullYear();
 
-  // Date range for this month
-  const monthStart = new Date(year, month - 1, 1);
-  const monthEnd   = new Date(year, month,     1);
+  const startDate = new Date(year, month - 1, 1);
+  const endDate   = new Date(year, month, 1); // exclusive
 
-  // ── HMT Quotas for this period ─────────────────────────────────────────────
-  const quotas = await prisma.supplierHmtQuota.findMany({
-    where: {
-      ...(branchId ? { branchId } : {}),
-      periodYear:  year,
-      periodMonth: month,
-    },
-    include: {
-      branch:   { select: { id: true, code: true, name: true } },
-      supplier: { select: { id: true, name: true, code: true } },
-    },
-  });
+  // Fetch all branches
+  const branches = await prisma.branch.findMany({ orderBy: { code: "asc" } });
 
-  // ── DO deliveries for this month ───────────────────────────────────────────
-  const dos = await prisma.deliveryOrder.findMany({
-    where: {
-      ...(branchId ? { branchId } : {}),
-      status:      { in: ["DELIVERED", "PARTIAL"] },
-      deliveredAt: { gte: monthStart, lt: monthEnd },
-    },
-    select: {
-      branchId:      true,
-      kg12Delivered: true,
-      kg50Delivered: true,
-    },
-  });
+  // For each branch, aggregate delivered DOs in the month
+  const branchStats = await Promise.all(
+    branches.map(async (branch) => {
+      const orders = await prisma.deliveryOrder.findMany({
+        where: {
+          branchId: branch.id,
+          doDate: { gte: startDate, lt: endDate },
+          status: { not: "CANCELLED" },
+        },
+        select: {
+          doDate:        true,
+          kg12Delivered: true,
+          kg50Delivered: true,
+        },
+      });
 
-  // Aggregate DO deliveries by branch
-  const doByBranch = new Map<string, { kg12: number; kg50: number }>();
-  for (const d of dos) {
-    const cur = doByBranch.get(d.branchId) ?? { kg12: 0, kg50: 0 };
-    cur.kg12 += d.kg12Delivered;
-    cur.kg50 += d.kg50Delivered;
-    doByBranch.set(d.branchId, cur);
+      const kg12  = orders.reduce((s, o) => s + o.kg12Delivered, 0);
+      const kg50  = orders.reduce((s, o) => s + o.kg50Delivered, 0);
+      const tonase = kg12 * 12 + kg50 * 50;
+
+      // Count unique working days (days that have at least 1 DO)
+      const daySet = new Set(orders.map((o) => new Date(o.doDate).toISOString().slice(0, 10)));
+      const workingDays = daySet.size;
+      const avgPerDay = workingDays > 0 ? Math.round(tonase / workingDays) : 0;
+
+      // Daily breakdown (for detail rows)
+      const dailyMap = new Map<string, { date: string; kg12: number; kg50: number; tonase: number; trips: number }>();
+      for (const o of orders) {
+        const key = new Date(o.doDate).toISOString().slice(0, 10);
+        const existing = dailyMap.get(key) ?? { date: key, kg12: 0, kg50: 0, tonase: 0, trips: 0 };
+        existing.kg12   += o.kg12Delivered;
+        existing.kg50   += o.kg50Delivered;
+        existing.tonase += o.kg12Delivered * 12 + o.kg50Delivered * 50;
+        existing.trips  += 1;
+        dailyMap.set(key, existing);
+      }
+
+      const daily = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+
+      return {
+        branchId:    branch.id,
+        branchCode:  branch.code,
+        branchName:  branch.name,
+        kg12,
+        kg50,
+        tonase,
+        workingDays,
+        avgPerDay,
+        daily,
+      };
+    })
+  );
+
+  // Total across all branches for share calculation
+  const grandTonase = branchStats.reduce((s, b) => s + b.tonase, 0);
+
+  const result = branchStats.map((b) => ({
+    ...b,
+    sharePct: grandTonase > 0 ? parseFloat(((b.tonase / grandTonase) * 100).toFixed(1)) : 0,
+  }));
+
+  // ── XLSX Export ────────────────────────────────────────────────────────────
+  if (exportXlsx) {
+    const monthName = startDate.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+
+    const wsData: (string | number)[][] = [
+      [`Laporan Pencapaian — ${monthName}`],
+      [],
+      ["Cabang", "12 kg", "50 kg", "Tonase (kg)", "Hari Kerja", "Avg/Hari (kg)", "% Share"],
+    ];
+
+    result.forEach((b) => {
+      wsData.push([
+        b.branchName,
+        b.kg12,
+        b.kg50,
+        b.tonase,
+        b.workingDays,
+        b.avgPerDay,
+        `${b.sharePct}%`,
+      ]);
+    });
+
+    wsData.push([]);
+    wsData.push([
+      "TOTAL",
+      result.reduce((s, b) => s + b.kg12,  0),
+      result.reduce((s, b) => s + b.kg50,  0),
+      grandTonase,
+      "", "", "100%",
+    ]);
+
+    // Daily detail per branch
+    for (const b of result) {
+      wsData.push([], [`── ${b.branchName} — Rincian Harian ──`]);
+      wsData.push(["Tanggal", "12 kg", "50 kg", "Tonase (kg)", "Trips"]);
+      for (const d of b.daily) {
+        const dateLabel = new Date(d.date).toLocaleDateString("id-ID", {
+          weekday: "short", day: "numeric", month: "short",
+        });
+        wsData.push([dateLabel, d.kg12, d.kg50, d.tonase, d.trips]);
+      }
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws["!cols"] = [
+      { wch: 24 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 10 },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Pencapaian");
+    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+
+    const filename = `Pencapaian_${year}_${String(month).padStart(2, "0")}.xlsx`;
+    return new NextResponse(buf, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
   }
 
-  // ── Build rows: one per (branch × supplier × size) quota ──────────────────
-  const rows = quotas.map(q => {
-    const del = doByBranch.get(q.branchId);
-    // Match delivered qty to quota size
-    const deliveredQty = q.cylinderSize === "KG12"
-      ? (del?.kg12 ?? 0)
-      : (del?.kg50 ?? 0);
-
-    const achievePct = q.quotaQty > 0
-      ? Math.round((deliveredQty / q.quotaQty) * 100)
-      : 0;
-
-    return {
-      branchId:    q.branchId,
-      branchCode:  q.branch.code,
-      branchName:  q.branch.name,
-      supplierId:  q.supplierId,
-      supplierName:q.supplier.name,
-      supplierCode:q.supplier.code,
-      size:        q.cylinderSize,
-      quotaQty:    q.quotaQty,
-      usedQty:     q.usedQty,
-      deliveredQty,
-      achievePct,
-      remaining:   Math.max(0, q.quotaQty - deliveredQty),
-    };
-  });
-
-  // If no quota rows exist, still show DO summary per branch
-  const uniqueBranchIds = [...new Set([...doByBranch.keys()])];
-  const branches = branchId
-    ? await prisma.branch.findMany({ where: { id: branchId }, select: { id: true, code: true, name: true } })
-    : await prisma.branch.findMany({ where: { id: { in: uniqueBranchIds } }, select: { id: true, code: true, name: true } });
-
-  const doSummary = branches.map(b => {
-    const del = doByBranch.get(b.id) ?? { kg12: 0, kg50: 0 };
-    return {
-      branchId:   b.id,
-      branchCode: b.code,
-      branchName: b.name,
-      kg12:       del.kg12,
-      kg50:       del.kg50,
-      tonase:     del.kg12 * 12 + del.kg50 * 50,
-    };
-  });
-
-  return NextResponse.json({ rows, doSummary, year, month });
+  return NextResponse.json({ month, year, branches: result, grandTonase });
 }
