@@ -12,7 +12,6 @@ type Cpo = {
   kg12Qty: number;
   kg50Qty: number;
   customer: { id: string; name: string; code: string };
-  // total already-released from existing DOs (computed below after fetch)
   alreadyReleased12?: number;
   alreadyReleased50?: number;
 };
@@ -23,6 +22,11 @@ type Employee = {
   fullName: string;
   roles: Array<{ role: string }>;
 };
+
+// ── Safe remaining: never goes below 0 ────────────────────────────────────────
+function safeRem(qty: number, released: number): number {
+  return Math.max(0, qty - released);
+}
 
 function DeliveryAddForm() {
   const router       = useRouter();
@@ -84,7 +88,7 @@ function DeliveryAddForm() {
           ? empJson.records
           : [];
 
-        // For each CPO, fetch its existing DO totals so we can show remaining qty
+        // For each CPO, fetch its existing DO totals to compute remaining qty
         const cposWithRemaining = await Promise.all(
           rawCpos.map(async (cpo) => {
             try {
@@ -111,16 +115,14 @@ function DeliveryAddForm() {
         setDrivers(empList.filter((e) => e.roles.some((r) => r.role === "DRIVER")));
         setKeneks(empList.filter((e)  => e.roles.some((r) => r.role === "KENEK")));
 
-        // Prefill qty from preselected CPO
+        // Prefill qty from preselected CPO — always clamped to ≥ 0
         if (preselectedCpoId) {
           const matched = cposWithRemaining.find((c) => c.id === preselectedCpoId);
           if (matched) {
-            const rem12 = matched.kg12Qty - (matched.alreadyReleased12 ?? 0);
-            const rem50 = matched.kg50Qty - (matched.alreadyReleased50 ?? 0);
             setForm((prev) => ({
               ...prev,
-              kg12Released: Math.max(0, rem12),
-              kg50Released: Math.max(0, rem50),
+              kg12Released: safeRem(matched.kg12Qty, matched.alreadyReleased12 ?? 0),
+              kg50Released: safeRem(matched.kg50Qty, matched.alreadyReleased50 ?? 0),
             }));
           }
         }
@@ -133,17 +135,17 @@ function DeliveryAddForm() {
     fetchAll();
   }, [activeBranchId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When user picks a different CPO from dropdown, prefill remaining qty
+  // When user picks a CPO from dropdown, prefill remaining qty (clamped ≥ 0)
   const handleCpoChange = (cpoId: string) => {
     const matched = cpos.find((c) => c.id === cpoId);
     if (matched) {
-      const rem12 = matched.kg12Qty - (matched.alreadyReleased12 ?? 0);
-      const rem50 = matched.kg50Qty - (matched.alreadyReleased50 ?? 0);
+      const r12 = safeRem(matched.kg12Qty, matched.alreadyReleased12 ?? 0);
+      const r50 = safeRem(matched.kg50Qty, matched.alreadyReleased50 ?? 0);
       setForm((prev) => ({
         ...prev,
         customerPoId: cpoId,
-        kg12Released: Math.max(0, rem12),
-        kg50Released: Math.max(0, rem50),
+        kg12Released: r12,
+        kg50Released: r50,
       }));
     } else {
       setForm((prev) => ({ ...prev, customerPoId: cpoId }));
@@ -163,11 +165,20 @@ function DeliveryAddForm() {
       return;
     }
 
-    // Client-side overage guard (server also checks, this is just UX feedback)
+    // Client-side overage guard — uses clamped rem so it can never be negative
     const selected = cpos.find((c) => c.id === form.customerPoId);
     if (selected) {
-      const rem12 = selected.kg12Qty - (selected.alreadyReleased12 ?? 0);
-      const rem50 = selected.kg50Qty - (selected.alreadyReleased50 ?? 0);
+      const rem12 = safeRem(selected.kg12Qty, selected.alreadyReleased12 ?? 0);
+      const rem50 = safeRem(selected.kg50Qty, selected.alreadyReleased50 ?? 0);
+
+      // Block if CPO is fully consumed
+      if (rem12 === 0 && rem50 === 0) {
+        setError(
+          `CPO ${selected.poNumber} sudah tidak memiliki sisa qty. ` +
+          `Semua qty telah dirilis ke DO sebelumnya.`
+        );
+        return;
+      }
       if (form.kg12Released > rem12) {
         setError(
           `Qty 12kg (${form.kg12Released}) melebihi sisa CPO (${rem12}). ` +
@@ -213,12 +224,26 @@ function DeliveryAddForm() {
   };
 
   const selectedCpo = cpos.find((c) => c.id === form.customerPoId);
+
+  // ── Always use clamped rem — never show negative to user ──────────────────
   const rem12 = selectedCpo
-    ? selectedCpo.kg12Qty - (selectedCpo.alreadyReleased12 ?? 0)
+    ? safeRem(selectedCpo.kg12Qty, selectedCpo.alreadyReleased12 ?? 0)
     : 0;
   const rem50 = selectedCpo
+    ? safeRem(selectedCpo.kg50Qty, selectedCpo.alreadyReleased50 ?? 0)
+    : 0;
+
+  // Raw (before clamping) — used to detect over-released state
+  const rawRem12 = selectedCpo
+    ? selectedCpo.kg12Qty - (selectedCpo.alreadyReleased12 ?? 0)
+    : 0;
+  const rawRem50 = selectedCpo
     ? selectedCpo.kg50Qty - (selectedCpo.alreadyReleased50 ?? 0)
     : 0;
+
+  const isOverReleased12 = rawRem12 < 0;
+  const isOverReleased50 = rawRem50 < 0;
+  const isFullyConsumed  = rem12 === 0 && rem50 === 0 && !!selectedCpo;
 
   return (
     <FormPageLayout
@@ -245,12 +270,17 @@ function DeliveryAddForm() {
               {loadingData ? "Memuat..." : "Pilih Customer PO (CONFIRMED)..."}
             </option>
             {cpos.map((c) => {
-              const r12 = c.kg12Qty - (c.alreadyReleased12 ?? 0);
-              const r50 = c.kg50Qty - (c.alreadyReleased50 ?? 0);
+              const r12 = safeRem(c.kg12Qty, c.alreadyReleased12 ?? 0);
+              const r50 = safeRem(c.kg50Qty, c.alreadyReleased50 ?? 0);
+              const fullyUsed = r12 === 0 && r50 === 0;
               return (
                 <option key={c.id} value={c.id}>
+                  {fullyUsed ? "⚠️ " : ""}
                   {c.poNumber} — {c.customer.name}
-                  {" "}(sisa: {r12}×12kg / {r50}×50kg)
+                  {" "}
+                  {fullyUsed
+                    ? "(HABIS)"
+                    : `(sisa: ${r12}×12kg / ${r50}×50kg)`}
                 </option>
               );
             })}
@@ -264,23 +294,58 @@ function DeliveryAddForm() {
 
         {/* Remaining qty info banner */}
         {selectedCpo && (
-          <div className="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] text-sm">
-            <div className="font-medium text-[var(--text-primary)] mb-1">
+          <div className={`p-3 rounded-lg border text-sm ${
+            isFullyConsumed
+              ? "bg-red-50 border-red-300"
+              : isOverReleased12 || isOverReleased50
+              ? "bg-amber-50 border-amber-300"
+              : "bg-[var(--surface-raised)] border-[var(--border)]"
+          }`}>
+            <div className="font-medium text-[var(--text-primary)] mb-1.5">
               {selectedCpo.customer.name} — {selectedCpo.poNumber}
             </div>
+
+            {isFullyConsumed && (
+              <div className="text-red-600 font-semibold text-xs mb-2 flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                  <path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                </svg>
+                Semua qty sudah terpakai — tidak bisa membuat DO baru untuk CPO ini
+              </div>
+            )}
+
             <div className="flex gap-6 text-[var(--text-secondary)]">
-              <span>
-                12kg: <strong>{rem12}</strong> sisa
-                <span className="text-[var(--text-muted)] ml-1">
-                  (total {selectedCpo.kg12Qty}, terpakai {selectedCpo.alreadyReleased12 ?? 0})
-                </span>
-              </span>
-              <span>
-                50kg: <strong>{rem50}</strong> sisa
-                <span className="text-[var(--text-muted)] ml-1">
-                  (total {selectedCpo.kg50Qty}, terpakai {selectedCpo.alreadyReleased50 ?? 0})
-                </span>
-              </span>
+              {/* 12kg */}
+              <div>
+                <span className="text-xs text-[var(--text-muted)]">12kg</span>
+                <div className="flex items-baseline gap-1.5">
+                  <strong className={`text-base ${rem12 === 0 ? "text-red-500" : "text-[var(--text-primary)]"}`}>
+                    {rem12} sisa
+                  </strong>
+                  {isOverReleased12 && (
+                    <span className="text-xs text-red-500 font-semibold">(over-released!)</span>
+                  )}
+                </div>
+                <div className="text-xs text-[var(--text-muted)]">
+                  total {selectedCpo.kg12Qty} · terpakai {selectedCpo.alreadyReleased12 ?? 0}
+                </div>
+              </div>
+
+              {/* 50kg */}
+              <div>
+                <span className="text-xs text-[var(--text-muted)]">50kg</span>
+                <div className="flex items-baseline gap-1.5">
+                  <strong className={`text-base ${rem50 === 0 ? "text-red-500" : "text-[var(--text-primary)]"}`}>
+                    {rem50} sisa
+                  </strong>
+                  {isOverReleased50 && (
+                    <span className="text-xs text-red-500 font-semibold">(over-released!)</span>
+                  )}
+                </div>
+                <div className="text-xs text-[var(--text-muted)]">
+                  total {selectedCpo.kg50Qty} · terpakai {selectedCpo.alreadyReleased50 ?? 0}
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -299,7 +364,7 @@ function DeliveryAddForm() {
           />
         </div>
 
-        {/* Qty Released — capped at remaining */}
+        {/* Qty Released — capped at safe remaining (never negative max) */}
         <div className="grid grid-cols-2 gap-4">
           <div className="form-group">
             <label className="form-label">
@@ -313,7 +378,7 @@ function DeliveryAddForm() {
             <input
               type="number"
               min={0}
-              max={selectedCpo ? rem12 : undefined}
+              max={rem12}                           // ← always ≥ 0, never negative
               value={form.kg12Released}
               onChange={(e) =>
                 setForm({ ...form, kg12Released: parseInt(e.target.value) || 0 })
@@ -342,7 +407,7 @@ function DeliveryAddForm() {
             <input
               type="number"
               min={0}
-              max={selectedCpo ? rem50 : undefined}
+              max={rem50}                           // ← always ≥ 0, never negative
               value={form.kg50Released}
               onChange={(e) =>
                 setForm({ ...form, kg50Released: parseInt(e.target.value) || 0 })
@@ -361,7 +426,7 @@ function DeliveryAddForm() {
           </div>
         </div>
 
-        {/* Driver & Kenek */}
+        {/* Driver */}
         <div className="grid grid-cols-2 gap-4">
           <div className="form-group">
             <label className="form-label">Driver</label>
@@ -369,9 +434,8 @@ function DeliveryAddForm() {
               value={form.driverId}
               onChange={(e) => setForm({ ...form, driverId: e.target.value })}
               className="input-field"
-              disabled={loadingData}
             >
-              <option value="">Pilih driver...</option>
+              <option value="">— Pilih Driver —</option>
               {drivers.map((d) => (
                 <option key={d.id} value={d.id}>{d.displayName}</option>
               ))}
@@ -383,9 +447,8 @@ function DeliveryAddForm() {
               value={form.kenetId}
               onChange={(e) => setForm({ ...form, kenetId: e.target.value })}
               className="input-field"
-              disabled={loadingData}
             >
-              <option value="">Pilih kenek...</option>
+              <option value="">— Pilih Kenek —</option>
               {keneks.map((k) => (
                 <option key={k.id} value={k.id}>{k.displayName}</option>
               ))}
@@ -402,7 +465,7 @@ function DeliveryAddForm() {
               value={form.vehicleNo}
               onChange={(e) => setForm({ ...form, vehicleNo: e.target.value })}
               className="input-field"
-              placeholder="L 1234 AB"
+              placeholder="Opsional"
             />
           </div>
           <div className="form-group">
@@ -412,7 +475,7 @@ function DeliveryAddForm() {
               value={form.supplierPoRef}
               onChange={(e) => setForm({ ...form, supplierPoRef: e.target.value })}
               className="input-field"
-              placeholder="PO-2026-03-0001"
+              placeholder="Opsional"
             />
           </div>
         </div>
@@ -429,23 +492,18 @@ function DeliveryAddForm() {
           />
         </div>
 
-        <div className="flex gap-3 mt-2">
+        <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            disabled={
-              submitting ||
-              !form.customerPoId ||
-              (selectedCpo !== undefined &&
-                (form.kg12Released > rem12 || form.kg50Released > rem50))
-            }
+            disabled={submitting || loadingData || isFullyConsumed}
             className="btn-pri flex-1"
           >
-            {submitting ? "Menyimpan..." : "Buat DO"}
+            {submitting ? "Menyimpan..." : "Buat Delivery Order"}
           </button>
           <button
             type="button"
             onClick={() => router.push("/delivery")}
-            className="btn-gho"
+            className="btn-sec"
           >
             Batal
           </button>
@@ -457,13 +515,7 @@ function DeliveryAddForm() {
 
 export default function DeliveryAddPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="page-container">
-          <div className="card p-8 text-center text-[var(--text-muted)]">Memuat form...</div>
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="p-8 text-[var(--text-muted)]">Memuat...</div>}>
       <DeliveryAddForm />
     </Suspense>
   );
