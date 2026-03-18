@@ -33,6 +33,7 @@ const LABELS: Record<string, string> = {
   cylinders:           "Tabung Serial",
   register:            "Daftar Tabung",
   weigh:               "Timbang Return",
+  dispatch:            "Assign ke DO",        // ← Sprint 8
   history:             "Riwayat",
   "cylinder-types":    "Jenis Tabung",
   ledger:              "Ledger",

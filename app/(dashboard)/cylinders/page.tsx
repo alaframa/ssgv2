@@ -64,12 +64,12 @@ const CONDITION_COLOR: Record<CylinderCondition, string> = {
 };
 
 const EVENT_ICON: Record<string, string> = {
-  RECEIVED_FROM_SUPPLIER:   "📦",
-  DISPATCHED_TO_CUSTOMER:   "🚚",
-  RETURNED_FROM_CUSTOMER:   "↩️",
+  RECEIVED_FROM_SUPPLIER:     "📦",
+  DISPATCHED_TO_CUSTOMER:     "🚚",
+  RETURNED_FROM_CUSTOMER:     "↩️",
   TRANSFERRED_BETWEEN_BRANCH: "↔️",
-  WRITTEN_OFF:              "🗑️",
-  INSPECTION:               "🔍",
+  WRITTEN_OFF:                "🗑️",
+  INSPECTION:                 "🔍",
 };
 
 function fmtDate(d: string) {
@@ -131,6 +131,32 @@ function CylinderRow({ unit }: { unit: CylinderUnit }) {
   );
 }
 
+// ─── Quick Stats ───────────────────────────────────────────────────────────────
+function QuickStats({ data }: { data: ListData }) {
+  const byStatus = data.units.reduce<Record<string, number>>((acc, u) => {
+    acc[u.status] = (acc[u.status] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const stats = [
+    { label: "Gudang Isi",    count: byStatus.WAREHOUSE_FULL  ?? 0, color: "text-green-400" },
+    { label: "Gudang Kosong", count: byStatus.WAREHOUSE_EMPTY ?? 0, color: "text-gray-400"  },
+    { label: "Di Jalan",      count: byStatus.IN_TRANSIT       ?? 0, color: "text-yellow-400" },
+    { label: "Di Pelanggan",  count: byStatus.WITH_CUSTOMER    ?? 0, color: "text-blue-400"  },
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-3">
+      {stats.map(s => (
+        <div key={s.label} className="card p-4 text-center">
+          <p className={`text-2xl font-bold font-mono ${s.color}`}>{s.count}</p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">{s.label}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function CylindersPage() {
   const { activeBranchId } = useBranch();
@@ -166,12 +192,15 @@ export default function CylindersPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="page-title">Manajemen Tabung</h1>
+          <h1 className="page-title">Manajemen Tabung Serial</h1>
           <p className="page-desc">
-            Lacak tabung berdasarkan nomor seri · riwayat kepemilikan · timbang sisa gas
+            Lacak tabung per nomor seri · riwayat kepemilikan · timbang sisa gas
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Link href="/cylinders/dispatch" className="btn-gho text-sm">
+            🚚 Assign ke DO
+          </Link>
           <Link href="/cylinders/weigh" className="btn-gho text-sm">
             ⚖️ Timbang Return
           </Link>
@@ -180,6 +209,11 @@ export default function CylindersPage() {
           </Link>
         </div>
       </div>
+
+      {/* Quick stats (only show when page-1 with no filter) */}
+      {data && data.units.length > 0 && !search && !status && !size && page === 1 && (
+        <QuickStats data={data} />
+      )}
 
       {/* Filters */}
       <div className="card p-4 flex flex-wrap gap-3 items-end">
@@ -214,7 +248,6 @@ export default function CylindersPage() {
         <button onClick={load} className="btn-gho text-sm">↻ Refresh</button>
       </div>
 
-      {/* Stats */}
       {data && (
         <p className="text-xs text-[var(--text-muted)]">
           Menampilkan {data.units.length} dari {data.total} tabung terdaftar
@@ -229,9 +262,16 @@ export default function CylindersPage() {
           <div className="empty-state py-10">
             <p className="empty-state-title">Belum ada tabung terdaftar</p>
             <p className="empty-state-desc">
-              Daftarkan tabung dengan nomor seri untuk mulai tracking
+              Daftarkan tabung dengan nomor seri untuk mulai tracking individual
             </p>
-            <Link href="/cylinders/register" className="btn-pri text-sm mt-3">+ Daftar Tabung Baru</Link>
+            <div className="flex gap-2 justify-center mt-3">
+              <Link href="/settings/cylinder-types" className="btn-gho text-sm">
+                ⚙️ Setup Jenis Tabung
+              </Link>
+              <Link href="/cylinders/register" className="btn-pri text-sm">
+                + Daftar Tabung Baru
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="table-wrap rounded-none border-0">
@@ -273,6 +313,18 @@ export default function CylindersPage() {
           >Next →</button>
         </div>
       )}
+
+      {/* Bottom quick links */}
+      <div className="card p-4 flex flex-wrap gap-3 items-center">
+        <span className="text-xs text-[var(--text-muted)]">Aksi cepat:</span>
+        <Link href="/cylinders/dispatch"  className="text-xs text-[var(--accent)] hover:underline">🚚 Assign tabung ke DO</Link>
+        <span className="text-[var(--text-muted)] text-xs">·</span>
+        <Link href="/cylinders/weigh"     className="text-xs text-[var(--accent)] hover:underline">⚖️ Timbang tabung kembali</Link>
+        <span className="text-[var(--text-muted)] text-xs">·</span>
+        <Link href="/settings/cylinder-types" className="text-xs text-[var(--accent)] hover:underline">⚙️ Konfigurasi jenis tabung</Link>
+        <span className="text-[var(--text-muted)] text-xs">·</span>
+        <Link href="/settings/gasback"    className="text-xs text-[var(--accent)] hover:underline">💰 Settings gasback</Link>
+      </div>
     </div>
   );
 }
