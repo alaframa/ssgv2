@@ -1,4 +1,5 @@
 // app/api/warehouse/writeoff/route.ts
+// SPRINT 11 UPDATE: Added LOCKED period check to POST
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -99,6 +100,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ── LOCKED period check (Sprint 11) ─────────────────────────────────────────
+  const woDate = new Date(data.writeoffAt);
+  const locked = await prisma.monthlyRecon.findFirst({
+    where: {
+      branchId,
+      month:  woDate.getMonth() + 1,
+      year:   woDate.getFullYear(),
+      status: "LOCKED",
+    },
+  });
+  if (locked) {
+    return NextResponse.json({ error: "Periode ini sudah dikunci (LOCKED)" }, { status: 423 });
+  }
+
   // Stock date (midnight)
   const stockDate = new Date(data.writeoffAt);
   stockDate.setHours(0, 0, 0, 0);
@@ -135,7 +150,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 2. Upsert WarehouseStock — DECREMENT fullQty (write-offs remove cylinders)
+    // 2. Upsert WarehouseStock — DECREMENT fullQty
     if (todayStock) {
       await tx.warehouseStock.update({
         where: { branchId_date: { branchId, date: stockDate } },

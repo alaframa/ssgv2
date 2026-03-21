@@ -1,4 +1,5 @@
 // app/api/warehouse/empty-return/route.ts
+// SPRINT 11 UPDATE: Added LOCKED period check to POST
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -6,12 +7,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-// ─── Zod schema ────────────────────────────────────────────────────────────────
+// ─── Schema ───────────────────────────────────────────────────────────────────
 const CreateSchema = z.object({
   branchId:     z.string().min(1),
   returnNumber: z.string().min(1).max(50),
   returnedAt:   z.string().min(1),
-  source:       z.enum(["CUSTOMER", "DRIVER", "DEPOT"]),
+  source:       z.enum(["CUSTOMER", "DRIVER", "WAREHOUSE"]),
   customerId:   z.string().optional().nullable(),
   driverId:     z.string().optional().nullable(),
   kg12Qty:      z.number().int().min(0).default(0),
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
   });
   if (existing) {
     return NextResponse.json(
-      { error: `Return number "${data.returnNumber}" already exists` },
+      { error: `Return number "${data.returnNumber}" sudah ada` },
       { status: 409 }
     );
   }
@@ -110,6 +111,20 @@ export async function POST(req: NextRequest) {
     if (!driver) {
       return NextResponse.json({ error: "Driver tidak ditemukan" }, { status: 404 });
     }
+  }
+
+  // ── LOCKED period check (Sprint 11) ─────────────────────────────────────────
+  const retDate = new Date(data.returnedAt);
+  const locked  = await prisma.monthlyRecon.findFirst({
+    where: {
+      branchId,
+      month:  retDate.getMonth() + 1,
+      year:   retDate.getFullYear(),
+      status: "LOCKED",
+    },
+  });
+  if (locked) {
+    return NextResponse.json({ error: "Periode ini sudah dikunci (LOCKED)" }, { status: 423 });
   }
 
   // Stock date (midnight)
@@ -135,7 +150,7 @@ export async function POST(req: NextRequest) {
     // 1. Create EmptyReturn
     const emptyReturn = await tx.emptyReturn.create({
       data: {
-        branch:     { connect: { id: branchId } },
+        branch:       { connect: { id: branchId } },
         returnNumber: data.returnNumber,
         source:       data.source,
         returnedAt:   new Date(data.returnedAt),
@@ -143,16 +158,16 @@ export async function POST(req: NextRequest) {
         kg50Qty:      data.kg50Qty,
         ...(data.customerId ? { customer: { connect: { id: data.customerId } } } : {}),
         ...(data.driverId   ? { driver:   { connect: { id: data.driverId   } } } : {}),
-        ...(data.notes      ? { notes: data.notes }                              : {}),
+        ...(data.notes      ? { notes: data.notes } : {}),
       },
       include: {
-        customer: { select: { id: true, name: true } },
+        customer: { select: { id: true, name: true, code: true } },
         driver:   { select: { id: true, displayName: true } },
         branch:   { select: { code: true, name: true } },
       },
     });
 
-    // 2. Upsert WarehouseStock — increment emptyQty
+    // 2. Upsert WarehouseStock — INCREMENT emptyQty
     if (todayStock) {
       await tx.warehouseStock.update({
         where: { branchId_date: { branchId, date: stockDate } },
@@ -167,12 +182,12 @@ export async function POST(req: NextRequest) {
           branch:           { connect: { id: branchId } },
           date:             stockDate,
           kg12FullQty:      base.kg12FullQty,
-          kg12EmptyQty:     base.kg12EmptyQty     + data.kg12Qty,
+          kg12EmptyQty:     base.kg12EmptyQty + data.kg12Qty,
           kg12OnTransitQty: base.kg12OnTransitQty,
           kg12HmtQty:       base.kg12HmtQty,
           kg12KuotaWo:      base.kg12KuotaWo,
           kg50FullQty:      base.kg50FullQty,
-          kg50EmptyQty:     base.kg50EmptyQty     + data.kg50Qty,
+          kg50EmptyQty:     base.kg50EmptyQty + data.kg50Qty,
           kg50OnTransitQty: base.kg50OnTransitQty,
           kg50HmtQty:       base.kg50HmtQty,
           kg50KuotaWo:      base.kg50KuotaWo,

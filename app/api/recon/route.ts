@@ -1,116 +1,82 @@
 // app/api/recon/route.ts
-//
-// GET /api/recon
-// Customer cylinder reconciliation:
-//   For each customer, compare:
-//     - Holdings on record (CustomerCylinderHolding)
-//     - Active DO deliveries (sum of kg12/50 delivered but not yet returned)
-//     - Empty returns recorded
-//   Surfaces discrepancies.
-//
-// Query params:
-//   branchId - required
-//   search   - customer name / code filter
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
+// ─── Schema ───────────────────────────────────────────────────────────────────
+const CreateSchema = z.object({
+  branchId: z.string().min(1),
+  month:    z.number().int().min(1).max(12),
+  year:     z.number().int().min(2020).max(2099),
+  notes:    z.string().optional().nullable(),
+});
+
+// ─── GET /api/recon ───────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-
   const branchId =
     session.user.role === "SUPER_ADMIN"
-      ? (searchParams.get("branchId") ?? session.user.branchId ?? undefined)
-      : session.user.branchId ?? undefined;
+      ? (searchParams.get("branchId") ?? undefined)
+      : (session.user.branchId ?? undefined);
 
-  if (!branchId) return NextResponse.json({ error: "branchId required" }, { status: 400 });
-
-  const search = searchParams.get("search") ?? "";
-
-  const customers = await prisma.customer.findMany({
-    where: {
-      branchId,
-      isActive: true,
-      ...(search ? {
-        OR: [
-          { name: { contains: search, mode: "insensitive" } },
-          { code: { contains: search, mode: "insensitive" } },
-        ],
-      } : {}),
+  const periods = await prisma.monthlyRecon.findMany({
+    where: branchId ? { branchId } : undefined,
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+    include: {
+      branch: { select: { code: true, name: true } },
     },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, code: true, customerType: true },
   });
 
-  const rows = await Promise.all(customers.map(async (c) => {
-    // 1. Recorded holdings
-    const holding = await prisma.customerCylinderHolding.findFirst({
-      where: { customerId: c.id, branchId },
-      orderBy: { createdAt: "desc" },
-    });
-    const held12 = holding?.kg12HeldQty ?? 0;
-    const held50 = holding?.kg50HeldQty ?? 0;
+  return NextResponse.json({ periods });
+}
 
-    // 2. Sum of deliveries (all DELIVERED/PARTIAL DOs for this customer)
-    const doDelivered = await prisma.deliveryOrder.aggregate({
-      where: {
-        branchId,
-        status: { in: ["DELIVERED", "PARTIAL"] },
-        customerPo: { customerId: c.id },
-      },
-      _sum: { kg12Delivered: true, kg50Delivered: true },
-    });
-    const totalDelivered12 = Number(doDelivered._sum.kg12Delivered ?? 0);
-    const totalDelivered50 = Number(doDelivered._sum.kg50Delivered ?? 0);
+// ─── POST /api/recon ──────────────────────────────────────────────────────────
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // 3. Sum of empty returns from this customer
-    const returnAgg = await prisma.emptyReturn.aggregate({
-      where: { branchId, customerId: c.id, source: "CUSTOMER" },
-      _sum: { kg12Qty: true, kg50Qty: true },
-    });
-    const returned12 = Number(returnAgg._sum.kg12Qty ?? 0);
-    const returned50 = Number(returnAgg._sum.kg50Qty ?? 0);
+  // Only BRANCH_MANAGER and SUPER_ADMIN can open periods
+  if (!["SUPER_ADMIN", "BRANCH_MANAGER"].includes(session.user.role)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
-    // 4. Expected holding = delivered - returned
-    const expected12 = Math.max(0, totalDelivered12 - returned12);
-    const expected50 = Math.max(0, totalDelivered50 - returned50);
+  let body: unknown;
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-    // 5. Discrepancy
-    const diff12 = held12 - expected12;
-    const diff50 = held50 - expected50;
+  const parsed = CreateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Validasi gagal", issues: parsed.error.flatten() }, { status: 422 });
+  }
 
-    return {
-      customerId:    c.id,
-      customerName:  c.name,
-      customerCode:  c.code,
-      customerType:  c.customerType,
-      held12,
-      held50,
-      totalDelivered12,
-      totalDelivered50,
-      returned12,
-      returned50,
-      expected12,
-      expected50,
-      diff12,
-      diff50,
-      hasDiscrepancy: diff12 !== 0 || diff50 !== 0,
-    };
-  }));
+  const { branchId, month, year, notes } = parsed.data;
 
-  const summary = {
-    total:          rows.length,
-    discrepancies:  rows.filter(r => r.hasDiscrepancy).length,
-    totalHeld12:    rows.reduce((s, r) => s + r.held12, 0),
-    totalHeld50:    rows.reduce((s, r) => s + r.held50, 0),
-    totalExpected12:rows.reduce((s, r) => s + r.expected12, 0),
-    totalExpected50:rows.reduce((s, r) => s + r.expected50, 0),
-  };
+  // Non-SUPER_ADMIN can only open for their own branch
+  if (session.user.role !== "SUPER_ADMIN" && session.user.branchId !== branchId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
-  return NextResponse.json({ rows, summary });
+  // Duplicate check — one period per branch/month/year
+  const existing = await prisma.monthlyRecon.findUnique({
+    where: { branchId_month_year: { branchId, month, year } },
+  });
+  if (existing) {
+    return NextResponse.json(
+      { error: `Periode ${month}/${year} sudah ada untuk cabang ini` },
+      { status: 409 }
+    );
+  }
+
+  const period = await prisma.monthlyRecon.create({
+    data: { branchId, month, year, notes: notes ?? null },
+    include: { branch: { select: { code: true, name: true } } },
+  });
+
+  return NextResponse.json(period, { status: 201 });
 }
