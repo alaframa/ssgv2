@@ -1,0 +1,12 @@
+this is the note for anything
+1. databse use superbase
+password 
+THISISsuperstrongpassword123!
+
+postgresql://postgres:THISISsuperstrongpassword123!@db.aevnqzztaioqzrqduhry.supabase.co:5432/postgres
+
+
+DATABASE_URL=postgresql://postgres:THISISsuperstrongpassword123!@db.aevnqzztaioqzrqduhry.supabase.co:5432/postgres
+NEXTAUTH_SECRET=THISISsuperstrongpassword123
+NEXTAUTH_URL=
+NODE_ENV=development
