@@ -250,6 +250,8 @@ function DeliveryAddForm() {
       backHref="/delivery"
       title="Buat Delivery Order"
       subtitle="Catat pengiriman gas ke pelanggan"
+      backLabel="Kembali"
+      
     >
       <form onSubmit={handleSubmit} className="form-card max-w-lg">
         {error && <div className="form-error-banner mb-4">{error}</div>}

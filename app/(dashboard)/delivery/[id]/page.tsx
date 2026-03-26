@@ -112,7 +112,7 @@ export default function DeliveryDetailPage() {
 
   if (loading) {
     return (
-      <FormPageLayout backHref="/delivery" title="Detail DO">
+      <FormPageLayout backHref="/delivery" title="Detail DO" backLabel="Kembali">
         <div className="card p-8 text-center text-[var(--text-muted)]">Memuat...</div>
       </FormPageLayout>
     );
@@ -120,7 +120,7 @@ export default function DeliveryDetailPage() {
 
   if (!order) {
     return (
-      <FormPageLayout backHref="/delivery" title="Detail DO">
+      <FormPageLayout backHref="/delivery" title="Detail DO" backLabel="Kembali">
         <div className="card p-8 text-center text-red-500">{error || "DO tidak ditemukan"}</div>
       </FormPageLayout>
     );
@@ -135,7 +135,12 @@ export default function DeliveryDetailPage() {
   const allAssigned    = cylinderEvents.length >= totalRelease && totalRelease > 0;
 
   return (
-    <FormPageLayout backHref="/delivery" title={`DO ${order.doNumber}`}>
+    <FormPageLayout
+      backHref="/delivery"
+      title={`DO ${order.doNumber}`}
+      subtitle={`Status saat ini: ${order.status} — ${order.customerPo.customer.name}`}
+      backLabel="Kembali"
+    >
 
       {/* Status + Actions */}
       <div className="flex flex-wrap items-center gap-3 mb-6">

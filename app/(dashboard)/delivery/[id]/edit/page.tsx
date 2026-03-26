@@ -156,7 +156,7 @@ export default function DeliveryEditPage() {
 
   if (loading) {
     return (
-      <FormPageLayout backHref={`/delivery/${id}`} title="Edit DO">
+      <FormPageLayout backHref={`/delivery/${id}`} title="Edit DO" backLabel="Kembali ke DO">
         <div className="card p-8 text-center text-[var(--text-muted)]">Memuat...</div>
       </FormPageLayout>
     );
@@ -164,7 +164,7 @@ export default function DeliveryEditPage() {
 
   if (!order) {
     return (
-      <FormPageLayout backHref="/delivery" title="Edit DO">
+      <FormPageLayout backHref="/delivery" title="Edit DO" backLabel="Kembali ke DO">
         <div className="card p-8 text-center text-red-500">{error || "DO tidak ditemukan"}</div>
       </FormPageLayout>
     );
@@ -175,7 +175,8 @@ export default function DeliveryEditPage() {
   return (
     <FormPageLayout
       backHref={`/delivery/${order.id}`}
-      title={`Edit DO ${order.doNumber}`}
+      title={`Edit DO ${order.doNumber}`} 
+      backLabel="back"
       subtitle={`Status saat ini: ${order.status} — ${order.customerPo.customer.name}`}
     >
       {error      && <div className="form-error-banner mb-4">{error}</div>}

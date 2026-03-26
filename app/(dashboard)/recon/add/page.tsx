@@ -59,7 +59,12 @@ export default function ReconAddPage() {
   }
 
   return (
-    <FormPageLayout backHref="/recon" title="Buka Periode Rekonsiliasi">
+    <FormPageLayout
+      backHref="/recon"
+      title="Buka Periode Rekonsiliasi"
+      backLabel="Kembali"
+      subtitle="Kembali"
+    >
       <form onSubmit={handleSubmit} className="form-card max-w-md">
         {error && <div className="form-error-banner">{error}</div>}
 

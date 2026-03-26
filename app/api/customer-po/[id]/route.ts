@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { PoStatus } from "@prisma/client";
 
 // GET /api/customer-po/[id]
 export async function GET(
@@ -10,7 +11,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const cpo = await prisma.customerPo.findUnique({
     where: { id: params.id },
@@ -27,9 +30,25 @@ export async function GET(
     },
   });
 
-  if (!cpo) return NextResponse.json({ error: "CPO tidak ditemukan" }, { status: 404 });
+  if (!cpo) {
+    return NextResponse.json({ error: "CPO tidak ditemukan" }, { status: 404 });
+  }
 
   return NextResponse.json(cpo);
+}
+
+const validTransitions: Record<PoStatus, PoStatus[]> = {
+  DRAFT: ["SUBMITTED", "CANCELLED"],
+  SUBMITTED: ["CONFIRMED", "CANCELLED"],
+  CONFIRMED: ["PARTIALLY_RECEIVED", "COMPLETED", "CANCELLED"],
+  PARTIALLY_RECEIVED: ["COMPLETED", "CANCELLED"],
+  COMPLETED: [],
+  CANCELLED: [],
+};
+
+
+function isPoStatus(value: unknown): value is PoStatus {
+  return typeof value === "string" && Object.values(PoStatus).includes(value as PoStatus);
 }
 
 // PATCH /api/customer-po/[id]
@@ -38,7 +57,9 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let body: unknown;
   try {
@@ -47,20 +68,26 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { status, notes } = body as Record<string, unknown>;
+  const raw = body as Record<string, unknown>;
+  const status = raw.status;
+  const notes = raw.notes;
 
-  const cpo = await prisma.customerPo.findUnique({ where: { id: params.id } });
-  if (!cpo) return NextResponse.json({ error: "CPO tidak ditemukan" }, { status: 404 });
+  const cpo = await prisma.customerPo.findUnique({
+    where: { id: params.id },
+  });
 
-  // Validate status transition
-  const validTransitions: Record<string, string[]> = {
-    DRAFT: ["CONFIRMED", "CANCELLED"],
-    CONFIRMED: ["COMPLETED", "CANCELLED"],
-    COMPLETED: [],
-    CANCELLED: [],
-  };
+  if (!cpo) {
+    return NextResponse.json({ error: "CPO tidak ditemukan" }, { status: 404 });
+  }
 
-  if (status && typeof status === "string") {
+  if (status !== undefined) {
+    if (!isPoStatus(status)) {
+      return NextResponse.json(
+        { error: "Status tidak valid" },
+        { status: 422 }
+      );
+    }
+
     const allowed = validTransitions[cpo.status] ?? [];
     if (!allowed.includes(status)) {
       return NextResponse.json(
@@ -70,11 +97,18 @@ export async function PATCH(
     }
   }
 
+  if (notes !== undefined && typeof notes !== "string") {
+    return NextResponse.json(
+      { error: "Notes harus berupa string" },
+      { status: 422 }
+    );
+  }
+
   const updated = await prisma.customerPo.update({
     where: { id: params.id },
     data: {
-      ...(status ? { status: status as string } : {}),
-      ...(notes !== undefined ? { notes: notes as string } : {}),
+      ...(status !== undefined ? { status } : {}),
+      ...(notes !== undefined ? { notes } : {}),
     },
     include: {
       customer: { select: { id: true, name: true, code: true } },
