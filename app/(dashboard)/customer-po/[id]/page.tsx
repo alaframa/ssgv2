@@ -101,7 +101,8 @@ export default function CustomerPoDetailPage() {
 
   if (loading) {
     return (
-      <FormPageLayout backHref="/customer-po" title="Detail CPO">
+      <FormPageLayout backHref="/customer-po" title="Detail CPO" backLabel="Kembali ke Customer PO"
+>
         <div className="card p-8 text-center text-[var(--text-muted)]">Memuat...</div>
       </FormPageLayout>
     );
@@ -109,14 +110,14 @@ export default function CustomerPoDetailPage() {
 
   if (!cpo) {
     return (
-      <FormPageLayout backHref="/customer-po" title="Detail CPO">
+      <FormPageLayout backHref="/customer-po" title="Detail CPO" backLabel="Kembali ke Customer PO">
         <div className="card p-8 text-center text-red-500">{error || "CPO tidak ditemukan"}</div>
       </FormPageLayout>
     );
   }
 
   return (
-    <FormPageLayout backHref="/customer-po" title={`CPO ${cpo.poNumber}`}>
+    <FormPageLayout backHref="/customer-po" title={`CPO ${cpo.poNumber}`} backLabel="Kembali ke Customer PO">
       {error && <div className="form-error-banner mb-4">{error}</div>}
 
       {/* Info Card */}

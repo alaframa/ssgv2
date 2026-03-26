@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 interface Props {
   title: string;
   backHref?: string;
+  backLabel: string; 
   actions?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export default function FormPageLayout({ title, backHref, actions, children }: Props) {
+export default function FormPageLayout({ title, backHref, backLabel, actions, children }: Props) {
   const router = useRouter();
 
   return (
@@ -19,7 +20,8 @@ export default function FormPageLayout({ title, backHref, actions, children }: P
         <div className="flex items-center gap-3">
           <button
             onClick={() => backHref ? router.push(backHref) : router.back()}
-            className="btn-icon" aria-label="Kembali">
+            className="btn-icon" aria-label={backLabel}  // Use backLabel here
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 18 9 12 15 6"/>

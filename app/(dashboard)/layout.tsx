@@ -1,5 +1,4 @@
 // app/(dashboard)/layout.tsx
-
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
@@ -9,17 +8,18 @@ import Topbar from "@/components/Topbar";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-
-  // Belt-and-suspenders guard (middleware already handles this)
   if (!session) redirect("/login");
 
   return (
     <SessionWrapper>
       <div className="flex h-screen bg-[var(--bg-base)] overflow-hidden">
+        {/* Sidebar: fixed on mobile (handles its own positioning), flex item on desktop */}
         <Sidebar user={session.user} />
-        <div className="flex flex-col flex-1 min-w-0">
+
+        {/* Main content area */}
+        <div className="flex flex-col flex-1 min-w-0 w-full">
           <Topbar />
-          <main className="flex-1 overflow-y-auto p-6">
+          <main className="flex-1 overflow-y-auto p-4 md:p-6">
             {children}
           </main>
         </div>
