@@ -12,7 +12,7 @@ const CreateSchema = z.object({
   branchId:     z.string().min(1),
   returnNumber: z.string().min(1).max(50),
   returnedAt:   z.string().min(1),
-  source:       z.enum(["CUSTOMER", "DRIVER", "WAREHOUSE"]),
+  source: z.enum(["CUSTOMER", "DRIVER"]),
   customerId:   z.string().optional().nullable(),
   driverId:     z.string().optional().nullable(),
   kg12Qty:      z.number().int().min(0).default(0),

@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   // Get all branches (or the one branch)
   const branches = await prisma.branch.findMany({
-    where: branchIdParam ? { id: branchIdParam } : { isActive: true },
+    where: branchIdParam ? { id: branchIdParam } : undefined,
     orderBy: { code: "asc" },
     select: { id: true, code: true, name: true },
   });

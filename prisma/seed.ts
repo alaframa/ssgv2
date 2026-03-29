@@ -129,8 +129,7 @@ async function main() {
       if (!customerId) continue;
       if (!h.held_kg12 && !h.held_kg50) continue;
       await prisma.customerCylinderHolding.upsert({
-        where: { customerId_date: { customerId, date: OPENING_DATE } },
-        update: {},
+        where: { customerId_branchId: { customerId, branchId: branchMap[branchCode] } }, update: {},
         create: {
           branchId: branchMap[branchCode],
           customerId,
