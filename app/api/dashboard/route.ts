@@ -23,9 +23,9 @@ export async function GET(req: NextRequest) {
 
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd   = new Date(todayStart.getTime() + 86400000);
+  const todayEnd = new Date(todayStart.getTime() + 86400000);
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd   = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   // ── All queries in parallel ───────────────────────────────────────────────
   const [
@@ -50,24 +50,32 @@ export async function GET(req: NextRequest) {
     }),
 
     // 2. Warehouse stock (full + onTransit)
-    prisma.warehouseStock.findMany({
+    prisma.warehouseStock.findFirst({
       where: { branchId },
-      select: { cylinderType: true, fullQty: true, emptyQty: true, onTransitQty: true },
+      orderBy: { date: "desc" },
+      select: {
+        kg12FullQty: true, kg12EmptyQty: true, kg12OnTransitQty: true,
+        kg50FullQty: true, kg50EmptyQty: true, kg50OnTransitQty: true,
+      },
     }),
 
+
     // 3. HMT quota this month
-    prisma.supplierHmtQuota.findFirst({
-      where: { branchId, month: now.getMonth() + 1, year: now.getFullYear() },
-      select: { kg12Quota: true, kg50Quota: true, kg12Used: true, kg50Used: true },
+    prisma.supplierHmtQuota.findMany({
+      where: { branchId, periodMonth: now.getMonth() + 1, periodYear: now.getFullYear() },
+      select: { cylinderSize: true, quotaQty: true, usedQty: true },
     }),
+
 
     // 4. Total gasback balance (sum of latest runningBalance per customer)
     prisma.gasbackLedger.findMany({
-      where: { customer: { branchId } },
+      where: { branchId },
       orderBy: { createdAt: "desc" },
       distinct: ["customerId"],
       select: { runningBalance: true },
     }),
+
+
 
     // 5. Empties returned this month
     prisma.emptyReturn.aggregate({
@@ -100,7 +108,7 @@ export async function GET(req: NextRequest) {
       where: { branchId },
       orderBy: { receivedAt: "desc" },
       take: 2,
-      select: { id: true, grNumber: true, receivedAt: true, kg12Qty: true, kg50Qty: true, createdAt: true },
+      select: { id: true, grNumber: true, receivedAt: true, kg12Received: true, kg50Received: true, createdAt: true },
     }),
 
     // 10. Recent returns (last 1)
@@ -113,7 +121,7 @@ export async function GET(req: NextRequest) {
 
     // 11. Recent gasback credits (last 2)
     prisma.gasbackLedger.findMany({
-      where: { type: "CREDIT", customer: { branchId } },
+      where: { branchId, txType: "CREDIT" },
       orderBy: { createdAt: "desc" },
       take: 2,
       select: {
@@ -146,20 +154,21 @@ export async function GET(req: NextRequest) {
   ]);
 
   // ── Compute KPIs ──────────────────────────────────────────────────────────
-  const stock12 = warehouseStock.find(s => s.cylinderType === "KG12");
-  const stock50 = warehouseStock.find(s => s.cylinderType === "KG50");
-
   const fullCylinders =
-    (stock12?.fullQty ?? 0) + (stock50?.fullQty ?? 0);
+    (warehouseStock?.kg12FullQty ?? 0) + (warehouseStock?.kg50FullQty ?? 0);
 
-  const hmt12Pct = hmtQuota && hmtQuota.kg12Quota > 0
-    ? Math.round((hmtQuota.kg12Used / hmtQuota.kg12Quota) * 100)
+
+  const hmt12 = hmtQuota.find(h => h.cylinderSize === "KG12");
+  const hmt50 = hmtQuota.find(h => h.cylinderSize === "KG50");
+  const hmt12Pct = hmt12 && hmt12.quotaQty > 0
+    ? Math.round((hmt12.usedQty / hmt12.quotaQty) * 100)
     : 0;
-  const hmt50Pct = hmtQuota && hmtQuota.kg50Quota > 0
-    ? Math.round((hmtQuota.kg50Used / hmtQuota.kg50Quota) * 100)
+  const hmt50Pct = hmt50 && hmt50.quotaQty > 0
+    ? Math.round((hmt50.usedQty / hmt50.quotaQty) * 100)
     : 0;
 
-  const totalGasback = gasbackTotal.reduce((sum, g) => sum + g.runningBalance, 0);
+
+  const totalGasback = gasbackTotal.reduce((sum, g) => sum + Number(g.runningBalance), 0);
 
   const emptiesMonth =
     (emptiesThisMonth._sum.kg12Qty ?? 0) + (emptiesThisMonth._sum.kg50Qty ?? 0);
@@ -172,35 +181,36 @@ export async function GET(req: NextRequest) {
   const activityRaw: Array<{
     id: string; type: string; label: string; sub: string; createdAt: Date
   }> = [
-    ...recentDOs.map(d => ({
-      id: d.id,
-      type: "DO",
-      label: `DO ${d.doNumber}`,
-      sub: d.customerPo?.customer?.name ?? "—",
-      createdAt: d.createdAt,
-    })),
-    ...recentGRs.map(g => ({
-      id: g.id,
-      type: "GR",
-      label: `GR ${g.grNumber}`,
-      sub: `12kg: ${g.kg12Qty} · 50kg: ${g.kg50Qty}`,
-      createdAt: g.createdAt,
-    })),
-    ...recentReturns.map(r => ({
-      id: r.id,
-      type: "RETURN",
-      label: `Retur ${r.returnNumber}`,
-      sub: `12kg: ${r.kg12Qty} · 50kg: ${r.kg50Qty}`,
-      createdAt: r.createdAt,
-    })),
-    ...recentGasback.map(g => ({
-      id: g.id,
-      type: "GASBACK",
-      label: `Gasback Kredit`,
-      sub: `${g.customer.name} +${g.amount.toFixed(2)} kg`,
-      createdAt: g.createdAt,
-    })),
-  ];
+      ...recentDOs.map(d => ({
+        id: d.id,
+        type: "DO",
+        label: `DO ${d.doNumber}`,
+        sub: d.customerPo?.customer?.name ?? "—",
+        createdAt: d.createdAt,
+      })),
+      ...recentGRs.map(g => ({
+        id: g.id,
+        type: "GR",
+        label: `GR ${g.grNumber}`,
+        sub: `12kg: ${g.kg12Received} · 50kg: ${g.kg50Received}`,
+        createdAt: g.createdAt,
+      })),
+      ...recentReturns.map(r => ({
+        id: r.id,
+        type: "RETURN",
+        label: `Retur ${r.returnNumber}`,
+        sub: `12kg: ${r.kg12Qty} · 50kg: ${r.kg50Qty}`,
+        createdAt: r.createdAt,
+      })),
+      ...recentGasback.map(g => ({
+        id: g.id,
+        type: "GASBACK",
+        label: `Gasback Kredit`,
+        sub: `${g.customer.name} +${Number(g.amount).toFixed(2)} kg`,
+
+        createdAt: g.createdAt,
+      })),
+    ];
   activityRaw.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   const recentActivity = activityRaw.slice(0, 6);
 
@@ -250,19 +260,21 @@ export async function GET(req: NextRequest) {
       fullCylinders,
       hmt12Pct,
       hmt50Pct,
-      hmt12Used: hmtQuota?.kg12Used ?? 0,
-      hmt12Quota: hmtQuota?.kg12Quota ?? 0,
-      hmt50Used: hmtQuota?.kg50Used ?? 0,
-      hmt50Quota: hmtQuota?.kg50Quota ?? 0,
+      hmt12Used: hmt12?.usedQty ?? 0,
+      hmt12Quota: hmt12?.quotaQty ?? 0,
+      hmt50Used: hmt50?.usedQty ?? 0,
+      hmt50Quota: hmt50?.quotaQty ?? 0,
+
       totalGasbackKg: Math.round(totalGasback * 100) / 100,
       emptiesThisMonth: emptiesMonth,
       activeCustomers,
       inTransitCylinders,
-      stock12Full: stock12?.fullQty ?? 0,
-      stock50Full: stock50?.fullQty ?? 0,
+      stock12Full: warehouseStock?.kg12FullQty ?? 0,
+      stock50Full: warehouseStock?.kg50FullQty ?? 0,
+
     },
     recentActivity: recentActivity.map(a => ({
-      ...a,
+      ...a, 
       createdAt: a.createdAt.toISOString(),
     })),
     pendingActions,
