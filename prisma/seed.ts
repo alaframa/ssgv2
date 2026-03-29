@@ -108,7 +108,7 @@ async function seedCustomers() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function seedGasbackOpeningBalances() {
-// Wipe previous ADJUSTMENT entries for this date before re-seeding
+  // Wipe previous ADJUSTMENT entries for this date before re-seeding
   await prisma.gasbackLedger.deleteMany({
     where: { txType: GasbackTxType.ADJUSTMENT, txDate: OPENING_DATE },
   });
@@ -311,120 +311,6 @@ async function seedSystemSettings() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Delivery Orders
-// Each raw DO record → 1 CustomerPo (keyed on po_ref) + 1 DeliveryOrder.
-// Records with non-PO po_ref values (e.g. "Kg") are driver weight entries
-// and are skipped.
-// ─────────────────────────────────────────────────────────────────────────────
-
-async function seedDeliveryOrders() {
-  const records: any[] = seedData.delivery_orders.records;
-  const branchCode = seedData.delivery_orders.branch as "SBY" | "YOG";
-  const branchId = branchMap[branchCode];
-
-  // Build a reverse-lookup: customer name → customerId (SBY branch)
-  // We also need a fallback "unknown" customer for records that don't match.
-  let unknownCustomerId: string | null = null;
-
-  const getOrCreateCustomer = async (name: string): Promise<string> => {
-    if (customerMap[branchCode][name]) return customerMap[branchCode][name];
-
-    // Try a case-insensitive partial match among already-seeded customers
-    const existing = await prisma.customer.findFirst({
-      where: {
-        branchId,
-        name: { contains: name, mode: "insensitive" },
-      },
-    });
-    if (existing) {
-      customerMap[branchCode][name] = existing.id;
-      return existing.id;
-    }
-
-    // Create on the fly with a generated code
-    const code = `${branchCode}-RET-NEW-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    const created = await prisma.customer.create({
-      data: { branchId, code, name, customerType: CustomerType.RETAIL },
-    });
-    customerMap[branchCode][name] = created.id;
-    return created.id;
-  };
-
-  // po_ref values that are not real PO numbers — skip these rows
-  const isDriverWeightRow = (r: any) =>
-    !r.po_ref ||
-    r.po_ref === "Kg" ||
-    typeof r.p12 === "string" ||
-    typeof r.p50 === "string";
-
-  let poCount = 0;
-  let doCount = 0;
-  // Cache po_ref → CustomerPo.id so we don't create duplicates
-  const poCache: Record<string, string> = {};
-
-  for (const r of records) {
-    if (isDriverWeightRow(r)) continue;
-
-    const customerId = await getOrCreateCustomer(r.customer);
-    const poRef: string = r.po_ref;
-
-    // ── CustomerPo ────────────────────────────────────────────────────────────
-    if (!poCache[poRef]) {
-      const existing = await prisma.customerPo.findUnique({ where: { poNumber: poRef } });
-      if (existing) {
-        poCache[poRef] = existing.id;
-      } else {
-        const po = await prisma.customerPo.create({
-          data: {
-            branchId,
-            customerId,
-            poNumber: poRef,
-            kg12Qty: r.p12 ?? 0,
-            kg50Qty: r.p50 ?? 0,
-          },
-        });
-        poCache[poRef] = po.id;
-        poCount++;
-      }
-    }
-
-    const customerPoId = poCache[poRef];
-
-    // ── DeliveryOrder ─────────────────────────────────────────────────────────
-    // Some rows in the JSON share the same do_num (e.g. 03-860 appears twice
-    // on different dates). Append the po_ref as a disambiguator when needed.
-    const rawDoNum: string | undefined = r.do_num;
-    const doNumber = rawDoNum
-      ? rawDoNum
-      : `AUTO-${branchCode}-${r.date.replace(/-/g, "")}-${poRef.replace(/[^A-Za-z0-9]/g, "")}`;
-
-    // Skip if a DO with this number already exists
-    const existingDo = await prisma.deliveryOrder.findUnique({ where: { doNumber } });
-    if (existingDo) continue;
-
-    await prisma.deliveryOrder.create({
-      data: {
-        branchId,
-        customerPoId,
-        doNumber,
-        doDate: new Date(r.date),
-        driverName: r.driver ?? null,
-        kg12Released: r.p12 ?? 0,
-        kg50Released: r.p50 ?? 0,
-        kg12Delivered: r.r12 ?? 0,
-        kg50Delivered: r.r50 ?? 0,
-        notes: r.notes ?? null,
-        status: "DELIVERED",
-      },
-    });
-    doCount++;
-  }
-
-  console.log(`  ✓ CustomerPo: ${poCount} new rows`);
-  console.log(`  ✓ DeliveryOrder: ${doCount} new rows`);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // MAIN — comment out any line to skip that section
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -432,17 +318,16 @@ async function main() {
   console.log("🌱 Seeding SSG V2 database...\n");
 
   await seedBranches();
-// await seedSupplier();
-// await seedHmtQuotas();
-// await seedCustomers();
-// await seedGasbackOpeningBalances();
-// await seedCylinderHoldings();
-// await seedWarehouseStockOpening();
-// await seedEmployees();
-// await seedDefaultUsers();
-// await seedCylinderTypes();
-// await seedSystemSettings();
-// await seedDeliveryOrders();
+  await seedSupplier();
+  await seedHmtQuotas();
+  // await seedCustomers();
+  await seedGasbackOpeningBalances();
+  await seedCylinderHoldings();
+  await seedWarehouseStockOpening();
+  await seedEmployees();
+  await seedDefaultUsers();
+  await seedCylinderTypes();
+  await seedSystemSettings();
 
   console.log("\n✅ Seed complete.");
 }
