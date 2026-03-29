@@ -192,20 +192,20 @@ export async function PATCH(
     const net50 = kg50Del - (order.kg50Delivered ?? 0);
 
     const holdingOp = prisma.customerCylinderHolding.upsert({
-      where: { customerId_date: { customerId, date: today } },  // ← fix where key
+      where: { customerId_branchId: { customerId, branchId: order.branchId } },
       create: {
         customerId,
         branchId: order.branchId,
-        date: today,                                     // ← add date
-
-        kg12HeldQty:  Math.max(0, kg12Del),
-        kg50HeldQty:  Math.max(0, kg50Del),
+        date: today,
+        kg12HeldQty: Math.max(0, kg12Del),
+        kg50HeldQty: Math.max(0, kg50Del),
       },
       update: {
         kg12HeldQty: Math.max(0, (lastHolding?.kg12HeldQty ?? 0) + net12),
         kg50HeldQty: Math.max(0, (lastHolding?.kg50HeldQty ?? 0) + net50),
       },
     });
+
 
     // Stock update
     const stockOp = prisma.warehouseStock.upsert({

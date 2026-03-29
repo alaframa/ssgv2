@@ -81,7 +81,7 @@ enum OrderChannel {
 enum ReturnSource {
   CUSTOMER
   DRIVER
-  DEPOT
+  
 }
 
 enum CylinderStatus {
