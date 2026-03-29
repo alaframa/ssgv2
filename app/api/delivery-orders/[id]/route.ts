@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGasbackRates, isWeightBasedGasback } from "@/lib/gasback-settings";
 import { CylinderStatus } from "@prisma/client";
+import { DoStatus } from "@prisma/client";
+
 
 // GET /api/delivery-orders/[id]
 export async function GET(
@@ -190,10 +192,12 @@ export async function PATCH(
     const net50 = kg50Del - (order.kg50Delivered ?? 0);
 
     const holdingOp = prisma.customerCylinderHolding.upsert({
-      where: { customerId_branchId: { customerId, branchId: order.branchId } },
+      where: { customerId_date: { customerId, date: today } },  // ← fix where key
       create: {
         customerId,
-        branchId:     order.branchId,
+        branchId: order.branchId,
+        date: today,                                     // ← add date
+
         kg12HeldQty:  Math.max(0, kg12Del),
         kg50HeldQty:  Math.max(0, kg50Del),
       },
@@ -224,7 +228,7 @@ export async function PATCH(
       where: { id: params.id },
       data: {
         ...updateData,
-        status: status as string,
+        status: status as DoStatus,   
         kg12Delivered: kg12Del,
         kg50Delivered: kg50Del,
         deliveredAt: new Date(),
@@ -276,7 +280,7 @@ export async function PATCH(
     where: { id: params.id },
     data: {
       ...updateData,
-      ...(status ? { status: status as string } : {}),
+      ...(status ? { status: status as DoStatus } : {}),  
     },
   });
 
