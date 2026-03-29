@@ -38,7 +38,7 @@ export async function GET(
 }
 
 const validTransitions: Record<PoStatus, PoStatus[]> = {
-  DRAFT: ["SUBMITTED", "CANCELLED"],
+  DRAFT: ["SUBMITTED", "CONFIRMED", "CANCELLED"],
   SUBMITTED: ["CONFIRMED", "CANCELLED"],
   CONFIRMED: ["PARTIALLY_RECEIVED", "COMPLETED", "CANCELLED"],
   PARTIALLY_RECEIVED: ["COMPLETED", "CANCELLED"],
@@ -47,9 +47,14 @@ const validTransitions: Record<PoStatus, PoStatus[]> = {
 };
 
 
+const VALID_PO_STATUSES = new Set<string>([
+  "DRAFT", "SUBMITTED", "CONFIRMED", "PARTIALLY_RECEIVED", "COMPLETED", "CANCELLED"
+]);
+
 function isPoStatus(value: unknown): value is PoStatus {
-  return typeof value === "string" && Object.values(PoStatus).includes(value as PoStatus);
+  return typeof value === "string" && VALID_PO_STATUSES.has(value);
 }
+
 
 // PATCH /api/customer-po/[id]
 export async function PATCH(
