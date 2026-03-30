@@ -1,0 +1,4350 @@
+{
+  "rekap_kirim_ambil": {
+    "source": "03__REKAP_PO_KIRIM__AMBIL_TABUNG_MARET_2026.xlsx",
+    "period": "2026-03",
+    "SBY": {
+      "daily": [
+        {
+          "date": "2026-03-02",
+          "day": "Senin",
+          "isi_kg12": 64,
+          "isi_kg50": 12,
+          "tonase_kg": 1368,
+          "kosong_kg12": 55,
+          "kosong_kg50": 8,
+          "trips": 11
+        },
+        {
+          "date": "2026-03-03",
+          "day": "Selasa",
+          "isi_kg12": 200,
+          "isi_kg50": 48,
+          "tonase_kg": 4800,
+          "kosong_kg12": 199,
+          "kosong_kg50": 53,
+          "trips": 30
+        },
+        {
+          "date": "2026-03-04",
+          "day": "Rabu",
+          "isi_kg12": 32,
+          "isi_kg50": 13,
+          "tonase_kg": 1034,
+          "kosong_kg12": 38,
+          "kosong_kg50": 24,
+          "trips": 10
+        },
+        {
+          "date": "2026-03-05",
+          "day": "Kamis",
+          "isi_kg12": 97,
+          "isi_kg50": 19,
+          "tonase_kg": 2114,
+          "kosong_kg12": 93,
+          "kosong_kg50": 10,
+          "trips": 18
+        },
+        {
+          "date": "2026-03-06",
+          "day": "Jum'at",
+          "isi_kg12": 69,
+          "isi_kg50": 40,
+          "tonase_kg": 2828,
+          "kosong_kg12": 80,
+          "kosong_kg50": 60,
+          "trips": 17
+        },
+        {
+          "date": "2026-03-07",
+          "day": "Sabtu",
+          "isi_kg12": 73,
+          "isi_kg50": 8,
+          "tonase_kg": 1276,
+          "kosong_kg12": 74,
+          "kosong_kg50": 6,
+          "trips": 12
+        },
+        {
+          "date": "2026-03-09",
+          "day": "Senin",
+          "isi_kg12": 22,
+          "isi_kg50": 51,
+          "tonase_kg": 2814,
+          "kosong_kg12": 23,
+          "kosong_kg50": 41,
+          "trips": 16
+        },
+        {
+          "date": "2026-03-10",
+          "day": "Selasa",
+          "isi_kg12": 126,
+          "isi_kg50": 60,
+          "tonase_kg": 4512,
+          "kosong_kg12": 130,
+          "kosong_kg50": 40,
+          "trips": 21
+        },
+        {
+          "date": "2026-03-11",
+          "day": "Rabu",
+          "isi_kg12": 79,
+          "isi_kg50": 34,
+          "tonase_kg": 2648,
+          "kosong_kg12": 91,
+          "kosong_kg50": 30,
+          "trips": 16
+        },
+        {
+          "date": "2026-03-12",
+          "day": "Kamis",
+          "isi_kg12": 111,
+          "isi_kg50": 5,
+          "tonase_kg": 1582,
+          "kosong_kg12": 86,
+          "kosong_kg50": 3,
+          "trips": 13
+        }
+      ],
+      "totals": {
+        "isi_kg12": 873,
+        "isi_kg50": 290,
+        "tonase_kg": 24976,
+        "kosong_kg12": 869,
+        "kosong_kg50": 275,
+        "trips": 164
+      }
+    },
+    "YOG": {
+      "daily": [
+        {
+          "date": "2026-03-02",
+          "day": "Senin",
+          "isi_kg12": 86,
+          "isi_kg50": 18,
+          "tonase_kg": 1932,
+          "kosong_kg12": 101,
+          "kosong_kg50": 20,
+          "trips": 18
+        },
+        {
+          "date": "2026-03-03",
+          "day": "Selasa",
+          "isi_kg12": 30,
+          "isi_kg50": 5,
+          "tonase_kg": 610,
+          "kosong_kg12": 42,
+          "kosong_kg50": 20,
+          "trips": 6
+        },
+        {
+          "date": "2026-03-04",
+          "day": "Rabu",
+          "isi_kg12": 26,
+          "isi_kg50": 4,
+          "tonase_kg": 512,
+          "kosong_kg12": 30,
+          "kosong_kg50": 5,
+          "trips": 5
+        },
+        {
+          "date": "2026-03-05",
+          "day": "Kamis",
+          "isi_kg12": 16,
+          "isi_kg50": 10,
+          "tonase_kg": 692,
+          "kosong_kg12": 12,
+          "kosong_kg50": 11,
+          "trips": 8
+        },
+        {
+          "date": "2026-03-06",
+          "day": "Jum'at",
+          "isi_kg12": 110,
+          "isi_kg50": 11,
+          "tonase_kg": 1870,
+          "kosong_kg12": 104,
+          "kosong_kg50": 7,
+          "trips": 9
+        },
+        {
+          "date": "2026-03-07",
+          "day": "Sabtu",
+          "isi_kg12": 75,
+          "isi_kg50": 10,
+          "tonase_kg": 1400,
+          "kosong_kg12": 28,
+          "kosong_kg50": 10,
+          "trips": 12
+        },
+        {
+          "date": "2026-03-09",
+          "day": "Senin",
+          "isi_kg12": 128,
+          "isi_kg50": 8,
+          "tonase_kg": 1936,
+          "kosong_kg12": 135,
+          "kosong_kg50": 7,
+          "trips": 15
+        },
+        {
+          "date": "2026-03-10",
+          "day": "Selasa",
+          "isi_kg12": 41,
+          "isi_kg50": 26,
+          "tonase_kg": 1792,
+          "kosong_kg12": 32,
+          "kosong_kg50": 21,
+          "trips": 12
+        },
+        {
+          "date": "2026-03-11",
+          "day": "Rabu",
+          "isi_kg12": 49,
+          "isi_kg50": 30,
+          "tonase_kg": 2088,
+          "kosong_kg12": 58,
+          "kosong_kg50": 36,
+          "trips": 14
+        },
+        {
+          "date": "2026-03-12",
+          "day": "Kamis",
+          "isi_kg12": 32,
+          "isi_kg50": 6,
+          "tonase_kg": 684,
+          "kosong_kg12": 29,
+          "kosong_kg50": 11,
+          "trips": 7
+        }
+      ],
+      "totals": {
+        "isi_kg12": 593,
+        "isi_kg50": 128,
+        "tonase_kg": 13516,
+        "kosong_kg12": 571,
+        "kosong_kg50": 148,
+        "trips": 106
+      }
+    }
+  },
+  "delivery_orders": {
+    "source": "03__SSSSG__PO_ARSY_MARET_2026.xlsx",
+    "branch": "SBY",
+    "period": "2026-03 dates 2-12",
+    "records": [
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-735",
+        "po_ref": "PO-2026-02-5640",
+        "customer": "Hotel Vrana Culture",
+        "p50": 5,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-741",
+        "po_ref": "PO-2026-02-5820",
+        "customer": "GT AL-Hikmah Gayungsari",
+        "p12": 25,
+        "r12": 21
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-736",
+        "po_ref": "PO-2026-02-5826",
+        "customer": "Sitara Indian Restauran Kodam",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-739",
+        "po_ref": "PO-2026-03-18",
+        "customer": "Burger Bangor Dharmawangsa",
+        "p12": 2,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-740",
+        "po_ref": "PO-2026-03-38",
+        "customer": "Burger Bangor Tenggilis",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-737",
+        "po_ref": "PO-2026-03-114",
+        "customer": "Hotel SRV Surabaya River View",
+        "p12": 5
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-742",
+        "po_ref": "PO-2026-03-118",
+        "customer": "Burger Bangor Krian",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-743",
+        "po_ref": "PO-2026-03-144",
+        "customer": "Amor Resto",
+        "p50": 3,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "HENDRIK/TEGUH",
+        "do_num": "02-738",
+        "po_ref": "PO-2026-03-170",
+        "customer": "Flamboyan Bakery Medokan",
+        "p12": 6,
+        "r12": 5
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-744",
+        "po_ref": "PO-2026-03-178",
+        "customer": "Aqiqah SDA",
+        "p12": 15,
+        "r12": 15
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-745",
+        "po_ref": "PO-2026-03-215",
+        "customer": "Koat Coffee",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "RUDI",
+        "do_num": "726",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "NANANG",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-02",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-746",
+        "po_ref": "PO-2026-03-14",
+        "customer": "RSUD dr. R. Koesma Tuban/ Gizi",
+        "p50": 6,
+        "r50": 6
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-747",
+        "po_ref": "PO-2026-03-23",
+        "customer": "RSUD dr. R. Koesma Tuban/ Laundry",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-748",
+        "po_ref": "PO-2026-03-171",
+        "customer": "Dewa Seafood Tuban",
+        "p12": 20,
+        "r12": 30
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "RUDI/WAHYU",
+        "do_num": "02-749",
+        "po_ref": "PO-2026-03-186",
+        "customer": "PT. Insan Citraprima Sejahtera Tuban",
+        "p12": 35,
+        "r12": 43
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-750",
+        "po_ref": "PO-2026-02-5524",
+        "customer": "Burger Bangor Gwalk",
+        "p12": 1
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "po_ref": "PO-2026-03-354",
+        "customer": "Burger Bangor Gwalk",
+        "p12": 1,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-751",
+        "po_ref": "PO-2026-03-222",
+        "customer": "Midnight Baker Imam Bonjol",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-752",
+        "po_ref": "PO-2026-03-254",
+        "customer": "Kwetiau Akang",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-753",
+        "po_ref": "PO-2026-03-256",
+        "customer": "RPHU Lakarsantri",
+        "p50": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-754",
+        "po_ref": "PO-2026-03-277",
+        "customer": "Sin Cia Po",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-755",
+        "po_ref": "PO-2026-03-305",
+        "customer": "Akbar SIIP",
+        "p12": 30,
+        "r12": 31
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-756",
+        "po_ref": "PO-2026-03-379",
+        "customer": "Restoran Padang Sederhana Sby",
+        "p12": 7,
+        "p50": 2,
+        "r12": 6,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-757",
+        "po_ref": "PO-2026-03-403",
+        "customer": "Burger Bangor Bukit Palma",
+        "p12": 3,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-758",
+        "po_ref": "PO-2026-03-423",
+        "customer": "Kopi Padma Jemusari",
+        "p50": 1,
+        "r50": 1
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "02-759",
+        "po_ref": "PO-2026-03-476",
+        "customer": "1996 Coffe House",
+        "p12": 5,
+        "r12": 4,
+        "notes": "1 Tbg Kembali Tanpa PO"
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-760",
+        "po_ref": "PO-2026-03-470",
+        "customer": "GEN SPPG Tanah Merah Bangkalan",
+        "p50": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-761",
+        "po_ref": "PO-2026-03-471",
+        "customer": "DG GEN SPPG Durjan Kolla",
+        "p50": 3,
+        "r50": 8
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-762",
+        "po_ref": "PO-2026-03-474",
+        "customer": "DG GEN SPPG Bunda Durjan",
+        "p50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-763",
+        "po_ref": "PO-2026-03-477",
+        "customer": "DG GEN SPPG Tera'teros Durjan Bangkalan",
+        "p50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-764",
+        "po_ref": "PO-2026-03-484",
+        "customer": "DS SPPG Putra Barokah Ragung",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "po_ref": "PO-2026-03-616",
+        "customer": "DS SPPG Putra Barokah Ragung",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-765",
+        "po_ref": "PO-2026-03-485",
+        "customer": "DS SPPG Putra Barokah Gulbung",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "po_ref": "PO-2026-03-627",
+        "customer": "DS SPPG Putra Barokah Gulbung",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-766",
+        "po_ref": "PO-2026-03-552",
+        "customer": "MMU SPPG Buluh Socah",
+        "p50": 2,
+        "r12": 1,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-767",
+        "po_ref": "PO-2026-03-586",
+        "customer": "MMU SPPG Mortonggak Ragung",
+        "p12": 6,
+        "p50": 3,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-768",
+        "po_ref": "PO-2026-03-587",
+        "customer": "MMU SPPG Rominah Daleman",
+        "p50": 2,
+        "r50": 1
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "NANANG/FIKRI",
+        "do_num": "02-770",
+        "po_ref": "PO-2026-03-289",
+        "customer": "Wedang Joglo",
+        "p12": 8,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "NANANG/FIKRI",
+        "do_num": "02-771",
+        "po_ref": "PO-2026-03-436",
+        "customer": "SPPG Damarsi Buduran",
+        "p12": 20,
+        "r12": 20
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "NANANG/FIKRI",
+        "do_num": "02-772",
+        "po_ref": "PO-2026-03-454",
+        "customer": "SPPG Sengon Agung I",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "NANANG/FIKRI",
+        "do_num": "02-773",
+        "po_ref": "PO-2026-03-468",
+        "customer": "SPPG Tosari Pasuruan",
+        "p12": 50,
+        "r12": 41
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-03",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "02-769",
+        "po_ref": "PO-2026-03-588",
+        "customer": "MMU SPPG Kramat Panglegur",
+        "p50": 2,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "GB 03-001",
+        "po_ref": "PO-2026-03-597",
+        "customer": "Wisata Rasa",
+        "p12": 15,
+        "r12": 15
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-774",
+        "po_ref": "PO-2026-03-540",
+        "customer": "Spiffy Laundry",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-541",
+        "customer": "Hot Ways Pondok Jati Sda",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-775",
+        "po_ref": "PO-2026-03-566",
+        "customer": "Fork Resto Tunjungan",
+        "p12": 7,
+        "r12": 9
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-776",
+        "po_ref": "PO-2026-03-583",
+        "customer": "UD Sampurna Pabrik Roti",
+        "p50": 3,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-777",
+        "po_ref": "PO-2026-03-584",
+        "customer": "Hotel Neo",
+        "p12": 5,
+        "r12": 5
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-778",
+        "po_ref": "PO-2026-03-594",
+        "customer": "Huangdi Resto",
+        "p12": 1,
+        "p50": 2,
+        "r12": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-779",
+        "po_ref": "PO-2026-03-596",
+        "customer": "HC Ellenoir",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-780",
+        "po_ref": "PO-2026-03-635",
+        "customer": "Ekata Resto",
+        "p50": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-04",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-782",
+        "po_ref": "PO-2026-03-577",
+        "customer": "Burger Bangor Mulyosari",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-783",
+        "po_ref": "PO-2026-03-645",
+        "customer": "RPHU Pegirian",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-784",
+        "po_ref": "PO-2026-03-651",
+        "customer": "Aqiqah Sda",
+        "p12": 10,
+        "r12": 10
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-785",
+        "po_ref": "PO-2026-03-672",
+        "customer": "Flamboyan Laundry Kedung Sroko",
+        "p12": 6,
+        "r12": 13
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-786",
+        "po_ref": "PO-2026-03-683",
+        "customer": "Kembang Merah",
+        "p12": 5,
+        "r12": 9
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-787",
+        "po_ref": "PO-2026-03-787",
+        "customer": "Burger Bangor Dharmawangsa",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-788",
+        "po_ref": "PO-2026-03-814",
+        "customer": "Flamboyan Laundry Gunung Anyar",
+        "p12": 6,
+        "r12": 3,
+        "notes": "Kembali Tanpa PO"
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-789",
+        "po_ref": "PO-2026-03-815",
+        "customer": "Flamboyan Laondry Jojoran",
+        "p12": 6,
+        "r12": 5
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-790",
+        "po_ref": "PO-2026-03-816",
+        "customer": "Flamboyan Laundry Bakery Medokan",
+        "p12": 6,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-791",
+        "po_ref": "PO-2026-03-833",
+        "customer": "Dimsum Kobar",
+        "p12": 10,
+        "r12": 11
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-792",
+        "po_ref": "PO-2026-03-862",
+        "customer": "SPPG A.T Kusuma Dewi",
+        "p12": 10,
+        "r12": 9
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "GB 02-002",
+        "po_ref": "PO-2026-03-896",
+        "customer": "Pocan Bu Erna",
+        "p12": 1,
+        "r12": 1
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI/HENDRIK",
+        "do_num": "03-793",
+        "po_ref": "PO-2026-03-904",
+        "customer": "SPPG Bulak Banteng",
+        "p50": 3,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-794",
+        "po_ref": "PO-2026-03-726",
+        "customer": "OOF SPPG Gunung Sekar",
+        "p12": 3,
+        "p50": 3,
+        "r12": 2,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-796",
+        "po_ref": "PO-2026-03-910",
+        "customer": "SPPG Pangarengan Torjun",
+        "p12": 25,
+        "r12": 19
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-797",
+        "po_ref": "PO-2026-03-914",
+        "customer": "MMU SPPG Kocadur Daleman",
+        "p12": 3,
+        "p50": 4,
+        "r12": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-798",
+        "po_ref": "PO-2026-03-915",
+        "customer": "MMU SPPG Gunung Rancak Robatal",
+        "p50": 5
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-799",
+        "po_ref": "PO-2026-03-916",
+        "customer": "MMU SPPG Sabe Jeruk Banyuates",
+        "p50": 4
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-05",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-795",
+        "po_ref": "PO-2026-03-795",
+        "customer": "SPPG Tamberu Barat",
+        "p50": 4,
+        "r12": 7,
+        "r50": 12
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-800",
+        "po_ref": "PO-2026-03-917",
+        "customer": "MMU SPPG Katpang Timur",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-801",
+        "po_ref": "PO-2026-03-918",
+        "customer": "MMU SPPG Lembung Sokobanah",
+        "p50": 6,
+        "r12": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-802",
+        "po_ref": "PO-2026-03-919",
+        "customer": "MMU SPPG Lebak Sokobanah",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-803",
+        "po_ref": "PO-2026-03-920",
+        "customer": "MMU SPPG Gunung Tangis Rek Kerek",
+        "p50": 6,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "HENDRIK/WAHYU",
+        "do_num": "03-804",
+        "po_ref": "PO-2026-03-731",
+        "customer": "Waroeng Bamboe Batu",
+        "p12": 30,
+        "r12": 26
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "HENDRIK/WAHYU",
+        "do_num": "03-805",
+        "po_ref": "PO-2026-03-969",
+        "customer": "Amstirdam Coffee Roastery",
+        "p12": 8,
+        "r12": 8
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "HENDRIK/WAHYU",
+        "do_num": "03-806",
+        "po_ref": "PO-2026-03-1021",
+        "customer": "SPPG Pakisaji Malang",
+        "p50": 3,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "HENDRIK/WAHYU",
+        "do_num": "03-807",
+        "po_ref": "PO-2026-03-1022",
+        "customer": "RM Sumringah 1",
+        "p12": 10,
+        "r12": 20
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "HENDRIK/WAHYU",
+        "do_num": "03-813",
+        "po_ref": "PO-2026-03-1057",
+        "customer": "Bakso Cak Pitung",
+        "p12": 10,
+        "r12": 10
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-808",
+        "po_ref": "PO-2026-03-826",
+        "customer": "Sitara Indian Restauran Unesa",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-809",
+        "po_ref": "PO-2026-03-827",
+        "customer": "Rahang Tuna",
+        "p12": 2,
+        "p50": 4,
+        "r12": 1,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-810",
+        "po_ref": "PO-2026-03-979",
+        "customer": "Sin Cia Po",
+        "p12": 4,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-811",
+        "po_ref": "PO-2026-03-1039",
+        "customer": "Burger Bangor Gwalk",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-812",
+        "po_ref": "PO-2026-03-1049",
+        "customer": "Resto Huangdi Sby",
+        "p12": 1,
+        "p50": 1,
+        "r50": 1
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-814",
+        "po_ref": "PO-2026-03-1059",
+        "customer": "Burger Bangor Bukit Plama",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK/NANANG",
+        "do_num": "03-815",
+        "po_ref": "PO-2026-03-1074",
+        "customer": "MMU SPPG AL HUSNI  Klampar, Banyumas",
+        "p50": 6,
+        "r50": 19
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-06",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-816",
+        "po_ref": "PO-2026-03-1107",
+        "customer": "Akbar SIIP",
+        "p12": 25,
+        "r12": 31
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-817",
+        "po_ref": "PO-2026-03-1120",
+        "customer": "Burger Bangor Geluran",
+        "p12": 2,
+        "r12": 2,
+        "notes": "1 Tbg Kembali Tanpa PO"
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-818",
+        "po_ref": "PO-2026-03-1144",
+        "customer": "UD Sampurna Pabrik Roti",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-819",
+        "po_ref": "PO-2026-03-1190",
+        "customer": "Kwetiau Akang",
+        "p12": 5,
+        "r12": 5
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-820",
+        "po_ref": "PO-2026-03-1228",
+        "customer": "Burger Bangor Karangpilang",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-821",
+        "po_ref": "PO-2026-03-1237",
+        "customer": "Pia Calista",
+        "p12": 10,
+        "r12": 18
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI/TEGUH",
+        "do_num": "03-822",
+        "po_ref": "PO-2026-03-1266",
+        "customer": "SPPG Pagesangan",
+        "p12": 10,
+        "p50": 1
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "03-823",
+        "po_ref": "PO-2026-03-1075",
+        "customer": "RS MMC Sby",
+        "p12": 5,
+        "r12": 4,
+        "notes": "Kembali tanpa PO"
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "03-824",
+        "po_ref": "PO-2026-03-1138",
+        "customer": "Burger Bangor Mulyosari",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "03-825",
+        "po_ref": "PO-2026-03-1145",
+        "customer": "Fork Resto Tunjungan",
+        "p12": 10,
+        "r12": 8
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "03-826",
+        "po_ref": "PO-2026-03-1174",
+        "customer": "Burger Bangor Perak",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "HENDRIK/NANANG",
+        "do_num": "03-827",
+        "po_ref": "PO-2026-03-1233",
+        "customer": "SPPG Kedungturi",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-07",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1590",
+        "customer": "Restauran Sederhana Padang Sby",
+        "p12": 6,
+        "p50": 3,
+        "r12": 6,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1425",
+        "customer": "Hotel Bekizaar",
+        "p50": 1
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1426",
+        "customer": "Hotel Bekizaar",
+        "p50": 2,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1340",
+        "customer": "MB Sedap Malam",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1461",
+        "customer": "Burger Bangor Tenggilis",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1546",
+        "customer": "Burger Bangor Dharmawangsa",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-1306",
+        "customer": "Burger Bangor Dharmawangsa",
+        "p12": 1,
+        "r12": 1
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG/TEGUH",
+        "po_ref": "PO-2026-03-1589",
+        "customer": "SPPG Mlajah",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG/TEGUH",
+        "po_ref": "PO-2026-03-1593",
+        "customer": "DS SPPG Ningrat Kemayoran",
+        "p50": 2
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG/TEGUH",
+        "po_ref": "PO-2026-03-1657",
+        "customer": "DG SPPG Samaran, Sampang",
+        "p50": 6,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG/TEGUH",
+        "po_ref": "PO-2026-03-1660",
+        "customer": "SPPG Banyubunih 02",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG/TEGUH",
+        "po_ref": "PO-2026-03-1659",
+        "customer": "GEN SPPG Banyubunih 03",
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "ANTOK/HENDRIK",
+        "po_ref": "PO-2026-03-1575",
+        "customer": "SPPG Banjarbendo",
+        "p50": 3,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "ANTOK/HENDRIK",
+        "po_ref": "PO-2026-03-1602",
+        "customer": "HC ACS",
+        "p50": 10,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "ANTOK/HENDRIK",
+        "po_ref": "PO-2026-03-1444",
+        "customer": "AQIQOH",
+        "p12": 10,
+        "r12": 11
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "AMBIL SENDIRI",
+        "po_ref": "PO-2026-03-1594",
+        "customer": "HC ACS",
+        "p50": 10,
+        "r50": 7
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-09",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-842",
+        "po_ref": "PO-2026-03-1394",
+        "customer": "RSUD dr. R. Koesma Tuban/ Gizi",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-843",
+        "po_ref": "PO-2026-03-1411",
+        "customer": "RSUD dr. R. Koesma Tuban/ Laundry",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-844",
+        "po_ref": "PO-2026-03-1581",
+        "customer": "Dewa Seafood Tuban",
+        "p12": 20,
+        "r12": 20
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-845",
+        "po_ref": "PO-2026-03-1755",
+        "customer": "PT. Insan Citraprima Sejahtera",
+        "p12": 20,
+        "r12": 20
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-846",
+        "po_ref": "PO-2026-03-1756",
+        "customer": "PT. Insan Citraprima Sejahtera",
+        "p12": 20,
+        "r12": 35
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-847",
+        "po_ref": "PO-2026-03-1796",
+        "customer": "SPPG Sukorame Lamongan",
+        "p12": 1,
+        "p50": 5,
+        "r12": 1,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-848",
+        "po_ref": "PO-2026-03-1603",
+        "customer": "Global Teknik",
+        "p12": 7,
+        "p50": 2,
+        "r12": 7
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-849",
+        "po_ref": "PO-2026-03-1678",
+        "customer": "RSIA Merr Sby",
+        "p50": 4,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-850",
+        "po_ref": "PO-2026-03-1747",
+        "customer": "Soes Merdeka Sda",
+        "p12": 9,
+        "r12": 9
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-851",
+        "po_ref": "PO-2026-03-1790",
+        "customer": "Kembang Merah SDA",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-852",
+        "po_ref": "PO-2026-03-1819",
+        "customer": "Hotel Gubeng",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-853",
+        "po_ref": "PO-2026-03-1856",
+        "customer": "Siatara Indian Restauran Kodam",
+        "p12": 2,
+        "p50": 3,
+        "r12": 2,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-854",
+        "po_ref": "PO-2026-03-1896",
+        "customer": "Pia Calista",
+        "p12": 10
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-855",
+        "po_ref": "PO-2026-03-1897",
+        "customer": "Pia Calista",
+        "p12": 5,
+        "r12": 5,
+        "notes": "1 Tbg Kembali Tanpa PO"
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-856",
+        "po_ref": "PO-2026-03-1930",
+        "customer": "RPHU Pegirian",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-858",
+        "po_ref": "PO-2026-03-1951",
+        "customer": "MMU SPPG Sumber Waru Guluan",
+        "p50": 5,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-860",
+        "po_ref": "PO-2026-03-1953",
+        "customer": "MMU SPPG Jungudan Bujur Tengah",
+        "p50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-861",
+        "po_ref": "PO-2026-03-1954",
+        "customer": "MMU SPPG Humairah Blumbungan",
+        "p12": 10,
+        "p50": 6,
+        "r12": 7,
+        "r50": 4
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-862",
+        "po_ref": "PO-2026-03-1955",
+        "customer": "MMU SPPG AL-Hasani Klampar",
+        "p50": 20,
+        "r50": 6
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-863",
+        "po_ref": "PO-2026-03-1976",
+        "customer": "SPPG Lembanah Pragaan Sumenep",
+        "p12": 2,
+        "p50": 3,
+        "r12": 2,
+        "r50": 6
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-864",
+        "po_ref": "PO-2026-03-1977",
+        "customer": "SPPG Babatoh Platok Montok",
+        "p12": 11,
+        "r12": 13
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-10",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-857",
+        "po_ref": "PO-2026-03-1950",
+        "customer": "MMU SPPG Koberung Majungan",
+        "p12": 8,
+        "p50": 6,
+        "r12": 8,
+        "r50": 6,
+        "notes": "1 Tbg 12 kg Kembali belum terscan"
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "ANTOK/HENDRIK",
+        "do_num": "03-860",
+        "po_ref": "PO-2026-03-1953",
+        "customer": "MMU SPPG Jungudan Bujur Tengah",
+        "p50": 4,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-865",
+        "po_ref": "PO-2026-03-1956",
+        "customer": "RPHU Lakarsantri",
+        "p50": 1,
+        "r50": 1
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-866",
+        "po_ref": "PO-2026-03-1967",
+        "customer": "Amor Resto",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-867",
+        "po_ref": "PO-2026-03-2005",
+        "customer": "Fork Resto Tunjungan",
+        "p12": 8,
+        "r12": 9
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-868",
+        "po_ref": "PO-2026-03-2042",
+        "customer": "UD Sampurna Pabrik Roti",
+        "p50": 3,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-869",
+        "po_ref": "PO-2026-03-2053",
+        "customer": "HC Ellenoir",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-870",
+        "po_ref": "PO-2026-03-2060",
+        "customer": "Sin Cia Po",
+        "p12": 5,
+        "p50": 2,
+        "r12": 5,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-872",
+        "po_ref": "PO-2026-03-2150",
+        "customer": "SPPG Damarsih",
+        "p12": 15,
+        "r12": 22
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-871",
+        "po_ref": "PO-2026-03-2151",
+        "customer": "Akbar SIIP",
+        "p12": 20,
+        "r12": 25,
+        "notes": "1 Tbg kembali Tanpa PO"
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "po_ref": "PO-2026-03-2179",
+        "customer": "Dapur RJ",
+        "p12": 5,
+        "r12": 5
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-003GB",
+        "po_ref": "PO-2026-03-2033",
+        "customer": "Wisata Rasa",
+        "p12": 15,
+        "r12": 15
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-873",
+        "po_ref": "PO-2026-03-2027",
+        "customer": "SPPG Budi Utomo",
+        "p50": 5,
+        "r50": 5
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-874",
+        "po_ref": "PO-2026-03-2029",
+        "customer": "SPPG Plaosan Maranata (GBS)",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-875",
+        "po_ref": "PO-2026-03-2032",
+        "customer": "SPPG Magetan (Jl. Bromo)",
+        "p12": 1,
+        "p50": 4,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "NANANG/TEGUH",
+        "do_num": "03-876",
+        "po_ref": "PO-2026-03-2035",
+        "customer": "SPPG Pelangi Nganjuk",
+        "p50": 3,
+        "r50": 3
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-11",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-877",
+        "po_ref": "PO-2026-03-922",
+        "customer": "Buerger Bangor Dharmawangsa",
+        "p12": 1
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "po_ref": "PO-2026-03-2360",
+        "customer": "Buerger Bangor Dharmawangsa",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-878",
+        "po_ref": "PO-2026-03-1775",
+        "customer": "Buerger Bangor Mulyosari",
+        "p12": 2
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "po_ref": "PO-2026-03-2058",
+        "customer": "Buerger Bangor Mulyosari",
+        "p12": 1
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "po_ref": "PO-2026-03-2455",
+        "customer": "Buerger Bangor Mulyosari",
+        "p12": 1,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-879",
+        "po_ref": "PO-2026-03-2199",
+        "customer": "Dimsum Kobar Sda",
+        "p12": 12,
+        "r12": 13
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-880",
+        "po_ref": "PO-2026-03-2259",
+        "customer": "Dapur RJ",
+        "p12": 5,
+        "r12": 12
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-881",
+        "po_ref": "PO-2026-03-2267",
+        "customer": "Toko Kopi Padma",
+        "p50": 2,
+        "r50": 2
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-882",
+        "po_ref": "PO-2026-03-2272",
+        "customer": "PT. Surya Pasific Jaya Sda",
+        "p12": 2,
+        "r12": 2
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK/TEGUH",
+        "do_num": "03-883",
+        "po_ref": "PO-2026-03-2381",
+        "customer": "Koat Caffe Sda",
+        "p12": 4,
+        "r12": 4
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-884",
+        "po_ref": "PO-2026-03-732",
+        "customer": "Waroeng Bamboe",
+        "p12": 20,
+        "r12": 8
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-885",
+        "po_ref": "PO-2026-03-2133",
+        "customer": "Aqiqah SDA",
+        "p12": 10,
+        "r12": 15
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-889",
+        "po_ref": "PO-2026-03-2439",
+        "customer": "Aqiqah SDA",
+        "p12": 5
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-886",
+        "po_ref": "PO-2026-03-2304",
+        "customer": "RM Sumringah I",
+        "p12": 40,
+        "r12": 21,
+        "notes": "1 Tbg Kembali belum terscan"
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-887",
+        "po_ref": "PO-2026-03-2367",
+        "customer": "SPPG Darut Tauhid",
+        "p12": 3,
+        "p50": 3,
+        "r12": 2,
+        "r50": 1
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI/WAHYU",
+        "do_num": "03-888",
+        "po_ref": "PO-2026-03-2398",
+        "customer": "Amstirdam Coffee Roastery",
+        "p12": 3,
+        "r12": 3
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "RUDI",
+        "po_ref": "Kg",
+        "customer": "WAHYU",
+        "p12": "WH"
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "NANANG",
+        "po_ref": "Kg",
+        "customer": "FIRMAN",
+        "p12": "FR"
+      },
+      {
+        "date": "2026-03-12",
+        "driver": "ANTOK",
+        "do_num": "0",
+        "po_ref": "Kg",
+        "customer": "ANDRI",
+        "p12": "AD"
+      }
+    ]
+  },
+  "gasback_opening": {
+    "source": "03__Gasback_SSG__Konsumen_Maret_2026.xlsx",
+    "date": "2026-03-02",
+    "note": "Seed as GasbackLedger ADJUSTMENT entry per customer at period start. Daily series omitted — derive from DO records.",
+    "SBY": {
+      "branch_opening_total": 12494.71,
+      "customers": [
+        {
+          "no": 1,
+          "name": "1966 Coffee House",
+          "gasback_opening_balance": 9.21
+        },
+        { "no": 2, "name": "Agis Restorant" },
+        { "no": 3, "name": "Akabar SIIP", "gasback_opening_balance": 262.85 },
+        {
+          "no": 4,
+          "name": "Al-Himah Gayungsari",
+          "gasback_opening_balance": 16.07
+        },
+        {
+          "no": 5,
+          "name": "Amor Restauran & Coffee",
+          "gasback_opening_balance": 0.38
+        },
+        {
+          "no": 6,
+          "name": "Amdtirdam Caffee Roastery",
+          "gasback_opening_balance": 6.92
+        },
+        { "no": 7, "name": "Apotik Indah Farma" },
+        { "no": 8, "name": "Asap Asap Sidoarjo" },
+        { "no": 9, "name": "Asshofa" },
+        {
+          "no": 10,
+          "name": "Azzahra Catering",
+          "gasback_opening_balance": 33.42
+        },
+        { "no": 11, "name": "Bajawa Flores NTT Sby" },
+        {
+          "no": 12,
+          "name": "Bakso Cak Pitung Pandaan",
+          "gasback_opening_balance": 51.77
+        },
+        { "no": 13, "name": "Bakso Mamayo Maspion SBY" },
+        { "no": 14, "name": "Bakso Mamayo Ponti Sda" },
+        {
+          "no": 15,
+          "name": "Baradjawa Gayungsari",
+          "gasback_opening_balance": 3.01
+        },
+        { "no": 16, "name": "Bebek Madura" },
+        { "no": 17, "name": "Bicopi", "gasback_opening_balance": 1.76 },
+        {
+          "no": 18,
+          "name": "Burger Bangor Bukit Palma",
+          "gasback_opening_balance": 11.08
+        },
+        {
+          "no": 19,
+          "name": "Burger Bangor Bukit Dharmawangsa",
+          "gasback_opening_balance": 12.74
+        },
+        {
+          "no": 20,
+          "name": "Burger Bangor Bukit Geluran",
+          "gasback_opening_balance": 5.56
+        },
+        { "no": 21, "name": "Burger Bangor Bukit Gwalk" },
+        {
+          "no": 22,
+          "name": "Burger Bangor Bukit Karangpilang",
+          "gasback_opening_balance": 2.52
+        },
+        {
+          "no": 23,
+          "name": "Burger Bangor Bukit Krian",
+          "gasback_opening_balance": 0.85
+        },
+        {
+          "no": 24,
+          "name": "Burger Bangor Bukit Mulyosari",
+          "gasback_opening_balance": 3.87
+        },
+        {
+          "no": 25,
+          "name": "Burger Bangor Bukit Perak",
+          "gasback_opening_balance": 0.51
+        },
+        {
+          "no": 26,
+          "name": "Burger Bangor Bukit Tenggilis",
+          "gasback_opening_balance": 1.22
+        },
+        { "no": 27, "name": "Café La Babat", "gasback_opening_balance": 66.29 },
+        { "no": 28, "name": "café Tugu Malang" },
+        { "no": 29, "name": "Carolina Perdana" },
+        {
+          "no": 30,
+          "name": "Central Kitchen Padma",
+          "gasback_opening_balance": 11.3
+        },
+        { "no": 31, "name": "Clara" },
+        { "no": 32, "name": "Confera Sosial Eatery" },
+        { "no": 33, "name": "Crunhous Gwalk" },
+        {
+          "no": 34,
+          "name": "CV. Gunung Emas Nusantara",
+          "gasback_opening_balance": 153.35
+        },
+        {
+          "no": 35,
+          "name": "CV. Oofy Nusantara Adidaya",
+          "gasback_opening_balance": 54.87
+        },
+        { "no": 36, "name": "CV. Pelangi Sepuluh Bersaudara" },
+        {
+          "no": 37,
+          "name": "CV. Mata Multimedia Utama",
+          "gasback_opening_balance": 2764.95
+        },
+        {
+          "no": 38,
+          "name": "CV. Pawon Enggal Sekawan",
+          "gasback_opening_balance": 0.68
+        },
+        {
+          "no": 39,
+          "name": "Dapur Aqiqoh Sidoarjo",
+          "gasback_opening_balance": 144.44
+        },
+        { "no": 40, "name": "Dapur Aqiqoh Surabaya" },
+        { "no": 41, "name": "Dapur Mamayo baba rafi" },
+        { "no": 42, "name": "Dapur Gizi", "gasback_opening_balance": 278.58 },
+        { "no": 43, "name": "Dapur Sehat", "gasback_opening_balance": 217.39 },
+        { "no": 44, "name": "Dapur RJ", "gasback_opening_balance": 66.72 },
+        { "no": 45, "name": "Depot Bakso Perawan" },
+        { "no": 46, "name": "Dewa Seafood" },
+        { "no": 47, "name": "Dimsum Kobar", "gasback_opening_balance": 39.29 },
+        { "no": 48, "name": "Dioarsygas" },
+        { "no": 49, "name": "Djoko Parmono Arsy" },
+        { "no": 50, "name": "Edelweis Catering" },
+        { "no": 51, "name": "Ekata Resto", "gasback_opening_balance": 17.16 },
+        {
+          "no": 52,
+          "name": "Flamboyan Laundry",
+          "gasback_opening_balance": 41.43
+        },
+        {
+          "no": 53,
+          "name": "Fork Resto Tunjungan",
+          "gasback_opening_balance": 21.86
+        },
+        {
+          "no": 54,
+          "name": "Front One Hotel",
+          "gasback_opening_balance": 0.44
+        },
+        { "no": 55, "name": "Global Teknik", "gasback_opening_balance": 39.56 },
+        { "no": 56, "name": "Gokana Resto" },
+        { "no": 57, "name": "GOLF GRAHA FAMILI" },
+        { "no": 58, "name": "Grandia Eatery", "gasback_opening_balance": 2.61 },
+        { "no": 59, "name": "Hotel Bekizar", "gasback_opening_balance": 56.82 },
+        {
+          "no": 60,
+          "name": "Hotel Neo Gubeng Sby",
+          "gasback_opening_balance": 103.63
+        },
+        {
+          "no": 61,
+          "name": "Hotel SRV Surabaya",
+          "gasback_opening_balance": 0.2
+        },
+        {
+          "no": 62,
+          "name": "Hotel Varna Culture",
+          "gasback_opening_balance": 46.2
+        },
+        {
+          "no": 63,
+          "name": "Hotways Pondok Jati Sda",
+          "gasback_opening_balance": 37.98
+        },
+        { "no": 64, "name": "House Club", "gasback_opening_balance": 70.31 },
+        { "no": 65, "name": "Ibu Amik" },
+        { "no": 66, "name": "Ibu Erna" },
+        {
+          "no": 67,
+          "name": "Iwaka Catering",
+          "gasback_opening_balance": 10.93
+        },
+        { "no": 68, "name": "Kebon Kota Sby", "gasback_opening_balance": 1.86 },
+        { "no": 69, "name": "Kedai Cik Abin", "gasback_opening_balance": 2.71 },
+        { "no": 70, "name": "Kedai Mak Liem", "gasback_opening_balance": 4.42 },
+        {
+          "no": 71,
+          "name": "Kembang merah",
+          "gasback_opening_balance": 124.88
+        },
+        { "no": 72, "name": "King Claypot", "gasback_opening_balance": 0.74 },
+        { "no": 73, "name": "Koat café", "gasback_opening_balance": 6.66 },
+        {
+          "no": 74,
+          "name": "Kofind Coffe Sby",
+          "gasback_opening_balance": 16.96
+        },
+        { "no": 75, "name": "Kopi Padma", "gasback_opening_balance": 95.0 },
+        { "no": 76, "name": "Kwetiau AKANG SBY" },
+        {
+          "no": 77,
+          "name": "Lesehan Seafood Sampang",
+          "gasback_opening_balance": 167.9
+        },
+        { "no": 78, "name": "Lestari Kitchen - Lakarsantri" },
+        { "no": 79, "name": "M1 Resto" },
+        {
+          "no": 80,
+          "name": "Mahakam Seefood",
+          "gasback_opening_balance": 13.61
+        },
+        { "no": 81, "name": "Mazaya Sby" },
+        { "no": 82, "name": "MB Sedap Malam", "gasback_opening_balance": 1.58 },
+        {
+          "no": 83,
+          "name": "MBG Barengkrajan Krian",
+          "gasback_opening_balance": 2.78
+        },
+        { "no": 84, "name": "Mellys Laundry" },
+        {
+          "no": 85,
+          "name": "Midnight Bakery",
+          "gasback_opening_balance": 25.04
+        },
+        { "no": 86, "name": "Midnight Baker Imam Bonjol" },
+        { "no": 87, "name": "Mie Banglades SDA" },
+        {
+          "no": 88,
+          "name": "Nasi Kebuli Jawa",
+          "gasback_opening_balance": 0.96
+        },
+        { "no": 89, "name": "NIKITOKO" },
+        {
+          "no": 90,
+          "name": "Nita Jaya Catering",
+          "gasback_opening_balance": 23.63
+        },
+        { "no": 91, "name": "Nusantara NUCO", "gasback_opening_balance": 0.22 },
+        { "no": 92, "name": "Padang Legenda" },
+        { "no": 93, "name": "Panahouse" },
+        { "no": 94, "name": "Pasir Ris Seafood" },
+        { "no": 95, "name": "Pia Calista", "gasback_opening_balance": 101.72 },
+        {
+          "no": 96,
+          "name": "Poro Tuna Surabaya",
+          "gasback_opening_balance": 76.88
+        },
+        { "no": 97, "name": "PT. Bebekku Jalan Jalan ke Surabaya" },
+        { "no": 98, "name": "PT Delifru Gresik" },
+        { "no": 99, "name": "PT. FIHAN AGROPANGAN INDONESIA" },
+        { "no": 100, "name": "PT. INSAN CITRAPRIMA SEJAHTERA" },
+        {
+          "no": 101,
+          "name": "PT. Panggumg Electric Citrabuana",
+          "gasback_opening_balance": 7.64
+        },
+        {
+          "no": 102,
+          "name": "PT. Seacon Bintang Sejahtera",
+          "gasback_opening_balance": 1.43
+        },
+        { "no": 103, "name": "PT. BSI" },
+        {
+          "no": 104,
+          "name": "PT. Corporanesa Sangdipa Sahwahita",
+          "gasback_opening_balance": 1.1
+        },
+        {
+          "no": 105,
+          "name": "PT. Surya Pasific SDA",
+          "gasback_opening_balance": 26.14
+        },
+        {
+          "no": 106,
+          "name": "Rahang Tuna Sby",
+          "gasback_opening_balance": 1.64
+        },
+        { "no": 107, "name": "Ramenqu", "gasback_opening_balance": 28.91 },
+        {
+          "no": 108,
+          "name": "Resto Huandi Sby",
+          "gasback_opening_balance": 46.5
+        },
+        {
+          "no": 109,
+          "name": "Resto Ngelencer",
+          "gasback_opening_balance": 4.22
+        },
+        { "no": 110, "name": "Restoran Sederhana Padang Sby" },
+        { "no": 111, "name": "Risyaad Rizky" },
+        {
+          "no": 112,
+          "name": "RM Sumringah",
+          "gasback_opening_balance": 115.43
+        },
+        {
+          "no": 113,
+          "name": "RM Sumringah 2",
+          "gasback_opening_balance": 66.46
+        },
+        { "no": 114, "name": "RPA FAQIH Buduran" },
+        { "no": 115, "name": "RPHU" },
+        { "no": 116, "name": "RS MMCS", "gasback_opening_balance": 57.85 },
+        { "no": 117, "name": "RSIA Sby", "gasback_opening_balance": 43.56 },
+        {
+          "no": 118,
+          "name": "RSUD dr. R Koesma Kab.Tuban/ Intalasi Gizi",
+          "gasback_opening_balance": 361.63
+        },
+        { "no": 119, "name": "RSUD dr. R Koesma Kab.Tuban/ Laundry" },
+        { "no": 120, "name": "Rumah Sakit Siti Miriam" },
+        { "no": 121, "name": "Samudra Powder" },
+        { "no": 122, "name": "Sanlong" },
+        { "no": 123, "name": "Sego Sambel Wonokromo" },
+        { "no": 124, "name": "Sei Sapi Blimbing" },
+        { "no": 125, "name": "Sei Sapi Dukuh Sarinadi Sda" },
+        { "no": 126, "name": "Sei Sapi Gayungsari" },
+        { "no": 127, "name": "Sei Sapi Gresik" },
+        { "no": 128, "name": "Sei Sapi Gubeng" },
+        { "no": 129, "name": "Sei Sapi Klojen" },
+        { "no": 130, "name": "Sei Sapi Lowokwaru" },
+        { "no": 131, "name": "Sei Sapi Mojokerto" },
+        { "no": 132, "name": "Sei Sapi Rungkut" },
+        { "no": 133, "name": "Sei Sapi Semampir" },
+        { "no": 134, "name": "Sei Sapi Sukolilo" },
+        { "no": 135, "name": "Sei Sapi Wiyung" },
+        { "no": 136, "name": "Seindonesia Pasuruan" },
+        { "no": 137, "name": "Seindonesia Dukuh Pakis" },
+        { "no": 138, "name": "Seindonesia Juanda" },
+        { "no": 139, "name": "Seindonesia Kenjeran" },
+        { "no": 140, "name": "Seindonesia Madiun" },
+        { "no": 141, "name": "Seindonesia Manukan" },
+        { "no": 142, "name": "Sin Cia Po" },
+        { "no": 143, "name": "Sitara", "gasback_opening_balance": 62.73 },
+        { "no": 144, "name": "Soes Merdeka", "gasback_opening_balance": 19.83 },
+        { "no": 145, "name": "Spiffy Laundry", "gasback_opening_balance": 9.5 },
+        {
+          "no": 146,
+          "name": "SPPG AL-Bukhori Lembanah Pragaan Sumenep",
+          "gasback_opening_balance": 185.64
+        },
+        {
+          "no": 147,
+          "name": "SPPG Banjarbendo",
+          "gasback_opening_balance": 13.2
+        },
+        {
+          "no": 148,
+          "name": "SPPG Berkah Nusantara Peduli",
+          "gasback_opening_balance": 366.09
+        },
+        {
+          "no": 149,
+          "name": "SPPG BU Adissa",
+          "gasback_opening_balance": 143.06
+        },
+        {
+          "no": 150,
+          "name": "SPPG Budi Utomo Magetan",
+          "gasback_opening_balance": 197.03
+        },
+        {
+          "no": 151,
+          "name": "SPPG Bulak Banteng Sby",
+          "gasback_opening_balance": 261.82
+        },
+        {
+          "no": 152,
+          "name": "SPPG Damarsi Buduran",
+          "gasback_opening_balance": 114.94
+        },
+        {
+          "no": 153,
+          "name": "SPPG Gayungsari Ketintang 3",
+          "gasback_opening_balance": 6.44
+        },
+        {
+          "no": 154,
+          "name": "SPPG Jl. Bromo Magetan",
+          "gasback_opening_balance": 74.37
+        },
+        {
+          "no": 155,
+          "name": "Dapur Kedungpring",
+          "gasback_opening_balance": 57.37
+        },
+        {
+          "no": 156,
+          "name": "SPPG Lentera Gizi",
+          "gasback_opening_balance": 0.1
+        },
+        {
+          "no": 157,
+          "name": "Dapur Maranatha Plaosan",
+          "gasback_opening_balance": 113.87
+        },
+        {
+          "no": 158,
+          "name": "SPPG Mlajah Bangkalan",
+          "gasback_opening_balance": 337.84
+        },
+        {
+          "no": 159,
+          "name": "SPPG Ponpes AL-Ahyar Bangkalan",
+          "gasback_opening_balance": 6.94
+        },
+        {
+          "no": 160,
+          "name": "SPPG Purwodadi 1",
+          "gasback_opening_balance": 2.44
+        },
+        {
+          "no": 161,
+          "name": "SPPG Sengonagung 1",
+          "gasback_opening_balance": 0.11
+        },
+        {
+          "no": 162,
+          "name": "SPPG Sumbergedong Trenggalek",
+          "gasback_opening_balance": 149.22
+        },
+        {
+          "no": 163,
+          "name": "SPPG T.A Kusuma Dewi",
+          "gasback_opening_balance": 34.17
+        },
+        {
+          "no": 164,
+          "name": "Dapur MBG Tosari Pasuruan",
+          "gasback_opening_balance": 262.88
+        },
+        { "no": 165, "name": "Sukardi Ayam" },
+        { "no": 166, "name": "Sutrisno Ayam" },
+        { "no": 167, "name": "Tanamera Graha Famili" },
+        { "no": 168, "name": "Tanamera Trunojoyo" },
+        { "no": 169, "name": "Teman setia" },
+        {
+          "no": 170,
+          "name": "Tera Makan HARARU",
+          "gasback_opening_balance": 27.5
+        },
+        { "no": 171, "name": "Thrty3 Brew", "gasback_opening_balance": 1.75 },
+        {
+          "no": 172,
+          "name": "Toko Grosir kebonsari",
+          "gasback_opening_balance": 3.76
+        },
+        { "no": 173, "name": "UD. Levis", "gasback_opening_balance": 51.01 },
+        {
+          "no": 174,
+          "name": "UD. Sampurna Pabrik Roti",
+          "gasback_opening_balance": 46.78
+        },
+        { "no": 175, "name": "US Pizza", "gasback_opening_balance": 42.53 },
+        {
+          "no": 176,
+          "name": "Valor Private Space & Bar",
+          "gasback_opening_balance": 82.19
+        },
+        {
+          "no": 177,
+          "name": "Waroeng Bamboe",
+          "gasback_opening_balance": 7.47
+        },
+        { "no": 178, "name": "Wedang Joglo", "gasback_opening_balance": 22.1 },
+        {
+          "no": 179,
+          "name": "Wisata Rasa Rungkut Sby",
+          "gasback_opening_balance": 0.04
+        },
+        { "no": 180, "name": "Wisnu Dewa", "gasback_opening_balance": 8.4 },
+        {
+          "no": 181,
+          "name": "Yayasan IBNU BACHIR",
+          "gasback_opening_balance": 61.02
+        },
+        { "no": 182, "name": "Yayasan Khayzan Arfadhhio G" }
+      ]
+    },
+    "YOG": {
+      "branch_opening_total": 7001.1,
+      "customers": [
+        { "no": 1, "name": "Al-IMDAD", "gasback_opening_balance": 47.92 },
+        {
+          "no": 2,
+          "name": "Antologi Koperasi Ken8",
+          "gasback_opening_balance": 2.91
+        },
+        { "no": 3, "name": "Arkadewi Resto XT Square" },
+        {
+          "no": 4,
+          "name": "Ayam Goreng Ninit 1983 Jakal",
+          "gasback_opening_balance": 9.16
+        },
+        {
+          "no": 5,
+          "name": "Ayam Goreng Ninit 1983 Nogotirto",
+          "gasback_opening_balance": 0.12
+        },
+        {
+          "no": 6,
+          "name": "Ayam Goreng Ninit Lempuyangan",
+          "gasback_opening_balance": 0.17
+        },
+        { "no": 7, "name": "Ayam Ninit 1983 Palagan" },
+        { "no": 8, "name": "Ayam Panggang Mbah Mo" },
+        { "no": 9, "name": "Bakul Sekul", "gasback_opening_balance": 2.66 },
+        { "no": 10, "name": "Baleroso" },
+        {
+          "no": 11,
+          "name": "Baleroso Godean 3",
+          "gasback_opening_balance": 156.6
+        },
+        {
+          "no": 12,
+          "name": "Baleroso Jakal",
+          "gasback_opening_balance": 207.99
+        },
+        {
+          "no": 13,
+          "name": "Baleroso Prambanan",
+          "gasback_opening_balance": 107.12
+        },
+        { "no": 14, "name": "Bebek Carok", "gasback_opening_balance": 0.4 },
+        { "no": 15, "name": "Bebex Cuex" },
+        {
+          "no": 16,
+          "name": "Budi Mulia Culinary School",
+          "gasback_opening_balance": 3.42
+        },
+        {
+          "no": 17,
+          "name": "Burger Bangor Achmad Dahlan",
+          "gasback_opening_balance": 9.49
+        },
+        {
+          "no": 18,
+          "name": "Burger Bangor Demangan",
+          "gasback_opening_balance": 23.19
+        },
+        {
+          "no": 19,
+          "name": "Burger Bangor Jakal 88",
+          "gasback_opening_balance": 0.26
+        },
+        {
+          "no": 20,
+          "name": "Burger Bangor Jakal Uii",
+          "gasback_opening_balance": 6.95
+        },
+        {
+          "no": 21,
+          "name": "Burger Bangor Janti",
+          "gasback_opening_balance": 52.12
+        },
+        {
+          "no": 22,
+          "name": "Burger Bangor Piyungan",
+          "gasback_opening_balance": 0.16
+        },
+        {
+          "no": 23,
+          "name": "Catering Bosskid",
+          "gasback_opening_balance": 147.33
+        },
+        { "no": 24, "name": "Catering Cassava" },
+        {
+          "no": 25,
+          "name": "Catering Rahayu",
+          "gasback_opening_balance": 9.31
+        },
+        {
+          "no": 26,
+          "name": "Catering Sirikit",
+          "gasback_opening_balance": 22.73
+        },
+        { "no": 27, "name": "Chaniago Padang Resto" },
+        { "no": 28, "name": "Coconut Coffe Eatry" },
+        {
+          "no": 29,
+          "name": "CV. Djava Kasih Karunia",
+          "gasback_opening_balance": 6.51
+        },
+        { "no": 30, "name": "Daniel" },
+        { "no": 31, "name": "Danika", "gasback_opening_balance": 11.07 },
+        {
+          "no": 32,
+          "name": "Dapur SPPG Gulurejo Lendah",
+          "gasback_opening_balance": 47.45
+        },
+        { "no": 33, "name": "Dil Restaurant" },
+        { "no": 34, "name": "Easy Peasy Kitchen" },
+        { "no": 35, "name": "Gajah Mada", "gasback_opening_balance": 511.8 },
+        { "no": 36, "name": "Garage Steal" },
+        { "no": 37, "name": "Gudeg Wijilan Bu Lies" },
+        { "no": 38, "name": "Ichiban Sushi" },
+        { "no": 39, "name": "Iga Bakar Bali", "gasback_opening_balance": 0.59 },
+        {
+          "no": 40,
+          "name": "Ikan Bakar Kintamani",
+          "gasback_opening_balance": 5.82
+        },
+        { "no": 41, "name": "Jamur Jawon Resto" },
+        { "no": 42, "name": "JEEVA", "gasback_opening_balance": 22.65 },
+        { "no": 43, "name": "Kampung Alit" },
+        { "no": 44, "name": "Kandang Ary Nugroho" },
+        {
+          "no": 45,
+          "name": "Kandang Tosca",
+          "gasback_opening_balance": 262.95
+        },
+        { "no": 46, "name": "Kanzania Roti" },
+        { "no": 47, "name": "Kedai Ucle J", "gasback_opening_balance": 17.85 },
+        { "no": 48, "name": "Ketan Susu" },
+        { "no": 49, "name": "Kevin" },
+        {
+          "no": 50,
+          "name": "Kims Bar and Kitchen",
+          "gasback_opening_balance": 58.81
+        },
+        {
+          "no": 51,
+          "name": "Koat Coffe Jakal",
+          "gasback_opening_balance": 2.77
+        },
+        {
+          "no": 52,
+          "name": "Koat coffe Palagan",
+          "gasback_opening_balance": 24.54
+        },
+        { "no": 53, "name": "Koat Kopi Seturan" },
+        { "no": 54, "name": "Koat Kopi Umy" },
+        {
+          "no": 55,
+          "name": "Kolona Kitchen and Coffee",
+          "gasback_opening_balance": 0.16
+        },
+        { "no": 56, "name": "Kolona Resto", "gasback_opening_balance": 0.64 },
+        {
+          "no": 57,
+          "name": "Kopontren Al Muntaz",
+          "gasback_opening_balance": 3.01
+        },
+        { "no": 58, "name": "Laundrifirst" },
+        { "no": 59, "name": "Ledok Sambi", "gasback_opening_balance": 12.04 },
+        { "no": 60, "name": "Linglung Kopi", "gasback_opening_balance": 15.88 },
+        {
+          "no": 61,
+          "name": "Loroblonyo Catering",
+          "gasback_opening_balance": 25.49
+        },
+        { "no": 62, "name": "M Tsalis Abd Jabbar" },
+        { "no": 63, "name": "MBG Jetis", "gasback_opening_balance": 17.98 },
+        {
+          "no": 64,
+          "name": "MBG Joglo Yoso",
+          "gasback_opening_balance": 170.08
+        },
+        { "no": 65, "name": "Moshi" },
+        {
+          "no": 66,
+          "name": "Nasi Hainan MeiWei",
+          "gasback_opening_balance": 1.42
+        },
+        { "no": 67, "name": "Ojo Takon" },
+        { "no": 68, "name": "Omah Bebek", "gasback_opening_balance": 74.19 },
+        { "no": 69, "name": "Omah Bebek Jakal" },
+        { "no": 70, "name": "Oman Kopi Cokrowijayan" },
+        { "no": 71, "name": "Oman Njonja", "gasback_opening_balance": 17.62 },
+        {
+          "no": 72,
+          "name": "Penyetan Sedep Mantep",
+          "gasback_opening_balance": 223.17
+        },
+        {
+          "no": 73,
+          "name": "Pibee Resto Jogja",
+          "gasback_opening_balance": 6.17
+        },
+        { "no": 74, "name": "Pondok Bakaran" },
+        { "no": 75, "name": "Pondok Bakaran Manding" },
+        { "no": 76, "name": "Prima SR Hotel", "gasback_opening_balance": 2.75 },
+        { "no": 77, "name": "PT. API", "gasback_opening_balance": 1.45 },
+        {
+          "no": 78,
+          "name": "PT. IGP International Pyungan",
+          "gasback_opening_balance": 22.91
+        },
+        { "no": 79, "name": "PT. Lalawuh Sunda Sejati" },
+        {
+          "no": 80,
+          "name": "PT. Setiap Hari Beruntung",
+          "gasback_opening_balance": 0.08
+        },
+        {
+          "no": 81,
+          "name": "PT. TIGA KETAPANG",
+          "gasback_opening_balance": 58.27
+        },
+        { "no": 82, "name": "Racikan Resto", "gasback_opening_balance": 34.54 },
+        {
+          "no": 83,
+          "name": "Rahayu Catering",
+          "gasback_opening_balance": 100.21
+        },
+        { "no": 84, "name": "Ramayana Garden Resto" },
+        { "no": 85, "name": "Raos Djogja" },
+        { "no": 86, "name": "RD Harjono" },
+        { "no": 87, "name": "Resto Jati Kuno" },
+        { "no": 88, "name": "Resto Lembah Kalasan" },
+        { "no": 89, "name": "Restoran" },
+        {
+          "no": 90,
+          "name": "Restoran Jejamuran",
+          "gasback_opening_balance": 66.72
+        },
+        { "no": 91, "name": "Roni" },
+        { "no": 92, "name": "Roti Kolonial", "gasback_opening_balance": 0.65 },
+        { "no": 93, "name": "Sampai Villa", "gasback_opening_balance": 7.42 },
+        { "no": 94, "name": "Savita Indonesia" },
+        { "no": 95, "name": "Selo Coffe", "gasback_opening_balance": 1.52 },
+        { "no": 96, "name": "Selo Coffe 2", "gasback_opening_balance": 0.35 },
+        { "no": 97, "name": "Silol Kopi", "gasback_opening_balance": 304.12 },
+        { "no": 98, "name": "Smile Laundry", "gasback_opening_balance": 12.43 },
+        { "no": 99, "name": "Seoltan Café And Eatery" },
+        {
+          "no": 100,
+          "name": "SPPG AL-IMDAD Triwidadi",
+          "gasback_opening_balance": 51.43
+        },
+        {
+          "no": 101,
+          "name": "SPPG Baleharjo Wonosari 001",
+          "gasback_opening_balance": 530.79
+        },
+        { "no": 102, "name": "SPPG Banjarharjo Kalibawang" },
+        {
+          "no": 103,
+          "name": "SPPG Bawuran (Hj. Siwi Catering)",
+          "gasback_opening_balance": 158.46
+        },
+        {
+          "no": 104,
+          "name": "SPPG Bibis Bangunjiwo",
+          "gasback_opening_balance": 8.28
+        },
+        { "no": 105, "name": "SPPG Depok Caturtunggal" },
+        {
+          "no": 106,
+          "name": "SPPG Depok Nologaten",
+          "gasback_opening_balance": 83.61
+        },
+        { "no": 107, "name": "SPPG Dlingo", "gasback_opening_balance": 0.44 },
+        {
+          "no": 108,
+          "name": "SPPG GIWANGAN 2",
+          "gasback_opening_balance": 329.95
+        },
+        {
+          "no": 109,
+          "name": "SPPG GROBOGAN GEYER GEYER",
+          "gasback_opening_balance": 12.89
+        },
+        {
+          "no": 110,
+          "name": "SPPG Gunung Payung",
+          "gasback_opening_balance": 162.49
+        },
+        {
+          "no": 111,
+          "name": "SPPG Kalikotes",
+          "gasback_opening_balance": 257.63
+        },
+        {
+          "no": 112,
+          "name": "SPPG Klampok Godong",
+          "gasback_opening_balance": 458.71
+        },
+        {
+          "no": 113,
+          "name": "SPPG Kricak Tegalrejo",
+          "gasback_opening_balance": 142.42
+        },
+        { "no": 114, "name": "SPPG LEDOKDAWAN SITARDA" },
+        {
+          "no": 115,
+          "name": "SPPG Nurul Qur'an",
+          "gasback_opening_balance": 104.42
+        },
+        { "no": 116, "name": "SPPG Pendowoharjo" },
+        { "no": 117, "name": "SPPG Playen", "gasback_opening_balance": 0.44 },
+        { "no": 118, "name": "SPPG Ponjong", "gasback_opening_balance": 219.2 },
+        {
+          "no": 119,
+          "name": "SPPG Purwobinangun",
+          "gasback_opening_balance": 17.06
+        },
+        {
+          "no": 120,
+          "name": "SPPG SAMBAK DANYANG",
+          "gasback_opening_balance": 122.97
+        },
+        {
+          "no": 121,
+          "name": "SPPG SEMBUNG WEDI KLATEN",
+          "gasback_opening_balance": 193.34
+        },
+        {
+          "no": 122,
+          "name": "SPPG Sendangtirto",
+          "gasback_opening_balance": 16.72
+        },
+        {
+          "no": 123,
+          "name": "SPPG SMK MUHAMMADIYAH Cangkringan",
+          "gasback_opening_balance": 15.53
+        },
+        {
+          "no": 124,
+          "name": "SPPG Srimartani 3",
+          "gasback_opening_balance": 0.58
+        },
+        {
+          "no": 125,
+          "name": "SPPG Tegalrejo",
+          "gasback_opening_balance": 71.51
+        },
+        { "no": 126, "name": "SPPG Timbulharjo 3 Sewon" },
+        {
+          "no": 127,
+          "name": "SPPG Toroh Boloh",
+          "gasback_opening_balance": 35.67
+        },
+        {
+          "no": 128,
+          "name": "SPPG Trihanggo Gamping",
+          "gasback_opening_balance": 331.33
+        },
+        { "no": 129, "name": "SPPG WI Ngemplak" },
+        {
+          "no": 130,
+          "name": "SPPG WI Tridadi",
+          "gasback_opening_balance": 0.18
+        },
+        { "no": 131, "name": "Star Laundry" },
+        {
+          "no": 132,
+          "name": "STATE Café and Brasserie",
+          "gasback_opening_balance": 53.14
+        },
+        { "no": 133, "name": "Suryo Mapan" },
+        { "no": 134, "name": "Tantri" },
+        { "no": 135, "name": "Tawan Malioboro Jogja" },
+        {
+          "no": 136,
+          "name": "Teduh Coffee (Ditro Grill Cofee)",
+          "gasback_opening_balance": 19.21
+        },
+        { "no": 137, "name": "Teratai 78" },
+        { "no": 138, "name": "The Cakala Residence" },
+        { "no": 139, "name": "Theory Laundry" },
+        { "no": 140, "name": "Timbuul Roso" },
+        { "no": 141, "name": "Villa" },
+        {
+          "no": 142,
+          "name": "Wanawatu Resto",
+          "gasback_opening_balance": 76.18
+        },
+        { "no": 143, "name": "Waroeng Cukup Sambal" },
+        { "no": 144, "name": "Warung Makan Lodho Ayam" },
+        {
+          "no": 145,
+          "name": "WARUNG RABURAI JOGJA",
+          "gasback_opening_balance": 11.72
+        },
+        { "no": 146, "name": "Warung Watoe Gadjah" },
+        { "no": 147, "name": "Wijaya Boga Catering" },
+        {
+          "no": 148,
+          "name": "Yayasan Sahabat Anak Nusa",
+          "gasback_opening_balance": 27.29
+        },
+        { "no": 149, "name": "Yomok Iki", "gasback_opening_balance": 0.08 }
+      ]
+    }
+  },
+  "stock_tabung_opening": {
+    "source": "03__LAPORAN_STOCK_TABUNG_SSG_MARET_2026.xlsx",
+    "date": "2026-03-02",
+    "note": "Opening snapshot. Seed CustomerCylinderHolding and WarehouseStock. Only customers with non-zero holdings included.",
+    "SBY": {
+      "hmt": { "KG12": 1900, "KG50": 723 },
+      "kuota_wo": { "KG12": 100, "KG50": 27 },
+      "customer_holdings": [
+        {
+          "no": 1,
+          "name": "1966 Coffee House",
+          "held_kg12": 10,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 3,
+          "name": "Akabar SIIP",
+          "held_kg12": 101,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 4,
+          "name": "Al-Hikmah Gayungsari",
+          "held_kg12": 75,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 5,
+          "name": "Amor Restauran & Coffee",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 6,
+          "name": "Amdtirdam Caffee Roastery",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 10,
+          "name": "Azzahra Catering",
+          "held_kg12": 21,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 12,
+          "name": "Bakso Cak Pitung Pandaan",
+          "held_kg12": 26,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 15,
+          "name": "Baradjawa Gayungsari",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 18,
+          "name": "Burger Bangor Bukit Palma",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 19,
+          "name": "Burger Bangor Bukit Dharmawangsa",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 20,
+          "name": "Burger Bangor Bukit Geluran",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 21,
+          "name": "Burger Bangor Bukit Gwalk",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 22,
+          "name": "Burger Bangor Bukit Karangpilang",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 23,
+          "name": "Burger Bangor Bukit Krian",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 24,
+          "name": "Burger Bangor Bukit Mulyosari",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 25,
+          "name": "Burger Bangor Bukit Perak",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 26,
+          "name": "Burger Bangor Bukit Tenggilis",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 30,
+          "name": "Centra Kitchen Padma",
+          "held_kg12": 0,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 34,
+          "name": "CV. Gunung Emas Nusantara",
+          "held_kg12": 15,
+          "held_kg50": 30,
+          "notes": null
+        },
+        {
+          "no": 35,
+          "name": "CV. Ooofy Nusantara Adidaya",
+          "held_kg12": 11,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 37,
+          "name": "CV. Mata Multimedia Utama",
+          "held_kg12": 160,
+          "held_kg50": 261,
+          "notes": null
+        },
+        {
+          "no": 39,
+          "name": "Dapur Aqiqoh Sidoarjo",
+          "held_kg12": 28,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 42,
+          "name": "Dapur Gizi",
+          "held_kg12": 19,
+          "held_kg50": 33,
+          "notes": null
+        },
+        {
+          "no": 43,
+          "name": "Dapur Sehat",
+          "held_kg12": 30,
+          "held_kg50": 49,
+          "notes": null
+        },
+        {
+          "no": 44,
+          "name": "Dapur RJ",
+          "held_kg12": 16,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 46,
+          "name": "Dewa Seafood",
+          "held_kg12": 38,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 47,
+          "name": "Dimsum Kobar",
+          "held_kg12": 14,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 51,
+          "name": "Ekata Resto",
+          "held_kg12": 0,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 52,
+          "name": "Flamboyan Laundry",
+          "held_kg12": 61,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 53,
+          "name": "Fork Resto Tunjungan",
+          "held_kg12": 23,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 54,
+          "name": "Front One Hotel",
+          "held_kg12": 2,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 55,
+          "name": "Global Teknik",
+          "held_kg12": 24,
+          "held_kg50": 4,
+          "notes": null
+        },
+        {
+          "no": 58,
+          "name": "Grandia Eatery",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 59,
+          "name": "Hotel Bekizar",
+          "held_kg12": 5,
+          "held_kg50": 8,
+          "notes": null
+        },
+        {
+          "no": 60,
+          "name": "Hotel Neo Gubeng Sby",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 61,
+          "name": "Hotel SRV Surabaya",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 62,
+          "name": "Hotel Varna Culture",
+          "held_kg12": 2,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 63,
+          "name": "Hotways Pondok Jati Sda",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 64,
+          "name": "House Club",
+          "held_kg12": 119,
+          "held_kg50": 27,
+          "notes": null
+        },
+        {
+          "no": 66,
+          "name": "Ibu Erna",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 67,
+          "name": "Iwaka Catering",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 70,
+          "name": "Kedai Mal Liem",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 71,
+          "name": "Kembang merah",
+          "held_kg12": 16,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 73,
+          "name": "Koat café Sda",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 74,
+          "name": "Kofind Coffe Sby",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 75,
+          "name": "Kopi Padma",
+          "held_kg12": 0,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 76,
+          "name": "Kwetiau AKANG SBY",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 77,
+          "name": "Lesehan Seafood Sampang",
+          "held_kg12": 24,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 80,
+          "name": "Mahakam Seefood",
+          "held_kg12": 7,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 82,
+          "name": "MB Sedap Malam",
+          "held_kg12": 0,
+          "held_kg50": 4,
+          "notes": null
+        },
+        {
+          "no": 84,
+          "name": "Mellys Laundry",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": "di ANI Cleungsi"
+        },
+        {
+          "no": 85,
+          "name": "Midnight Bakery",
+          "held_kg12": 8,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 86,
+          "name": "Midnight Baker Imam Bonjol",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 87,
+          "name": "Mie Banglades SDA",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 90,
+          "name": "Nita Jaya Catering",
+          "held_kg12": 13,
+          "held_kg50": 0,
+          "notes": "1 Tbg Hilang di ganti tabung isi dikembalikan"
+        },
+        {
+          "no": 91,
+          "name": "Nusantara NUCO",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 95,
+          "name": "Pia Calista",
+          "held_kg12": 20,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 96,
+          "name": "Poro Tuna Surabaya",
+          "held_kg12": 0,
+          "held_kg50": 4,
+          "notes": null
+        },
+        {
+          "no": 100,
+          "name": "PT. Insan Citraprima Sejahtera",
+          "held_kg12": 100,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 101,
+          "name": "PT. Panggung Electric Citrabuana",
+          "held_kg12": 0,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 104,
+          "name": "PT. Corporanesa Sangdipa Sahwahita",
+          "held_kg12": 6,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 105,
+          "name": "PT. Surya Pasific SDA",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 106,
+          "name": "Rahang Tuna Sby",
+          "held_kg12": 2,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 107,
+          "name": "Ramenqu",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 108,
+          "name": "Resto Huandi Sby",
+          "held_kg12": 4,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 110,
+          "name": "Restoran Sederhana Padang Sby",
+          "held_kg12": 15,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 112,
+          "name": "RM Sumringah",
+          "held_kg12": 46,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 113,
+          "name": "RM Sumringah 2",
+          "held_kg12": 15,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 115,
+          "name": "RPHU",
+          "held_kg12": 3,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 116,
+          "name": "RS MMCS",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 117,
+          "name": "RSIA Sby",
+          "held_kg12": 4,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 118,
+          "name": "RSUD dr. R. Koesma Kab.Tuban/ Intalasi Gizi",
+          "held_kg12": 5,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 119,
+          "name": "RSUD dr. R. Koesma Kab.Tuban/ Laundray",
+          "held_kg12": 0,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 142,
+          "name": "Sin Cia Po",
+          "held_kg12": 8,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 143,
+          "name": "Sitara Indian Restaurant",
+          "held_kg12": 6,
+          "held_kg50": 11,
+          "notes": null
+        },
+        {
+          "no": 144,
+          "name": "Soes Merdeka",
+          "held_kg12": 14,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 145,
+          "name": "Spiffy Laundry",
+          "held_kg12": 6,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 146,
+          "name": "SPPG Al-Bukhori Lembanah Pragaan Sumenep",
+          "held_kg12": 4,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 147,
+          "name": "SPPG Banjarbendo",
+          "held_kg12": 0,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 148,
+          "name": "SPPG Berkah Nusantara Peduli",
+          "held_kg12": 0,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 149,
+          "name": "SPPG BU Adissa",
+          "held_kg12": 0,
+          "held_kg50": 14,
+          "notes": null
+        },
+        {
+          "no": 150,
+          "name": "SPPG SPPG Budi Utomo",
+          "held_kg12": 0,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 151,
+          "name": "SPPG Bulak Banteng",
+          "held_kg12": 0,
+          "held_kg50": 8,
+          "notes": null
+        },
+        {
+          "no": 152,
+          "name": "SPPG Damarsi Buduran",
+          "held_kg12": 30,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 153,
+          "name": "SPPG Gayungsari Ketintang 3",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 154,
+          "name": "SPPG Jl. Bromo Magetan",
+          "held_kg12": 0,
+          "held_kg50": 11,
+          "notes": null
+        },
+        {
+          "no": 157,
+          "name": "SPPG Maranata Magetan",
+          "held_kg12": 12,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 158,
+          "name": "SPPG Mlajah Bangkalan",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 159,
+          "name": "SPPG Ponpes Al Ahyar Bangkalan",
+          "held_kg12": 4,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 160,
+          "name": "SPPG Purwodadi 1",
+          "held_kg12": 3,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 161,
+          "name": "SPPG Sengonagung 1",
+          "held_kg12": 0,
+          "held_kg50": 8,
+          "notes": null
+        },
+        {
+          "no": 162,
+          "name": "SPPG Sumbergedong Trenggalek",
+          "held_kg12": 25,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 163,
+          "name": "SPPG T.A Kusuma Dewi",
+          "held_kg12": 14,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 164,
+          "name": "SPPG Tosari Pasuruan",
+          "held_kg12": 57,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 170,
+          "name": "Teras Makan HARARU",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 172,
+          "name": "Toko Grosir kebonsari",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 173,
+          "name": "UD. Levis",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 174,
+          "name": "UD. Sampurna Pabrik Roti",
+          "held_kg12": 0,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 177,
+          "name": "Waroeng Bamboe",
+          "held_kg12": 60,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 178,
+          "name": "Wedang Joglo",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 180,
+          "name": "Wisnu Dewa",
+          "held_kg12": 16,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 181,
+          "name": "Yayasan IBNU BACHIR",
+          "held_kg12": 2,
+          "held_kg50": 7,
+          "notes": null
+        }
+      ]
+    },
+    "YOG": {
+      "hmt": { "KG12": 1760, "KG50": 545 },
+      "kuota_wo": { "KG12": 201, "KG50": 7 },
+      "customer_holdings": [
+        {
+          "no": 1,
+          "name": "AL-IMDAD",
+          "held_kg12": 21,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 2,
+          "name": "Antologi Koperasi Ken8",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 4,
+          "name": "Ayam Goreng NINIT 1983 Jakal",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 5,
+          "name": "Ayam Goreng NINIT 1983 Nogotirto",
+          "held_kg12": 3,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 6,
+          "name": "Ayam Goreng NINIT Lempuyangan",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 9,
+          "name": "Bakul Sekul",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 11,
+          "name": "Baleroso Godean 3",
+          "held_kg12": 36,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 12,
+          "name": "Baleroso Jakal",
+          "held_kg12": 29,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 13,
+          "name": "Baleroso Prambanan",
+          "held_kg12": 33,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 14,
+          "name": "Bebek Carok",
+          "held_kg12": 0,
+          "held_kg50": 1,
+          "notes": null
+        },
+        {
+          "no": 15,
+          "name": "Bebex Cuex",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 16,
+          "name": "Budi Mulia Culinary School",
+          "held_kg12": 0,
+          "held_kg50": 1,
+          "notes": null
+        },
+        {
+          "no": 17,
+          "name": "Burger Bangor Achmad Dahlan",
+          "held_kg12": 6,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 18,
+          "name": "Burger Bangor Demangan",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 19,
+          "name": "Burger Bangor Jakal 88",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 20,
+          "name": "Burger Bangor Jakal Uii",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 21,
+          "name": "Burger Bangor Janti",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 22,
+          "name": "Burger Bangor Piyungan",
+          "held_kg12": 5,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 23,
+          "name": "Catering Bosskid",
+          "held_kg12": 75,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 25,
+          "name": "Catering Rahayu",
+          "held_kg12": 1,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 26,
+          "name": "Catering Sirikit",
+          "held_kg12": 12,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 29,
+          "name": "CV. Djava Kasih Karunia",
+          "held_kg12": 13,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 31,
+          "name": "Danika",
+          "held_kg12": 16,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 32,
+          "name": "Dapur SPPG Gulurejo Lendah",
+          "held_kg12": 0,
+          "held_kg50": 12,
+          "notes": null
+        },
+        {
+          "no": 35,
+          "name": "Gajah Mada",
+          "held_kg12": 0,
+          "held_kg50": 45,
+          "notes": null
+        },
+        {
+          "no": 39,
+          "name": "Iga Bakar Bali",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 40,
+          "name": "Ikan Bakar Kintamani",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 42,
+          "name": "JEEVA",
+          "held_kg12": 8,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 44,
+          "name": "Kandang Ary Nugroho",
+          "held_kg12": 65,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 45,
+          "name": "Kandang Tosca",
+          "held_kg12": 17,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 47,
+          "name": "Kedai Uncle J",
+          "held_kg12": 1,
+          "held_kg50": 3,
+          "notes": null
+        },
+        {
+          "no": 50,
+          "name": "Kims bar and Kitchen",
+          "held_kg12": 8,
+          "held_kg50": 4,
+          "notes": null
+        },
+        {
+          "no": 51,
+          "name": "Koat Coffe Jakal",
+          "held_kg12": 6,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 52,
+          "name": "Koat Coffe Palagan",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 53,
+          "name": "Koat Kopi Seturan",
+          "held_kg12": 12,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 56,
+          "name": "Kolana Resto",
+          "held_kg12": 2,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 57,
+          "name": "Kopontren Al Mumtaz",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 59,
+          "name": "Ledok Sambi",
+          "held_kg12": 66,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 60,
+          "name": "Linglung Kopi",
+          "held_kg12": 7,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 61,
+          "name": "Loroblonyo Catering",
+          "held_kg12": 7,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 64,
+          "name": "MBG Joglo Yoso",
+          "held_kg12": 23,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 66,
+          "name": "Nasi Hainan MeiWei",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 68,
+          "name": "Omah Bebek",
+          "held_kg12": 22,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 69,
+          "name": "Omah Bebek Jakal",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 71,
+          "name": "Oman Njonja",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 72,
+          "name": "Penyetan Sedep Mantep",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 73,
+          "name": "Pibee Resto Jogja",
+          "held_kg12": 1,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 76,
+          "name": "Prima SR Hotel",
+          "held_kg12": 9,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 77,
+          "name": "PT. API",
+          "held_kg12": 1,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 80,
+          "name": "PT. Setiap Hari Beruntung",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 81,
+          "name": "PT. TIGA KETAPANG",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 82,
+          "name": "Racikan Resto",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 83,
+          "name": "Rahayu Catering",
+          "held_kg12": 11,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 90,
+          "name": "Restoran Jejamuran",
+          "held_kg12": 11,
+          "held_kg50": 14,
+          "notes": null
+        },
+        {
+          "no": 92,
+          "name": "Roti Kolonial",
+          "held_kg12": 10,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 93,
+          "name": "Sampai Villa",
+          "held_kg12": 30,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 95,
+          "name": "Selo Coffe",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 96,
+          "name": "Selo Coffe 2",
+          "held_kg12": 12,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 97,
+          "name": "Silol Kopi",
+          "held_kg12": 7,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 98,
+          "name": "Smile Laundry",
+          "held_kg12": 4,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 100,
+          "name": "SPPG AL-IMDAD Triwidadi",
+          "held_kg12": 15,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 101,
+          "name": "SPPG Baleharjo Wonosari 001",
+          "held_kg12": 2,
+          "held_kg50": 13,
+          "notes": null
+        },
+        {
+          "no": 102,
+          "name": "SPPG Banjarharjo Kalibawang",
+          "held_kg12": 1,
+          "held_kg50": 1,
+          "notes": null
+        },
+        {
+          "no": 103,
+          "name": "SPPG Bawuran (Hj. Siwi Catering)",
+          "held_kg12": 0,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 104,
+          "name": "SPPG Bibis Bangunjiwo",
+          "held_kg12": 5,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 106,
+          "name": "SPPG Depok Nologaten",
+          "held_kg12": 9,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 107,
+          "name": "SPPG Dlingo",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 108,
+          "name": "SPPG GIWANGAN 2",
+          "held_kg12": 8,
+          "held_kg50": 8,
+          "notes": null
+        },
+        {
+          "no": 109,
+          "name": "SPPG GROBOGAN GEYER GEYER",
+          "held_kg12": 13,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 110,
+          "name": "SPPG Gunung Payung",
+          "held_kg12": 0,
+          "held_kg50": 11,
+          "notes": null
+        },
+        {
+          "no": 111,
+          "name": "SPPG Kalikotes",
+          "held_kg12": 6,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 113,
+          "name": "SPPG Kricak Tegalrejo",
+          "held_kg12": 8,
+          "held_kg50": 10,
+          "notes": null
+        },
+        {
+          "no": 115,
+          "name": "SPPG Nurul Qur'an",
+          "held_kg12": 5,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 116,
+          "name": "SPPG Pendowoharjo",
+          "held_kg12": 1,
+          "held_kg50": 1,
+          "notes": null
+        },
+        {
+          "no": 117,
+          "name": "SPPG Playen",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 118,
+          "name": "SPPG Ponjong",
+          "held_kg12": 57,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 119,
+          "name": "SPPG Purwobinangun",
+          "held_kg12": 0,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 120,
+          "name": "SPPG SAMBAK DANYANG",
+          "held_kg12": 10,
+          "held_kg50": 13,
+          "notes": null
+        },
+        {
+          "no": 121,
+          "name": "SPPG SEMBUNG WEDI KLATEN",
+          "held_kg12": 0,
+          "held_kg50": 9,
+          "notes": null
+        },
+        {
+          "no": 122,
+          "name": "SPPG Sendangtirto",
+          "held_kg12": 2,
+          "held_kg50": 5,
+          "notes": null
+        },
+        {
+          "no": 123,
+          "name": "SPPG SMK MUHAMMADIYAH Cangkringan",
+          "held_kg12": 8,
+          "held_kg50": 10,
+          "notes": null
+        },
+        {
+          "no": 124,
+          "name": "SPPG Srimartani 3",
+          "held_kg12": 1,
+          "held_kg50": 1,
+          "notes": null
+        },
+        {
+          "no": 125,
+          "name": "SPPG Tegalrejo",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 127,
+          "name": "SPPG Toroh Boloh",
+          "held_kg12": 36,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 128,
+          "name": "SPPG Trihanggo Gamping",
+          "held_kg12": 4,
+          "held_kg50": 16,
+          "notes": null
+        },
+        {
+          "no": 129,
+          "name": "SPPG WI Ngemplak",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 130,
+          "name": "SPPG WI Tridadi",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        },
+        {
+          "no": 132,
+          "name": "STATE Café and Brasserie",
+          "held_kg12": 5,
+          "held_kg50": 6,
+          "notes": null
+        },
+        {
+          "no": 133,
+          "name": "Suryo Mapan",
+          "held_kg12": 1,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 136,
+          "name": "Teduh Coffe (Ditro Grill Cofee)",
+          "held_kg12": 9,
+          "held_kg50": 0,
+          "notes": null
+        },
+        {
+          "no": 142,
+          "name": "Wanawatu Resto",
+          "held_kg12": 16,
+          "held_kg50": 10,
+          "notes": null
+        },
+        {
+          "no": 145,
+          "name": "WARUNG TABURAI JOGJA",
+          "held_kg12": 0,
+          "held_kg50": 7,
+          "notes": null
+        },
+        {
+          "no": 148,
+          "name": "Yayasan Sahabat Anak Nusa",
+          "held_kg12": 16,
+          "held_kg50": 13,
+          "notes": null
+        },
+        {
+          "no": 149,
+          "name": "Yomok Iki",
+          "held_kg12": 0,
+          "held_kg50": 2,
+          "notes": null
+        }
+      ]
+    }
+  },
+  "employees": {
+    "note": "Seed Employee table. All SBY branch. YOG employees to be added manually.",
+    "driver_pairs": [
+      "AMBIL SENDIRI",
+      "ANTOK",
+      "ANTOK/HENDRIK",
+      "ANTOK/NANANG",
+      "ANTOK/TEGUH",
+      "HENDRIK/NANANG",
+      "HENDRIK/TEGUH",
+      "HENDRIK/WAHYU",
+      "NANANG",
+      "NANANG/FIKRI",
+      "NANANG/TEGUH",
+      "RUDI",
+      "RUDI/HENDRIK",
+      "RUDI/TEGUH",
+      "RUDI/WAHYU"
+    ],
+    "records": [
+      {
+        "displayName": "AMBIL SENDIRI",
+        "fullName": "AMBIL SENDIRI",
+        "branch": "SBY",
+        "roles": ["DRIVER"]
+      },
+      {
+        "displayName": "ANTOK",
+        "fullName": "ANTOK",
+        "branch": "SBY",
+        "roles": ["DRIVER"]
+      },
+      {
+        "displayName": "FIKRI",
+        "fullName": "FIKRI",
+        "branch": "SBY",
+        "roles": ["KENEK"]
+      },
+      {
+        "displayName": "HENDRIK",
+        "fullName": "HENDRIK",
+        "branch": "SBY",
+        "roles": ["DRIVER"],
+        "note": "Normalised from HNEDRIK"
+      },
+      {
+        "displayName": "NANANG",
+        "fullName": "NANANG",
+        "branch": "SBY",
+        "roles": ["KENEK"]
+      },
+      {
+        "displayName": "RUDI",
+        "fullName": "RUDI",
+        "branch": "SBY",
+        "roles": ["DRIVER"]
+      },
+      {
+        "displayName": "TEGUH",
+        "fullName": "TEGUH",
+        "branch": "SBY",
+        "roles": ["KENEK"]
+      },
+      {
+        "displayName": "WAHYU",
+        "fullName": "WAHYU",
+        "branch": "SBY",
+        "roles": ["KENEK"]
+      }
+    ]
+  },
+  "static_seed": {
+    "branches": [
+      { "code": "SBY", "name": "Surabaya" },
+      { "code": "YOG", "name": "Yogyakarta" }
+    ],
+    "supplier": { "code": "ARSY", "name": "PT. Arsygas Nix Indonesia" },
+    "hmt_quota_march_2026": {
+      "SBY": { "KG12": { "quotaQty": 1900 }, "KG50": { "quotaQty": 723 } },
+      "YOG": { "KG12": { "quotaQty": 1760 }, "KG50": { "quotaQty": 545 } }
+    },
+    "default_users": [
+      {
+        "email": "admin@ssg.id",
+        "name": "Super Admin",
+        "role": "SUPER_ADMIN",
+        "branch": null
+      },
+      {
+        "email": "manager.sby@ssg.id",
+        "name": "Manager SBY",
+        "role": "BRANCH_MANAGER",
+        "branch": "SBY"
+      },
+      {
+        "email": "manager.yog@ssg.id",
+        "name": "Manager YOG",
+        "role": "BRANCH_MANAGER",
+        "branch": "YOG"
+      }
+    ]
+  }
+}

@@ -2,3 +2,27 @@
 
 
 
+prisma generate         Generates Prisma Client from your schema
+prisma validate         Validates your schema.prisma file
+prisma format           Formats your schema.prisma file
+
+Database
+
+prisma db pull          Introspects DB → pulls schema from existing database
+prisma db push          Pushes schema to DB without migration files (good for prototyping)
+prisma db seed          Runs your seed script
+prisma db execute       Executes raw SQL against your DB
+
+Migrations
+prisma migrate dev      Creates + applies migration (development)
+prisma migrate deploy   Applies pending migrations (production)
+prisma migrate reset    Drops DB, re-applies all migrations + seed
+prisma migrate status   Shows which migrations are applied/pending
+prisma migrate diff     Diffs two schema states
+prisma migrate resolve  Marks a failed migration as resolved
+
+Introspection
+prisma introspect       Same as db pull, older alias
+
+Studio
+prisma studio           Opens a GUI to browse/edit your database in browser

@@ -1,9 +1,9 @@
 # .gitignore
 
 # # ─── Environment ─────────────────────────────────────────────────────────────
-# .env
-# .env.local
-# .env.*.local
+.env
+.env.local
+.env.*.local
 
 # ─── Next.js ─────────────────────────────────────────────────────────────────
 .next/
@@ -41,3 +41,5 @@ Thumbs.db
 .vercel
 
 #
+
+/generated/prisma

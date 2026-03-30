@@ -319,10 +319,10 @@ async function main() {
 
   await seedBranches();
   await seedSupplier();
-  // await seedHmtQuotas();
+  await seedHmtQuotas();
   // await seedCustomers();
-  // await seedGasbackOpeningBalances();
-  // await seedCylinderHoldings();
+  await seedGasbackOpeningBalances();
+  await seedCylinderHoldings();
   await seedWarehouseStockOpening();
   await seedEmployees();
   await seedDefaultUsers();
