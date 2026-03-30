@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { registerSidebarToggle } from "@/lib/sidebar-store";
 
 interface SidebarProps {
   user: {
@@ -194,8 +195,6 @@ const ROLE_MAP: Record<string, { label: string; cls: string }> = {
   READONLY:        { label: "Read Only",      cls: "bg-gray-500/20 text-gray-300 border-gray-500/30" },
 };
 
-// ── Exported context so Topbar can toggle sidebar on mobile ───────────────────
-export let toggleMobileSidebar: (() => void) | null = null;
 
 export default function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
@@ -204,10 +203,10 @@ export default function Sidebar({ user }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Expose toggle to Topbar
-  useEffect(() => {
-    toggleMobileSidebar = () => setMobileOpen(o => !o);
-    return () => { toggleMobileSidebar = null; };
+useEffect(() => {
+    registerSidebarToggle(() => setMobileOpen(o => !o));
   }, []);
+
 
   // Close on route change
   useEffect(() => {

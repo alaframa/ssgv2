@@ -3,7 +3,7 @@
 
 import Breadcrumb from "@/components/Breadcrumb";
 import BranchSwitcher from "@/components/BranchSwitcher";
-import { toggleMobileSidebar } from "@/components/Sidebar";
+import { toggleMobileSidebar } from "@/lib/sidebar-store";
 
 export default function Topbar() {
   return (
