@@ -10,18 +10,20 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const bySerial = searchParams.get("serial");
+  const { id } = await params;
+
 
   // Allow lookup by serial code as well
   const unit = bySerial
     ? await prisma.cylinderUnit.findUnique({ where: { serialCode: bySerial } })
-    : await prisma.cylinderUnit.findUnique({ where: { id: params.id } });
+    : await prisma.cylinderUnit.findUnique({ where: { id } });
 
   if (!unit) return NextResponse.json({ error: "Cylinder not found" }, { status: 404 });
 

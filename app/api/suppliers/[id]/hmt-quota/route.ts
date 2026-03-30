@@ -10,7 +10,7 @@ import { CylinderSize } from "@prisma/client";
 // ─── GET /api/suppliers/[id]/hmt-quota ───────────────────────────────────────
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,7 +20,9 @@ export async function GET(
   const month = searchParams.get("month");
   const year = searchParams.get("year");
 
-  const where: any = { supplierId: params.id };
+  const { id } = await params;
+
+  const where: any = { supplierId: id };
   if (branchId) where.branchId = branchId;
   if (month) where.periodMonth = parseInt(month);
   if (year) where.periodYear = parseInt(year);
