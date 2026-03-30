@@ -8,15 +8,16 @@ import { PoStatus } from "@prisma/client";
 // GET /api/customer-po/[id]
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
   const cpo = await prisma.customerPo.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       customer: { select: { id: true, name: true, code: true, customerType: true } },
       branch: { select: { id: true, code: true, name: true } },

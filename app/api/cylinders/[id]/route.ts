@@ -11,17 +11,18 @@ import { CylinderCondition, CylinderStatus } from "@prisma/client";
 // Also accepts ?serial=XXX-001 to look up by serialCode
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const bySerial = searchParams.get("serial");
+  const { id } = await params;
 
   const unit = bySerial
     ? await prisma.cylinderUnit.findUnique({ where: { serialCode: bySerial }, include: unitInclude })
-    : await prisma.cylinderUnit.findUnique({ where: { id: params.id }, include: unitInclude });
+    : await prisma.cylinderUnit.findUnique({ where: { id }, include: unitInclude });
 
   if (!unit) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

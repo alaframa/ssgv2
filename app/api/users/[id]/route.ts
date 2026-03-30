@@ -7,15 +7,16 @@ import bcrypt from "bcryptjs";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (session.user.role !== "SUPER_ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const { id } = await params;
   const user = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: {
       id: true, name: true, email: true, role: true, isActive: true, createdAt: true,
       branch: { select: { id: true, name: true, code: true } },

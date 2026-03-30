@@ -10,13 +10,16 @@ import { EmployeeRoleType } from "@prisma/client";
 // ─── GET /api/employees/[id]/roles ────────────────────────────────────────────
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
+
+
   const roles = await prisma.employeeRole.findMany({
-    where: { employeeId: params.id },
+    where: { employeeId: id },
     orderBy: { assignedAt: "asc" },
   });
 

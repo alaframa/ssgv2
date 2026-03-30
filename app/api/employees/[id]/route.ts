@@ -9,13 +9,15 @@ import { z } from "zod";
 // ─── GET /api/employees/[id] ──────────────────────────────────────────────────
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
+
   const employee = await prisma.employee.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       branch: { select: { id: true, code: true, name: true } },
       roles: { orderBy: { assignedAt: "asc" } },

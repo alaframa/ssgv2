@@ -9,13 +9,16 @@ import { z } from "zod";
 // ─── GET /api/suppliers/[id] ──────────────────────────────────────────────────
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
+
+
   const supplier = await prisma.supplier.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       hmtQuotas: {
         include: { branch: { select: { code: true, name: true } } },
