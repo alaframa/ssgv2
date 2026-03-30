@@ -1,14 +1,5 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  experimental: {
-    outputFileTracingExcludes: {
-      "*": [
-        "./**/(dashboard)/**",
-      ],
-    },
-  },
-};
-
-
+const nextConfig = {};
 module.exports = nextConfig;
+
