@@ -27,14 +27,14 @@ export async function GET(
 
   // Get latest gasback balance
   const latestGasback = await prisma.gasbackLedger.findFirst({
-    where: { customerId: params.id },
+    where: { customerId: id },
     orderBy: { txDate: "desc" },
     select: { runningBalance: true, txDate: true },
   });
 
   // Get cylinder holdings (latest per date, desc)
   const holdings = await prisma.customerCylinderHolding.findMany({
-    where: { customerId: params.id },
+    where: { customerId: id },
     orderBy: { date: "desc" },
     take: 30,
   });
