@@ -2,6 +2,7 @@
 //
 // Each seedXxx() function is independent. Comment out any call in main()
 // to skip that section when testing specific features.
+import "dotenv/config";   // ← ADD THIS as the first line
 
 import { PrismaClient, CustomerType, GasbackTxType } from "@prisma/client";
 import bcrypt from "bcryptjs";
