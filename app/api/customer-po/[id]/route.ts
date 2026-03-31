@@ -78,8 +78,10 @@ export async function PATCH(
   const status = raw.status;
   const notes = raw.notes;
 
+  const { id } = params;
+
   const cpo = await prisma.customerPo.findUnique({
-    where: { id: params.id },
+    where: { id },
   });
 
   if (!cpo) {
@@ -111,7 +113,7 @@ export async function PATCH(
   }
 
   const updated = await prisma.customerPo.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(status !== undefined ? { status } : {}),
       ...(notes !== undefined ? { notes } : {}),

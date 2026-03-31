@@ -64,9 +64,9 @@ export async function PATCH(
     status, kg12Delivered, kg50Delivered,
     driverId, kenetId, vehicleNo, supplierPoRef, notes,
   } = body as Record<string, unknown>;
-
+  const { id } = await params;
   const order = await prisma.deliveryOrder.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       customerPo: { include: { customer: { select: { id: true } } } },
     },
@@ -118,7 +118,7 @@ export async function PATCH(
     });
 
     const updated = await prisma.deliveryOrder.update({
-      where: { id: params.id },
+      where: { id },
       data: { ...updateData, status: "IN_TRANSIT" },
     });
 
@@ -225,7 +225,7 @@ export async function PATCH(
     });
 
     const doUpdateOp = prisma.deliveryOrder.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...updateData,
         status: status as DoStatus,   
@@ -264,7 +264,7 @@ export async function PATCH(
           qty:             gasbackQty,
           amount:          gasbackAmount,
           runningBalance:  newRunningBalance,
-          deliveryOrderId: params.id,
+          deliveryOrderId: id,
           txDate:          new Date(),
           notes: `DO ${order.doNumber} — ${kg12Del}×12kg(@${rateKg12}) + ${kg50Del}×50kg(@${rateKg50})`,
         },
@@ -277,7 +277,7 @@ export async function PATCH(
 
   // Simple field-only update (no status change)
   const updated = await prisma.deliveryOrder.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...updateData,
       ...(status ? { status: status as DoStatus } : {}),  
