@@ -5,11 +5,15 @@
 import "dotenv/config";   // ← ADD THIS as the first line
 
 import { PrismaClient, CustomerType, GasbackTxType } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+
 import bcrypt from "bcryptjs";
 import * as fs from "fs";
 import * as path from "path";
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+
+const prisma = new PrismaClient({ adapter });
 
 const seedData = JSON.parse(
   fs.readFileSync(path.join(__dirname, "seed-data.json"), "utf-8")
