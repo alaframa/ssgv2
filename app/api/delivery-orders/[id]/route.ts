@@ -64,7 +64,9 @@ export async function PATCH(
     status, kg12Delivered, kg50Delivered,
     driverId, kenetId, vehicleNo, supplierPoRef, notes,
   } = body as Record<string, unknown>;
+
   const { id } = await params;
+
   const order = await prisma.deliveryOrder.findUnique({
     where: { id },
     include: {
@@ -108,7 +110,7 @@ export async function PATCH(
       where: {
         events: {
           some: {
-            deliveryOrderId: params.id,
+            deliveryOrderId: id,
             eventType: "DISPATCHED_TO_CUSTOMER",
           },
         },
@@ -145,7 +147,7 @@ export async function PATCH(
       where: {
         events: {
           some: {
-            deliveryOrderId: params.id,
+            deliveryOrderId: id,
             eventType: "DISPATCHED_TO_CUSTOMER",
           },
         },
@@ -155,7 +157,7 @@ export async function PATCH(
     });
 
     const updated = await prisma.deliveryOrder.update({
-      where: { id: params.id },
+      where: { id: id },
       data: { ...updateData, status: "CANCELLED" },
     });
 

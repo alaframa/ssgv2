@@ -48,7 +48,7 @@ const QuotaSchema = z.object({
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -66,12 +66,12 @@ export async function POST(
   }
 
   const data = parsed.data;
-
+  const { id } = await params;
   // Upsert: if quota for same supplier+branch+size+month+year exists, update it
   const quota = await prisma.supplierHmtQuota.upsert({
     where: {
       supplierId_branchId_cylinderSize_periodMonth_periodYear: {
-        supplierId: params.id,
+        supplierId: id,
         branchId: data.branchId,
         cylinderSize: data.cylinderSize,
         periodMonth: data.periodMonth,
@@ -83,7 +83,7 @@ export async function POST(
       pricePerUnit: data.pricePerUnit,
     },
     create: {
-      supplierId: params.id,
+      supplierId: id,
       branchId: data.branchId,
       cylinderSize: data.cylinderSize,
       periodMonth: data.periodMonth,
@@ -101,7 +101,10 @@ export async function POST(
 // Same as POST — delegates to upsert
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  return POST(req, { params });
+  const { id } = await params;
+
+  // Re-wrap the id as a Promise to satisfy the POST handler's expected type
+  return POST(req, { params: Promise.resolve({ id }) });
 }

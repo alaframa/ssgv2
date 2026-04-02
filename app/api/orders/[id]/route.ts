@@ -70,13 +70,15 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+  const { id } = await params;
+
   const po = await prisma.supplierPo.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { supplier: true },
   });
   if (!po) return NextResponse.json({ error: "PO tidak ditemukan" }, { status: 404 });
@@ -107,7 +109,7 @@ export async function PATCH(
   // ── $transaction for CONFIRMED: bump HMT usedQty ───────────────────────────
   const updated = await prisma.$transaction(async (tx) => {
     const result = await tx.supplierPo.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: newStatus,
         ...(newStatus === "CONFIRMED" ? { confirmedAt: new Date() } : {}),

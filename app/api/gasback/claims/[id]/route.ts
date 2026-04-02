@@ -37,7 +37,7 @@ export async function GET(
 // Body: { action: "mark_paid", paymentRef?: string }
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -47,8 +47,8 @@ export async function PATCH(
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const { action, paymentRef } = body as Record<string, unknown>;
-
-  const claim = await prisma.gasbackClaim.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+  const claim = await prisma.gasbackClaim.findUnique({ where: { id } });
   if (!claim) return NextResponse.json({ error: "Klaim tidak ditemukan" }, { status: 404 });
 
   if (action === "mark_paid") {
@@ -56,7 +56,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Klaim sudah dibayar" }, { status: 409 });
     }
     const updated = await prisma.gasbackClaim.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         isPaid:     true,
         paidAt:     new Date(),
@@ -68,7 +68,7 @@ export async function PATCH(
 
   if (action === "mark_unpaid") {
     const updated = await prisma.gasbackClaim.update({
-      where: { id: params.id },
+      where: { id },
       data: { isPaid: false, paidAt: null, paymentRef: null },
     });
     return NextResponse.json(updated);

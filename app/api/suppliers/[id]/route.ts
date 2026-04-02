@@ -42,12 +42,13 @@ const UpdateSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { id } = await params;
 
-  const existing = await prisma.supplier.findUnique({ where: { id: params.id } });
+  const existing = await prisma.supplier.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   let body: unknown;
@@ -65,7 +66,7 @@ export async function PUT(
   const data = parsed.data;
 
   const updated = await prisma.supplier.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.npwp !== undefined && { npwp: data.npwp }),

@@ -40,7 +40,9 @@ export async function POST(
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const employee = await prisma.employee.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+
+  const employee = await prisma.employee.findUnique({ where: { id } });
   if (!employee) return NextResponse.json({ error: "Employee not found" }, { status: 404 });
 
   let body: unknown;
@@ -54,11 +56,11 @@ export async function POST(
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 422 });
   }
-  const { id } = await params;
+
 
   // Check if role already assigned
   const existing = await prisma.employeeRole.findFirst({
-    where: { employeeId: { id }, role: parsed.data.role },
+    where: { employeeId: id, role: parsed.data.role },
   });
   if (existing) {
     return NextResponse.json(
@@ -69,7 +71,7 @@ export async function POST(
 
   const role = await prisma.employeeRole.create({
     data: {
-      employeeId: { id },
+      employeeId: id,
       role: parsed.data.role,
       notes: parsed.data.notes || null,
     },
@@ -84,6 +86,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -98,10 +102,10 @@ export async function DELETE(
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid role" }, { status: 422 });
   }
-  const { id } = await params;
+
 
   // Prevent removing last role
-  const count = await prisma.employeeRole.count({ where: { employeeId: { id } } });
+  const count = await prisma.employeeRole.count({ where: { employeeId: id } });
   if (count <= 1) {
     return NextResponse.json(
       { error: "Cannot remove the last role — employee must have at least one role" },
@@ -110,7 +114,7 @@ export async function DELETE(
   }
 
   await prisma.employeeRole.deleteMany({
-    where: { employeeId: { id }, role: parsed.data.role },
+    where: { employeeId: id, role: parsed.data.role },
   });
 
   return NextResponse.json({ ok: true });

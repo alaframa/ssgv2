@@ -30,7 +30,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -48,9 +48,9 @@ export async function PATCH(
   if (password) {
     updateData.passwordHash = await bcrypt.hash(password, 12);
   }
-
+  const { id } = await params;
   const user = await prisma.user.update({
-    where: { id: params.id },
+    where: { id },
     data: updateData,
     select: {
       id: true, name: true, email: true, role: true, isActive: true,

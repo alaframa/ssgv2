@@ -148,7 +148,7 @@ export async function GET(
 // action: "LOCK" — transitions OPEN → LOCKED
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -165,8 +165,8 @@ export async function PATCH(
   if (!parsed.success) {
     return NextResponse.json({ error: "Validasi gagal", issues: parsed.error.flatten() }, { status: 422 });
   }
-
-  const period = await prisma.monthlyRecon.findUnique({ where: { id: params.id } });
+  const { id } = await params;
+  const period = await prisma.monthlyRecon.findUnique({ where: { id } });
   if (!period) return NextResponse.json({ error: "Periode tidak ditemukan" }, { status: 404 });
 
   // Non-SUPER_ADMIN can only lock their own branch
@@ -179,7 +179,7 @@ export async function PATCH(
   }
 
   const updated = await prisma.monthlyRecon.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       status:   "LOCKED",
       lockedAt: new Date(),
