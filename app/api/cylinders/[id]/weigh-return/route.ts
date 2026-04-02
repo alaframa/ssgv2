@@ -23,19 +23,19 @@ import { CylinderCondition, CylinderStatus, CylinderEventType, GasbackTxType } f
 
 const WeighSchema = z.object({
   // The EmptyReturn record this weighing is associated with (required)
-  emptyReturnId:    z.string().min(1),
+  emptyReturnId: z.string().min(1),
   // Customer who returned this cylinder
-  customerId:       z.string().min(1),
+  customerId: z.string().min(1),
   // Weight of the returned cylinder (kg) — measured on scale
   weightReturnedKg: z.number().positive(),
   // Condition after return
-  condition:        z.nativeEnum(CylinderCondition).optional(),
-  notes:            z.string().optional(),
+  condition: z.nativeEnum(CylinderCondition).optional(),
+  notes: z.string().optional(),
 });
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,8 +52,9 @@ export async function POST(
   const { emptyReturnId, customerId, weightReturnedKg, condition, notes } = parsed.data;
 
   // Load cylinder with type for tare fallback
+  const { id } = await params;
   const unit = await prisma.cylinderUnit.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { type: true },
   });
   if (!unit) return NextResponse.json({ error: "Cylinder not found" }, { status: 404 });
@@ -93,12 +94,12 @@ export async function POST(
 
   // Get gasback running balance for customer
   const lastLedger = await prisma.gasbackLedger.findFirst({
-    where:   { customerId },
+    where: { customerId },
     orderBy: { createdAt: "desc" },
-    select:  { runningBalance: true },
+    select: { runningBalance: true },
   });
-  const prevBalance    = lastLedger ? Number(lastLedger.runningBalance) : 0;
-  const newBalance     = prevBalance + gasbackKg;
+  const prevBalance = lastLedger ? Number(lastLedger.runningBalance) : 0;
+  const newBalance = prevBalance + gasbackKg;
 
   const now = new Date();
 
@@ -107,18 +108,18 @@ export async function POST(
     // 1. Create the return/weigh event
     prisma.cylinderEvent.create({
       data: {
-        branchId:         unit.branchId,
-        cylinderUnitId:   unit.id,
-        eventType:        CylinderEventType.RETURNED_FROM_CUSTOMER,
-        eventAt:          now,
+        branchId: unit.branchId,
+        cylinderUnitId: unit.id,
+        eventType: CylinderEventType.RETURNED_FROM_CUSTOMER,
+        eventAt: now,
         emptyReturnId,
         customerId,
         weightDispatchedKg: lastDispatch?.weightDispatchedKg ?? null,
         weightReturnedKg,
-        gasbackKg:        gasbackKg > 0 ? gasbackKg : null,
-        condition:        condition ?? CylinderCondition.GOOD,
-        notes:            notes ?? null,
-        recordedBy:       session.user.name,
+        gasbackKg: gasbackKg > 0 ? gasbackKg : null,
+        condition: condition ?? CylinderCondition.GOOD,
+        notes: notes ?? null,
+        recordedBy: session.user.name,
       },
     }),
 
@@ -126,29 +127,29 @@ export async function POST(
     prisma.cylinderUnit.update({
       where: { id: unit.id },
       data: {
-        status:            CylinderStatus.WAREHOUSE_EMPTY,
-        condition:         condition ?? unit.condition,
+        status: CylinderStatus.WAREHOUSE_EMPTY,
+        condition: condition ?? unit.condition,
         currentCustomerId: null,
-        locationNote:      null,
+        locationNote: null,
       },
     }),
 
     // 3. Credit gasback to customer if any gas remains
     ...(gasbackKg > 0
       ? [
-          prisma.gasbackLedger.create({
-            data: {
-              branchId:       unit.branchId,
-              customerId,
-              txType:         GasbackTxType.CREDIT,
-              qty:            gasbackKg,
-              amount:         gasbackKg,
-              runningBalance: newBalance,
-              txDate:         now,
-              notes: `Gasback dari timbang tabung ${unit.serialCode} — sisa gas ${gasbackKg.toFixed(3)} kg`,
-            },
-          }),
-        ]
+        prisma.gasbackLedger.create({
+          data: {
+            branchId: unit.branchId,
+            customerId,
+            txType: GasbackTxType.CREDIT,
+            qty: gasbackKg,
+            amount: gasbackKg,
+            runningBalance: newBalance,
+            txDate: now,
+            notes: `Gasback dari timbang tabung ${unit.serialCode} — sisa gas ${gasbackKg.toFixed(3)} kg`,
+          },
+        }),
+      ]
       : []),
   ]);
 
@@ -158,7 +159,7 @@ export async function POST(
       where: {
         customerId,
         txType: GasbackTxType.CREDIT,
-        notes:  { contains: unit.serialCode },
+        notes: { contains: unit.serialCode },
         createdAt: { gte: now },
       },
       data: { cylinderEventId: event.id },
@@ -167,12 +168,12 @@ export async function POST(
 
   return NextResponse.json({
     success: true,
-    serialCode:       unit.serialCode,
+    serialCode: unit.serialCode,
     tare,
     weightReturnedKg,
     gasbackKg,
     newGasbackBalance: newBalance,
-    eventId:           event.id,
+    eventId: event.id,
     message: gasbackKg > 0
       ? `✓ Sisa gas ${gasbackKg.toFixed(3)} kg dikreditkan ke gasback ${customer.name}`
       : `Tidak ada sisa gas. Gasback = 0.`,

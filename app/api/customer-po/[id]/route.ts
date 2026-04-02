@@ -60,7 +60,7 @@ function isPoStatus(value: unknown): value is PoStatus {
 // PATCH /api/customer-po/[id]
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -78,7 +78,7 @@ export async function PATCH(
   const status = raw.status;
   const notes = raw.notes;
 
-  const { id } = params;
+  const { id } = await params;
 
   const cpo = await prisma.customerPo.findUnique({
     where: { id },

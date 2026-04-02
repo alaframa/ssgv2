@@ -58,7 +58,7 @@ const UpdateSchema = z.object({
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -72,8 +72,9 @@ export async function PATCH(
     return NextResponse.json({ error: "Validation error", details: parsed.error.flatten() }, { status: 422 });
   }
 
+  const { id } = await params;
   const unit = await prisma.cylinderUnit.update({
-    where: { id: params.id },
+    where: { id },
     data:  parsed.data,
     include: { type: true },
   });
