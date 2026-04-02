@@ -1,5 +1,6 @@
 // app/api/warehouse/empty-return/route.ts
 // SPRINT 11 UPDATE: Added LOCKED period check to POST
+// SPRINT 11 FIX: returnNumber is now auto-generated server-side
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -9,15 +10,15 @@ import { z } from "zod";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const CreateSchema = z.object({
-  branchId:     z.string().min(1),
-  returnNumber: z.string().min(1).max(50),
-  returnedAt:   z.string().min(1),
+  branchId: z.string().min(1),
+  // returnNumber removed — auto-generated server-side
+  returnedAt: z.string().min(1),
   source: z.enum(["CUSTOMER", "DRIVER"]),
-  customerId:   z.string().optional().nullable(),
-  driverId:     z.string().optional().nullable(),
-  kg12Qty:      z.number().int().min(0).default(0),
-  kg50Qty:      z.number().int().min(0).default(0),
-  notes:        z.string().optional().nullable(),
+  customerId: z.string().optional().nullable(),
+  driverId: z.string().optional().nullable(),
+  kg12Qty: z.number().int().min(0).default(0),
+  kg50Qty: z.number().int().min(0).default(0),
+  notes: z.string().optional().nullable(),
 });
 
 // ─── GET /api/warehouse/empty-return ─────────────────────────────────────────
@@ -63,6 +64,37 @@ export async function GET(req: NextRequest) {
   });
 }
 
+// ── Auto-generate returnNumber ────────────────────────────────────────────────
+// Format: RET-{BRANCH}-{YYYY}{MM}-{NNN}
+// Example: RET-JKT-202604-001
+async function generateReturnNumber(branchId: string, date: Date): Promise<string> {
+  const branch = await prisma.branch.findUnique({
+    where: { id: branchId },
+    select: { code: true },
+  });
+  if (!branch) throw new Error("Branch tidak ditemukan");
+
+  const yyyy = date.getFullYear().toString();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const prefix = `RET-${branch.code}-${yyyy}${mm}-`;
+
+  // Find the highest sequence for this branch+month
+  const last = await prisma.emptyReturn.findFirst({
+    where: { returnNumber: { startsWith: prefix } },
+    orderBy: { returnNumber: "desc" },
+    select: { returnNumber: true },
+  });
+
+  let nextSeq = 1;
+  if (last) {
+    const parts = last.returnNumber.split("-");
+    const lastSeq = parseInt(parts[parts.length - 1], 10);
+    if (!isNaN(lastSeq)) nextSeq = lastSeq + 1;
+  }
+
+  return `${prefix}${String(nextSeq).padStart(3, "0")}`;
+}
+
 // ─── POST /api/warehouse/empty-return ────────────────────────────────────────
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -88,17 +120,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Duplicate returnNumber check
-  const existing = await prisma.emptyReturn.findUnique({
-    where: { returnNumber: data.returnNumber },
-  });
-  if (existing) {
-    return NextResponse.json(
-      { error: `Return number "${data.returnNumber}" sudah ada` },
-      { status: 409 }
-    );
-  }
-
   // Validate optional FKs
   if (data.customerId) {
     const customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
@@ -113,7 +134,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── LOCKED period check (Sprint 11) ─────────────────────────────────────────
+  // ── LOCKED period check ───────────────────────────────────────────────────
   const retDate = new Date(data.returnedAt);
   const locked  = await prisma.monthlyRecon.findFirst({
     where: {
@@ -125,6 +146,15 @@ export async function POST(req: NextRequest) {
   });
   if (locked) {
     return NextResponse.json({ error: "Periode ini sudah dikunci (LOCKED)" }, { status: 423 });
+  }
+
+  // ── Auto-generate returnNumber ────────────────────────────────────────────
+  let returnNumber: string;
+  try {
+    returnNumber = await generateReturnNumber(branchId, retDate);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Gagal generate return number";
+    return NextResponse.json({ error: message }, { status: 404 });
   }
 
   // Stock date (midnight)
@@ -145,13 +175,13 @@ export async function POST(req: NextRequest) {
       kg50FullQty: 0, kg50EmptyQty: 0, kg50OnTransitQty: 0, kg50HmtQty: 0, kg50KuotaWo: 0,
     };
 
-  // ── $transaction ────────────────────────────────────────────────────────────
+  // ── $transaction ──────────────────────────────────────────────────────────
   const result = await prisma.$transaction(async (tx) => {
     // 1. Create EmptyReturn
     const emptyReturn = await tx.emptyReturn.create({
       data: {
         branch:       { connect: { id: branchId } },
-        returnNumber: data.returnNumber,
+        returnNumber,                                   // ← auto-generated
         source:       data.source,
         returnedAt:   new Date(data.returnedAt),
         kg12Qty:      data.kg12Qty,
