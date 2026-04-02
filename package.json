@@ -6,14 +6,15 @@
   "directories": {
     "lib": "lib"
   },
-  "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "seed": "ts-node prisma/seed.ts",
-    "deploy": "next build && next start"
-  },
+"scripts": {
+  "dev": "next dev --turbopack",
+  "build": "prisma generate && next build",
+  "postinstall": "prisma generate",
+  "start": "next start",
+  "lint": "next lint",
+  "seed": "ts-node prisma/seed.ts",
+  "deploy": "next build && next start"
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alaframa/ssgv2.git"
