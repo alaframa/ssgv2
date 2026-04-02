@@ -6,15 +6,15 @@
   "directories": {
     "lib": "lib"
   },
-"scripts": {
-  "dev": "next dev --turbopack",
-  "build": "prisma generate && next build",
-  "postinstall": "prisma generate",
-  "start": "next start",
-  "lint": "next lint",
-  "seed": "ts-node prisma/seed.ts",
-  "deploy": "next build && next start"
-},
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "ts-node prisma/seed.ts",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alaframa/ssgv2.git"
@@ -22,7 +22,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  
   "bugs": {
     "url": "https://github.com/alaframa/ssgv2/issues"
   },
@@ -40,10 +39,11 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.18.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.37",
-"@types/react": "^19.0.0",
-"@types/react-dom": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.27",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.1",
