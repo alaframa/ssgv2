@@ -92,7 +92,7 @@ The system handles:
 
 ## 🗂️ Project Structure
 
-```
+```raw
 ssgv2/
 ├── app/
 │   ├── (auth)/              # Login page & auth layout
@@ -220,3 +220,115 @@ Private / Internal Use. All rights reserved.
 <p align="center">
   Built with ❤️ in Surabaya &nbsp;·&nbsp; Powered by <a href="https://www.anthropic.com">Claude AI (Sonnet 4.6)</a>
 </p>
+
+# 🚀 Feature Backlog (30 Items)
+
+**Filter Applied:** Easy Only · High Impact · Strategic Additions Included
+
+---
+
+## 🟢 Easy · High Impact (Priority Execution Layer)
+
+| Feature                     | Description                                                                       | Effort | Impact | Category   | Source |
+| --------------------------- | --------------------------------------------------------------------------------- | ------ | ------ | ---------- | ------ |
+| Print layout for DO & PO ★  | CSS `@media print` styles on delivery order and PO detail pages. No backend work. | Easy   | High   | Operations | Yours  |
+| Export reports to Excel/PDF | Add download buttons to all report pages using SheetJS.                           | Easy   | High   | Reports    | System |
+| Role-based access control   | Middleware guards on pages and API routes by role.                                | Easy   | High   | Security   | System |
+| Dashboard charts & KPIs     | Use `/api/dashboard` with Recharts (delivery, stock, gasback).                    | Easy   | High   | Analytics  | System |
+| Scanner integration (USB) ★ | Autofocus serial inputs; USB scanners behave as keyboard input.                   | Easy   | High   | Operations | Yours  |
+| Overdue cylinder alerts     | Flag cylinders not returned past threshold; show dashboard alerts.                | Easy   | High   | Operations | System |
+
+---
+
+## 🟡 Easy · Medium Impact (Quick Wins)
+
+| Feature                 | Description                                          | Effort | Impact | Category    | Source |
+| ----------------------- | ---------------------------------------------------- | ------ | ------ | ----------- | ------ |
+| Inline field validation | Zod validation before submit; reduce API roundtrips. | Easy   | Medium | UX          | System |
+| Confirmation dialogs    | Require modal confirmation for destructive actions.  | Easy   | Medium | UX          | System |
+| Pagination on lists     | Server-side pagination for all major tables.         | Easy   | Medium | Performance | System |
+| Date range filter       | Custom date filtering across reports.                | Easy   | Medium | Reports     | System |
+
+---
+
+## 🔵 Easy · Low Impact (Polish Layer)
+
+| Feature              | Description                                 | Effort | Impact | Category | Source |
+| -------------------- | ------------------------------------------- | ------ | ------ | -------- | ------ |
+| Sticky table headers | Freeze headers on scroll.                   | Easy   | Low    | UX       | System |
+| Empty states         | Use `EmptyState.tsx` with CTA on all pages. | Easy   | Low    | UX       | System |
+
+---
+
+## 🟠 Medium · High Impact (Scale Layer)
+
+| Feature                 | Description                                       | Effort | Impact | Category   | Source |
+| ----------------------- | ------------------------------------------------- | ------ | ------ | ---------- | ------ |
+| Global search (Cmd+K) ★ | Unified search across entities via `/api/search`. | Medium | High   | UX         | Yours  |
+| Bulk customer import ★  | Excel upload with validation preview.             | Medium | High   | Operations | Yours  |
+| Audit log               | Track all create/update/delete actions.           | Medium | High   | Security   | System |
+| Scanner (camera) ★      | ZXing browser-based scanning for mobile.          | Medium | High   | Operations | Yours  |
+| Mobile driver flow      | Simplified UI for drivers (dispatch/delivery).    | Medium | High   | Operations | System |
+| Low stock notifications | Threshold-based alerts per cylinder type.         | Medium | High   | Operations | System |
+
+---
+
+## 🟣 Medium · Medium Impact
+
+| Feature                 | Description                                           | Effort | Impact | Category   | Source |
+| ----------------------- | ----------------------------------------------------- | ------ | ------ | ---------- | ------ |
+| Bulk cylinder import    | Excel-based mass registration.                        | Medium | Medium | Operations | System |
+| Delivery timeline       | Visual lifecycle tracking per delivery.               | Medium | Medium | UX         | System |
+| Cylinder heatmap        | Distribution view (warehouse vs customer vs transit). | Medium | Medium | Analytics  | System |
+| PO vs actual trends     | Extend variance reporting over time.                  | Medium | Medium | Reports    | System |
+| Gasback balance display | Highlight balance on customer page.                   | Medium | Medium | UX         | System |
+
+---
+
+## ⚪ Medium · Low Impact
+
+| Feature            | Description                        | Effort | Impact | Category | Source |
+| ------------------ | ---------------------------------- | ------ | ------ | -------- | ------ |
+| Keyboard shortcuts | Power-user navigation (N, /, Esc). | Medium | Low    | UX       | System |
+
+---
+
+## 🔴 Hard · High Impact (Strategic Differentiators)
+
+| Feature                | Description                                    | Effort | Impact | Category   | Source |
+| ---------------------- | ---------------------------------------------- | ------ | ------ | ---------- | ------ |
+| Google OAuth ★         | NextAuth Google login with domain restriction. | Hard   | High   | Security   | Yours  |
+| WhatsApp notifications | Delivery alerts via WhatsApp API.              | Hard   | High   | Operations | System |
+| Customer portal        | Token-auth public access to orders & balances. | Hard   | High   | Operations | System |
+| Multi-branch transfer  | Stock transfer workflow with approval.         | Hard   | High   | Operations | System |
+
+---
+
+## ⚫ Hard · Medium Impact
+
+| Feature                  | Description                                        | Effort | Impact | Category   | Source |
+| ------------------------ | -------------------------------------------------- | ------ | ------ | ---------- | ------ |
+| Automated recon matching | Auto-match PO vs DO lines with exception handling. | Hard   | Medium | Operations | System |
+| Route optimisation       | Delivery routing via Google Maps API.              | Hard   | Medium | Operations | System |
+
+---
+
+# 🧠 Strategic Insight
+
+If you want maximum ROI with minimum engineering drag:
+
+**Execute in this order:**
+
+1. Easy + High → Immediate operational leverage
+2. Medium + High → System scalability
+3. Hard + High → Competitive moat
+
+You already have a strong system foundation — this backlog is about **turning it into an enterprise-grade operational platform**.
+
+If you want, I can convert this into:
+
+- Jira tickets
+- Sprint roadmap (2–4 weeks)
+- System architecture mapping
+
+Just say the word.
