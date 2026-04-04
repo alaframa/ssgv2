@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
     pendingTransitDOs,
     pendingPOs,
     latestRecon,
+    doTrend7d,          
   ] = await Promise.all([
     // 1. Deliveries today (DOs created today)
     prisma.deliveryOrder.count({
@@ -151,6 +152,17 @@ export async function GET(req: NextRequest) {
       where: { branchId, month: now.getMonth() + 1, year: now.getFullYear() },
       select: { status: true },
     }),
+
+
+    // 15. Daily DO count — last 7 days
+    prisma.$queryRaw<{ day: Date; count: bigint }[]>`
+      SELECT DATE("doDate") as day, COUNT(*) as count
+      FROM "DeliveryOrder"
+      WHERE "branchId" = ${branchId}
+        AND "doDate" >= ${new Date(now.getTime() - 6 * 86400000)}
+      GROUP BY DATE("doDate")
+      ORDER BY day ASC
+    `,
   ]);
 
   // ── Compute KPIs ──────────────────────────────────────────────────────────
@@ -278,5 +290,10 @@ export async function GET(req: NextRequest) {
       createdAt: a.createdAt.toISOString(),
     })),
     pendingActions,
+    doTrend7d: doTrend7d.map(r => ({   // ← add this block
+      day: r.day.toISOString().slice(0, 10),
+      count: Number(r.count),
+    })),
+
   });
 }

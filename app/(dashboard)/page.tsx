@@ -1,7 +1,6 @@
-// app/(dashboard)/page.tsx
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useBranch } from "@/lib/branch-context";
 import { SkeletonDashboard } from "@/components/Skeleton";
 import Link from "next/link";
@@ -39,10 +38,16 @@ interface PendingAction {
   href: string;
 }
 
+interface TrendDay {
+  day: string;
+  count: number;
+}
+
 interface DashboardData {
   kpi: Kpi;
   recentActivity: ActivityItem[];
   pendingActions: PendingAction[];
+  doTrend7d: TrendDay[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -50,19 +55,92 @@ function fmtNum(n: number) {
   return n.toLocaleString("id-ID");
 }
 
-function fmtDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-}
-
 function relTime(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1)  return "baru saja";
+  if (m < 1) return "baru saja";
   if (m < 60) return `${m} menit lalu`;
   const h = Math.floor(m / 60);
   if (h < 24) return `${h} jam lalu`;
   return `${Math.floor(h / 24)} hari lalu`;
+}
+
+// ── Trend Chart ───────────────────────────────────────────────────────────────
+function TrendChart({ data }: { data: TrendDay[] }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current || data.length === 0) return;
+
+    const tryInit = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const Chart = (window as any).Chart;
+      if (!Chart) return false;
+
+      const labels = data.map((d) =>
+        new Date(d.day).toLocaleDateString("id-ID", { weekday: "short" }),
+      );
+      const counts = data.map((d) => d.count);
+
+      const chart = new Chart(canvasRef.current, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              data: counts,
+              backgroundColor: "#3b82f688",
+              borderRadius: 4,
+              borderSkipped: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: (ctx: { raw: number }) => `${ctx.raw} DO` },
+            },
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, color: "#888" },
+            },
+            y: { display: false, beginAtZero: true },
+          },
+        },
+      });
+
+      return () => chart.destroy();
+    };
+
+    // Chart.js may already be loaded or still loading
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ((window as any).Chart) {
+      const cleanup = tryInit();
+      return cleanup || undefined;
+    }
+
+    // Poll until loaded (script injected by DashboardPage)
+    const interval = setInterval(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((window as any).Chart) {
+        clearInterval(interval);
+        tryInit();
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [data]);
+
+  return (
+    <div style={{ position: "relative", height: 70, width: "100%" }}>
+      <canvas ref={canvasRef} />
+    </div>
+  );
 }
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
@@ -88,14 +166,19 @@ function KpiCard({
   href?: string;
 }) {
   const inner = (
-    <div className={`card p-5 flex flex-col gap-3 transition-all ${href ? "cursor-pointer hover:border-[var(--border-focus)]" : ""}`}>
+    <div
+      className={`card p-5 flex flex-col gap-3 transition-all ${href ? "cursor-pointer hover:border-[var(--border-focus)]" : ""}`}
+    >
       <div className="flex items-start justify-between gap-2">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] leading-tight">
           {label}
         </p>
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: accent ? `${accent}18` : "var(--surface-raised)", color: accent ?? "var(--text-muted)" }}
+          style={{
+            background: accent ? `${accent}18` : "var(--surface-raised)",
+            color: accent ?? "var(--text-muted)",
+          }}
         >
           {icon}
         </div>
@@ -112,7 +195,9 @@ function KpiCard({
               style={{ width: `${Math.min(progressPct, 100)}%` }}
             />
           </div>
-          <p className={`text-[10px] font-mono ${progressWarn ? "text-red-400" : "text-[var(--text-muted)]"}`}>
+          <p
+            className={`text-[10px] font-mono ${progressWarn ? "text-red-400" : "text-[var(--text-muted)]"}`}
+          >
             {progressPct}% terpakai{progressWarn ? " ⚠ mendekati batas" : ""}
           </p>
         </div>
@@ -123,13 +208,13 @@ function KpiCard({
   return href ? <Link href={href}>{inner}</Link> : inner;
 }
 
-// ── Activity icon ─────────────────────────────────────────────────────────────
+// ── Activity Icon ─────────────────────────────────────────────────────────────
 function ActivityIcon({ type }: { type: string }) {
   const map: Record<string, { icon: string; color: string }> = {
-    DO:     { icon: "🚛", color: "#3b82f6" },
-    GR:     { icon: "📦", color: "#10b981" },
-    RETURN: { icon: "↩️",  color: "#f59e0b" },
-    GASBACK:{ icon: "⛽",  color: "#8b5cf6" },
+    DO: { icon: "🚛", color: "#3b82f6" },
+    GR: { icon: "📦", color: "#10b981" },
+    RETURN: { icon: "↩️", color: "#f59e0b" },
+    GASBACK: { icon: "⛽", color: "#8b5cf6" },
   };
   const { icon, color } = map[type] ?? { icon: "•", color: "#6b7280" };
   return (
@@ -142,12 +227,22 @@ function ActivityIcon({ type }: { type: string }) {
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { activeBranchId } = useBranch();
-  const [data,    setData]    = useState<DashboardData | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Inject Chart.js once
+  useEffect(() => {
+    if (document.getElementById("chartjs-cdn")) return;
+    const s = document.createElement("script");
+    s.id = "chartjs-cdn";
+    s.src =
+      "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js";
+    document.head.appendChild(s);
+  }, []);
 
   const loadDashboard = useCallback(async () => {
     if (!activeBranchId) return;
@@ -165,18 +260,23 @@ export default function DashboardPage() {
     }
   }, [activeBranchId]);
 
-  useEffect(() => { loadDashboard(); }, [loadDashboard]);
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   if (loading) return <SkeletonDashboard />;
-  if (error)   return (
-    <div className="card p-6 text-center space-y-3">
-      <p className="text-[var(--error)]">{error}</p>
-      <button className="btn-gho text-sm" onClick={loadDashboard}>Coba lagi</button>
-    </div>
-  );
+  if (error)
+    return (
+      <div className="card p-6 text-center space-y-3">
+        <p className="text-[var(--error)]">{error}</p>
+        <button className="btn-gho text-sm" onClick={loadDashboard}>
+          Coba lagi
+        </button>
+      </div>
+    );
   if (!data) return null;
 
-  const { kpi, recentActivity, pendingActions } = data;
+  const { kpi, recentActivity, pendingActions, doTrend7d = [] } = data;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -190,16 +290,26 @@ export default function DashboardPage() {
       {pendingActions.length > 0 && (
         <div className="space-y-2">
           {pendingActions.map((a, i) => (
-            <Link key={i} href={a.href}
+            <Link
+              key={i}
+              href={a.href}
               className="flex items-center gap-3 px-4 py-3 rounded-xl border
                 border-amber-400/30 bg-amber-400/8 hover:bg-amber-400/12
                 transition-colors text-sm text-amber-300"
             >
               <span className="text-amber-400">⚠</span>
               <span className="flex-1">{a.message}</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
               </svg>
             </Link>
           ))}
@@ -213,12 +323,22 @@ export default function DashboardPage() {
           value={fmtNum(kpi.deliveriesToday)}
           sub="DO dibuat hari ini"
           accent="#3b82f6"
-          href="/delivery-orders"
+          href="/delivery"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
             </svg>
           }
         />
@@ -229,9 +349,17 @@ export default function DashboardPage() {
           accent="#10b981"
           href="/warehouse"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
             </svg>
           }
         />
@@ -245,10 +373,19 @@ export default function DashboardPage() {
           progressWarn={kpi.hmt12Pct >= 80}
           href="/supplier-po"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
             </svg>
           }
         />
@@ -262,10 +399,19 @@ export default function DashboardPage() {
           progressWarn={kpi.hmt50Pct >= 80}
           href="/supplier-po"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
-              <line x1="6"  y1="20" x2="6"  y2="14"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
             </svg>
           }
         />
@@ -274,11 +420,19 @@ export default function DashboardPage() {
           value={`${fmtNum(kpi.totalGasbackKg)} kg`}
           sub="Total akumulasi semua pelanggan"
           accent="#8b5cf6"
-          href="/customers"
+          href="/gasback"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           }
         />
@@ -289,9 +443,18 @@ export default function DashboardPage() {
           accent="#f59e0b"
           href="/warehouse"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
             </svg>
           }
         />
@@ -302,11 +465,20 @@ export default function DashboardPage() {
           accent="#06b6d4"
           href="/customers"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 00-3-3.87" />
+              <path d="M16 3.13a4 4 0 010 7.75" />
             </svg>
           }
         />
@@ -315,18 +487,26 @@ export default function DashboardPage() {
           value={fmtNum(kpi.inTransitCylinders)}
           sub="Sedang dalam pengiriman"
           accent="#ec4899"
-          href="/delivery-orders?status=IN_TRANSIT"
+          href="/delivery?status=IN_TRANSIT"
           icon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
             </svg>
           }
         />
       </div>
 
-      {/* Bottom: Activity + Pending */}
+      {/* Bottom: Activity + Stock Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Activity */}
         <div className="card p-0">
@@ -341,12 +521,16 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-[var(--border)]">
-              {recentActivity.map(a => (
+              {recentActivity.map((a) => (
                 <div key={a.id} className="flex items-center gap-3 px-5 py-3">
                   <ActivityIcon type={a.type} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{a.label}</p>
-                    <p className="text-xs text-[var(--text-muted)] truncate">{a.sub}</p>
+                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+                      {a.label}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] truncate">
+                      {a.sub}
+                    </p>
                   </div>
                   <span className="text-[11px] text-[var(--text-muted)] shrink-0">
                     {relTime(a.createdAt)}
@@ -357,26 +541,17 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Summary stats */}
+        {/* Stock Summary + Trend */}
         <div className="card p-5 space-y-4">
           <h2 className="text-xs font-bold uppercase tracking-wide text-[var(--text-muted)]">
             Ringkasan Stok Gudang
           </h2>
 
+          {/* Stock bars */}
           <div className="space-y-3">
             {[
-              {
-                label: "12kg Full",
-                value: kpi.stock12Full,
-                total: kpi.stock12Full + kpi.inTransitCylinders,
-                color: "#3b82f6",
-              },
-              {
-                label: "50kg Full",
-                value: kpi.stock50Full,
-                total: kpi.stock50Full + kpi.inTransitCylinders,
-                color: "#10b981",
-              },
+              { label: "12kg Full", value: kpi.stock12Full, color: "#3b82f6" },
+              { label: "50kg Full", value: kpi.stock50Full, color: "#10b981" },
             ].map(({ label, value, color }) => (
               <div key={label} className="space-y-1.5">
                 <div className="flex justify-between text-xs">
@@ -399,15 +574,30 @@ export default function DashboardPage() {
             ))}
           </div>
 
+          {/* 7-day DO trend chart */}
+          {doTrend7d.length > 0 && (
+            <div className="space-y-1.5 pt-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
+                Tren DO — 7 hari terakhir
+              </p>
+              <TrendChart data={doTrend7d} />
+            </div>
+          )}
+
+          {/* Mini stats */}
           <div className="border-t border-[var(--border)] pt-4 grid grid-cols-2 gap-3 text-center">
             <div className="rounded-xl bg-[var(--surface-raised)] p-3">
-              <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">In Transit</p>
+              <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">
+                In Transit
+              </p>
               <p className="text-lg font-bold font-mono text-[var(--text-primary)]">
                 {fmtNum(kpi.inTransitCylinders)}
               </p>
             </div>
             <div className="rounded-xl bg-[var(--surface-raised)] p-3">
-              <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">Kosong Balik</p>
+              <p className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-1">
+                Kosong Balik
+              </p>
               <p className="text-lg font-bold font-mono text-[var(--text-primary)]">
                 {fmtNum(kpi.emptiesThisMonth)}
               </p>
@@ -415,7 +605,10 @@ export default function DashboardPage() {
           </div>
 
           <div className="pt-1">
-            <Link href="/warehouse" className="btn-gho w-full justify-center text-sm">
+            <Link
+              href="/warehouse"
+              className="btn-gho w-full justify-center text-sm"
+            >
               Lihat Detail Gudang →
             </Link>
           </div>
