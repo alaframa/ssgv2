@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+
+
   const { searchParams } = new URL(req.url);
   const branchId =
     session.user.role === "SUPER_ADMIN"
@@ -32,6 +34,8 @@ export async function GET(req: NextRequest) {
   const status     = searchParams.get("status");
   const date       = searchParams.get("date");
   const customerId = searchParams.get("customerId");
+  const customerPoId = searchParams.get("customerPoId"); // ← add this
+
   const page  = Math.max(1, parseInt(searchParams.get("page")  ?? "1"));
   const limit = Math.min(100, parseInt(searchParams.get("limit") ?? "30"));
   const skip  = (page - 1) * limit;
@@ -39,13 +43,16 @@ export async function GET(req: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: Record<string, any> = {};
   if (branchId)   where.branchId = branchId;
-  if (status)     where.status   = status;
+  if (status) where.status = status;
+  if (customerPoId) where.customerPoId = customerPoId; // ← add this
+
   if (date) {
     const d    = new Date(date);
     const next = new Date(date);
     next.setDate(next.getDate() + 1);
     where.doDate = { gte: d, lt: next };
   }
+
   if (customerId) where.customerPo = { customerId };
 
   const [records, total] = await Promise.all([
