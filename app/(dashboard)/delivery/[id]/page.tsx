@@ -7,7 +7,7 @@ import Link from "next/link";
 import FormPageLayout from "@/components/FormPageLayout";
 
 type DispatchedCylinder = {
-  eventId: string;
+  id: string;
   eventAt: string;
   cylinderUnit: {
     id: string;
@@ -53,35 +53,35 @@ type Do = {
 };
 
 const STATUS_BADGE: Record<string, string> = {
-  PENDING:    "badge-neutral",
+  PENDING: "badge-neutral",
   IN_TRANSIT: "badge-blue",
-  DELIVERED:  "badge-green",
-  PARTIAL:    "badge-amber",
-  CANCELLED:  "badge-red",
+  DELIVERED: "badge-green",
+  PARTIAL: "badge-amber",
+  CANCELLED: "badge-red",
 };
 
 const STATUS_LABEL: Record<string, string> = {
-  PENDING:    "Pending",
+  PENDING: "Pending",
   IN_TRANSIT: "Di Jalan",
-  DELIVERED:  "Terkirim",
-  PARTIAL:    "Sebagian",
-  CANCELLED:  "Dibatalkan",
+  DELIVERED: "Terkirim",
+  PARTIAL: "Sebagian",
+  CANCELLED: "Dibatalkan",
 };
 
 const CYL_STATUS_CHIP: Record<string, string> = {
-  WAREHOUSE_FULL:  "bg-green-500/15 text-green-400",
+  WAREHOUSE_FULL: "bg-green-500/15 text-green-400",
   WAREHOUSE_EMPTY: "bg-gray-500/15 text-gray-400",
-  IN_TRANSIT:      "bg-yellow-500/15 text-yellow-400",
-  WITH_CUSTOMER:   "bg-blue-500/15 text-blue-400",
-  WRITTEN_OFF:     "bg-red-500/15 text-red-400",
+  IN_TRANSIT: "bg-yellow-500/15 text-yellow-400",
+  WITH_CUSTOMER: "bg-blue-500/15 text-blue-400",
+  WRITTEN_OFF: "bg-red-500/15 text-red-400",
 };
 
 const CYL_STATUS_LABEL: Record<string, string> = {
-  WAREHOUSE_FULL:  "Gudang (Isi)",
+  WAREHOUSE_FULL: "Gudang (Isi)",
   WAREHOUSE_EMPTY: "Gudang (Kosong)",
-  IN_TRANSIT:      "Dalam Perjalanan",
-  WITH_CUSTOMER:   "Di Pelanggan",
-  WRITTEN_OFF:     "Dihapus",
+  IN_TRANSIT: "Dalam Perjalanan",
+  WITH_CUSTOMER: "Di Pelanggan",
+  WRITTEN_OFF: "Dihapus",
 };
 
 export default function DeliveryDetailPage() {
@@ -112,16 +112,28 @@ export default function DeliveryDetailPage() {
 
   if (loading) {
     return (
-      <FormPageLayout backHref="/delivery" title="Detail DO" backLabel="Kembali">
-        <div className="card p-8 text-center text-[var(--text-muted)]">Memuat...</div>
+      <FormPageLayout
+        backHref="/delivery"
+        title="Detail DO"
+        backLabel="Kembali"
+      >
+        <div className="card p-8 text-center text-[var(--text-muted)]">
+          Memuat...
+        </div>
       </FormPageLayout>
     );
   }
 
   if (!order) {
     return (
-      <FormPageLayout backHref="/delivery" title="Detail DO" backLabel="Kembali">
-        <div className="card p-8 text-center text-red-500">{error || "DO tidak ditemukan"}</div>
+      <FormPageLayout
+        backHref="/delivery"
+        title="Detail DO"
+        backLabel="Kembali"
+      >
+        <div className="card p-8 text-center text-red-500">
+          {error || "DO tidak ditemukan"}
+        </div>
       </FormPageLayout>
     );
   }
@@ -131,8 +143,8 @@ export default function DeliveryDetailPage() {
     : "—";
 
   const cylinderEvents = order.cylinderEvents ?? [];
-  const totalRelease   = order.kg12Released + order.kg50Released;
-  const allAssigned    = cylinderEvents.length >= totalRelease && totalRelease > 0;
+  const totalRelease = order.kg12Released + order.kg50Released;
+  const allAssigned = cylinderEvents.length >= totalRelease && totalRelease > 0;
 
   return (
     <FormPageLayout
@@ -141,19 +153,25 @@ export default function DeliveryDetailPage() {
       subtitle={`Status saat ini: ${order.status} — ${order.customerPo.customer.name}`}
       backLabel="Kembali"
     >
-
       {/* Status + Actions */}
       <div className="flex flex-wrap items-center gap-3 mb-6">
-        <span className={`badge ${STATUS_BADGE[order.status] ?? "badge-neutral"}`}>
+        <span
+          className={`badge ${STATUS_BADGE[order.status] ?? "badge-neutral"}`}
+        >
           {STATUS_LABEL[order.status] ?? order.status}
         </span>
-        {(order.status === "PENDING" || order.status === "IN_TRANSIT" || order.status === "PARTIAL") && (
+        {(order.status === "PENDING" ||
+          order.status === "IN_TRANSIT" ||
+          order.status === "PARTIAL") && (
           <Link href={`/delivery/${order.id}/edit`} className="btn-pri">
             ✏️ Update Status / Penerimaan
           </Link>
         )}
         {order.status === "PENDING" && (
-          <Link href={`/cylinders/dispatch?doId=${order.id}`} className="btn-gho text-sm">
+          <Link
+            href={`/cylinders/dispatch?doId=${order.id}`}
+            className="btn-gho text-sm"
+          >
             🚚 Assign Tabung Serial
           </Link>
         )}
@@ -166,16 +184,24 @@ export default function DeliveryDetailPage() {
           <div>
             <div className="text-[var(--text-muted)] mb-0.5">Pelanggan</div>
             <div className="font-medium">
-              <Link href={`/customers/${order.customerPo.customer.id}`} className="text-[var(--accent)] hover:underline">
+              <Link
+                href={`/customers/${order.customerPo.customer.id}`}
+                className="text-[var(--accent)] hover:underline"
+              >
                 {order.customerPo.customer.name}
               </Link>
-              <span className="text-[var(--text-muted)] ml-1.5 text-xs">({order.customerPo.customer.code})</span>
+              <span className="text-[var(--text-muted)] ml-1.5 text-xs">
+                ({order.customerPo.customer.code})
+              </span>
             </div>
           </div>
           <div>
             <div className="text-[var(--text-muted)] mb-0.5">No. CPO</div>
             <div>
-              <Link href={`/customer-po/${order.customerPo.id}`} className="font-mono text-xs text-[var(--accent)] hover:underline">
+              <Link
+                href={`/customer-po/${order.customerPo.id}`}
+                className="font-mono text-xs text-[var(--accent)] hover:underline"
+              >
                 {order.customerPo.poNumber}
               </Link>
             </div>
@@ -190,22 +216,41 @@ export default function DeliveryDetailPage() {
           </div>
           <div>
             <div className="text-[var(--text-muted)] mb-0.5">Tanggal DO</div>
-            <div>{new Date(order.doDate).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}</div>
-          </div>
-          <div>
-            <div className="text-[var(--text-muted)] mb-0.5">Tanggal Terkirim</div>
-            <div>{order.deliveredAt
-              ? new Date(order.deliveredAt).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })
-              : "—"}
+            <div>
+              {new Date(order.doDate).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
             </div>
           </div>
           <div>
-            <div className="text-[var(--text-muted)] mb-0.5">Ref. PO Supplier</div>
-            <div className="font-mono text-xs">{order.supplierPoRef ?? "—"}</div>
+            <div className="text-[var(--text-muted)] mb-0.5">
+              Tanggal Terkirim
+            </div>
+            <div>
+              {order.deliveredAt
+                ? new Date(order.deliveredAt).toLocaleDateString("id-ID", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })
+                : "—"}
+            </div>
+          </div>
+          <div>
+            <div className="text-[var(--text-muted)] mb-0.5">
+              Ref. PO Supplier
+            </div>
+            <div className="font-mono text-xs">
+              {order.supplierPoRef ?? "—"}
+            </div>
           </div>
           <div>
             <div className="text-[var(--text-muted)] mb-0.5">Cabang</div>
-            <div>{order.branch.name} ({order.branch.code})</div>
+            <div>
+              {order.branch.name} ({order.branch.code})
+            </div>
           </div>
         </div>
 
@@ -213,29 +258,43 @@ export default function DeliveryDetailPage() {
         <div className="mt-5 pt-4 border-t border-[var(--border)]">
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-[var(--surface-raised)] rounded-lg p-3 text-center">
-              <div className="text-xs text-[var(--text-muted)] mb-1">Pelepasan</div>
+              <div className="text-xs text-[var(--text-muted)] mb-1">
+                Pelepasan
+              </div>
               <div className="font-mono font-bold text-lg text-[var(--text-primary)]">
                 {order.kg12Released}
-                <span className="text-xs text-[var(--text-muted)] ml-1">12kg</span>
+                <span className="text-xs text-[var(--text-muted)] ml-1">
+                  12kg
+                </span>
               </div>
               <div className="font-mono text-sm text-[var(--text-secondary)]">
                 {order.kg50Released}
-                <span className="text-xs text-[var(--text-muted)] ml-1">50kg</span>
+                <span className="text-xs text-[var(--text-muted)] ml-1">
+                  50kg
+                </span>
               </div>
             </div>
             <div className="bg-[var(--surface-raised)] rounded-lg p-3 text-center">
-              <div className="text-xs text-[var(--text-muted)] mb-1">Penerimaan</div>
+              <div className="text-xs text-[var(--text-muted)] mb-1">
+                Penerimaan
+              </div>
               <div className="font-mono font-bold text-lg text-[var(--text-primary)]">
                 {order.kg12Delivered}
-                <span className="text-xs text-[var(--text-muted)] ml-1">12kg</span>
+                <span className="text-xs text-[var(--text-muted)] ml-1">
+                  12kg
+                </span>
               </div>
               <div className="font-mono text-sm text-[var(--text-secondary)]">
                 {order.kg50Delivered}
-                <span className="text-xs text-[var(--text-muted)] ml-1">50kg</span>
+                <span className="text-xs text-[var(--text-muted)] ml-1">
+                  50kg
+                </span>
               </div>
             </div>
             <div className="bg-[var(--surface-raised)] rounded-lg p-3 text-center">
-              <div className="text-xs text-[var(--text-muted)] mb-1">Tonase</div>
+              <div className="text-xs text-[var(--text-muted)] mb-1">
+                Tonase
+              </div>
               <div className="font-mono font-bold text-lg text-[var(--text-primary)]">
                 {tonase(order.kg12Released, order.kg50Released)}
               </div>
@@ -247,7 +306,9 @@ export default function DeliveryDetailPage() {
         {order.notes && (
           <div className="mt-4 pt-3 border-t border-[var(--border)]">
             <div className="text-xs text-[var(--text-muted)] mb-1">Catatan</div>
-            <div className="text-sm text-[var(--text-secondary)]">{order.notes}</div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              {order.notes}
+            </div>
           </div>
         )}
       </div>
@@ -258,13 +319,18 @@ export default function DeliveryDetailPage() {
           <div className="flex items-center gap-3">
             <h2 className="section-title">Tabung Serial yang Dikirim</h2>
             {cylinderEvents.length > 0 && (
-              <span className={`chip text-xs ${allAssigned ? "bg-green-500/10 text-green-400" : "bg-amber-500/10 text-amber-400"}`}>
+              <span
+                className={`chip text-xs ${allAssigned ? "bg-green-500/10 text-green-400" : "bg-amber-500/10 text-amber-400"}`}
+              >
                 {cylinderEvents.length} / {totalRelease} tabung
               </span>
             )}
           </div>
           {order.status === "PENDING" && (
-            <Link href={`/cylinders/dispatch?doId=${order.id}`} className="btn-pri text-xs py-1.5 px-3">
+            <Link
+              href={`/cylinders/dispatch?doId=${order.id}`}
+              className="btn-pri text-xs py-1.5 px-3"
+            >
               + Assign Tabung
             </Link>
           )}
@@ -272,9 +338,14 @@ export default function DeliveryDetailPage() {
 
         {cylinderEvents.length === 0 ? (
           <div className="p-6 text-center">
-            <p className="text-sm text-[var(--text-muted)]">Belum ada tabung serial yang di-assign ke DO ini.</p>
+            <p className="text-sm text-[var(--text-muted)]">
+              Belum ada tabung serial yang di-assign ke DO ini.
+            </p>
             {order.status === "PENDING" && (
-              <Link href={`/cylinders/dispatch?doId=${order.id}`} className="btn-gho text-xs mt-3 inline-flex">
+              <Link
+                href={`/cylinders/dispatch?doId=${order.id}`}
+                className="btn-gho text-xs mt-3 inline-flex"
+              >
                 🚚 Assign Tabung Serial
               </Link>
             )}
@@ -297,8 +368,10 @@ export default function DeliveryDetailPage() {
               </thead>
               <tbody>
                 {cylinderEvents.map((ev, idx) => (
-                  <tr key={ev.eventId}>
-                    <td className="text-[var(--text-muted)] text-xs">{idx + 1}</td>
+                  <tr key={ev.id ?? ev.cylinderUnit?.id ?? idx}>
+                    <td className="text-[var(--text-muted)] text-xs">
+                      {idx + 1}
+                    </td>
                     <td>
                       <Link
                         href={`/cylinders/${ev.cylinderUnit.id}`}
@@ -307,26 +380,41 @@ export default function DeliveryDetailPage() {
                         {ev.cylinderUnit.serialCode}
                       </Link>
                     </td>
-                    <td><span className="chip text-xs">{ev.cylinderUnit.type.label}</span></td>
                     <td>
-                      <span className={`chip text-xs ${CYL_STATUS_CHIP[ev.cylinderUnit.status] ?? "bg-[var(--bg-hover)] text-[var(--text-muted)]"}`}>
-                        {CYL_STATUS_LABEL[ev.cylinderUnit.status] ?? ev.cylinderUnit.status}
+                      <span className="chip text-xs">
+                        {ev.cylinderUnit.type.label}
                       </span>
                     </td>
                     <td>
-                      <span className={`chip text-xs ${
-                        ev.cylinderUnit.condition === "GOOD"            ? "bg-green-500/10 text-green-400"  :
-                        ev.cylinderUnit.condition === "DAMAGED"         ? "bg-red-500/10 text-red-400"      :
-                        ev.cylinderUnit.condition === "NEEDS_INSPECTION"? "bg-amber-500/10 text-amber-400"  :
-                        "bg-[var(--bg-hover)] text-[var(--text-muted)]"
-                      }`}>
+                      <span
+                        className={`chip text-xs ${CYL_STATUS_CHIP[ev.cylinderUnit.status] ?? "bg-[var(--bg-hover)] text-[var(--text-muted)]"}`}
+                      >
+                        {CYL_STATUS_LABEL[ev.cylinderUnit.status] ??
+                          ev.cylinderUnit.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`chip text-xs ${
+                          ev.cylinderUnit.condition === "GOOD"
+                            ? "bg-green-500/10 text-green-400"
+                            : ev.cylinderUnit.condition === "DAMAGED"
+                              ? "bg-red-500/10 text-red-400"
+                              : ev.cylinderUnit.condition === "NEEDS_INSPECTION"
+                                ? "bg-amber-500/10 text-amber-400"
+                                : "bg-[var(--bg-hover)] text-[var(--text-muted)]"
+                        }`}
+                      >
                         {ev.cylinderUnit.condition}
                       </span>
                     </td>
                     <td className="text-xs text-[var(--text-muted)]">
                       {new Date(ev.eventAt).toLocaleDateString("id-ID", {
-                        day: "numeric", month: "short", year: "numeric",
-                        hour: "2-digit", minute: "2-digit",
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </td>
                   </tr>
@@ -340,7 +428,10 @@ export default function DeliveryDetailPage() {
           <div className="px-5 py-3 border-t border-[var(--border)]">
             <p className="text-xs text-[var(--text-muted)]">
               Untuk menghitung gasback aktual,{" "}
-              <Link href="/cylinders/weigh" className="text-[var(--accent)] hover:underline">
+              <Link
+                href="/cylinders/weigh"
+                className="text-[var(--accent)] hover:underline"
+              >
                 timbang setiap tabung saat dikembalikan →
               </Link>
             </p>
@@ -356,10 +447,15 @@ export default function DeliveryDetailPage() {
             {order.gasbackLedgers.map((gl) => (
               <div key={gl.id} className="flex justify-between text-sm py-1">
                 <span className="text-[var(--text-secondary)]">
-                  {new Date(gl.txDate).toLocaleDateString("id-ID")} — {gl.txType}
+                  {new Date(gl.txDate).toLocaleDateString("id-ID")} —{" "}
+                  {gl.txType}
                 </span>
                 <span className="font-mono font-semibold text-green-400">
-                  +{Number(gl.amount).toLocaleString("id-ID", { minimumFractionDigits: 2 })} kg
+                  +
+                  {Number(gl.amount).toLocaleString("id-ID", {
+                    minimumFractionDigits: 2,
+                  })}{" "}
+                  kg
                 </span>
               </div>
             ))}

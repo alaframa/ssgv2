@@ -1,4 +1,5 @@
 // app/api/delivery-orders/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -6,7 +7,6 @@ import { prisma } from "@/lib/prisma";
 import { getGasbackRates, isWeightBasedGasback } from "@/lib/gasback-settings";
 import { CylinderStatus } from "@prisma/client";
 import { DoStatus } from "@prisma/client";
-
 
 // GET /api/delivery-orders/[id]
 export async function GET(
@@ -31,7 +31,6 @@ export async function GET(
         orderBy: { createdAt: "desc" },
         take: 5,
       },
-      // Sprint 8: include dispatched cylinders
       cylinderEvents: {
         where: { eventType: "DISPATCHED_TO_CUSTOMER" },
         include: {
@@ -95,7 +94,6 @@ export async function PATCH(
 
   const customerId = order.customerPo.customer.id;
 
-  // Build base update data
   const updateData: Record<string, unknown> = {};
   if (driverId      !== undefined) updateData.driverId      = driverId      || null;
   if (kenetId       !== undefined) updateData.kenetId       = kenetId       || null;
@@ -103,17 +101,11 @@ export async function PATCH(
   if (supplierPoRef !== undefined) updateData.supplierPoRef = supplierPoRef || null;
   if (notes         !== undefined) updateData.notes         = notes         || null;
 
-  // ── Sprint 8: ON IN_TRANSIT — update dispatched cylinders to WITH_CUSTOMER ──
+  // ── IN_TRANSIT: update dispatched cylinders to WITH_CUSTOMER ────────────────
   if (status === "IN_TRANSIT") {
-    // Find all cylinders dispatched to this DO that are still IN_TRANSIT
     const dispatchedCylinders = await prisma.cylinderUnit.findMany({
       where: {
-        events: {
-          some: {
-            deliveryOrderId: id,
-            eventType: "DISPATCHED_TO_CUSTOMER",
-          },
-        },
+        events: { some: { deliveryOrderId: id, eventType: "DISPATCHED_TO_CUSTOMER" } },
         status: CylinderStatus.IN_TRANSIT,
       },
       select: { id: true },
@@ -124,7 +116,6 @@ export async function PATCH(
       data: { ...updateData, status: "IN_TRANSIT" },
     });
 
-    // Update cylinder statuses to WITH_CUSTOMER
     if (dispatchedCylinders.length > 0) {
       await prisma.cylinderUnit.updateMany({
         where: { id: { in: dispatchedCylinders.map(c => c.id) } },
@@ -141,40 +132,58 @@ export async function PATCH(
     });
   }
 
-  // ── CANCELLED — update dispatched cylinders back to WAREHOUSE_FULL ───────────
+  // ── CANCELLED: return cylinders to warehouse + DECREMENT holdings ───────────
+  // When a DO is cancelled, the cylinders are back in the warehouse.
+  // We need to reverse the holdings increment that happened at DO creation.
   if (status === "CANCELLED") {
     const dispatchedCylinders = await prisma.cylinderUnit.findMany({
       where: {
-        events: {
-          some: {
-            deliveryOrderId: id,
-            eventType: "DISPATCHED_TO_CUSTOMER",
-          },
-        },
+        events: { some: { deliveryOrderId: id, eventType: "DISPATCHED_TO_CUSTOMER" } },
         status: { in: [CylinderStatus.IN_TRANSIT, CylinderStatus.WITH_CUSTOMER] },
       },
       select: { id: true },
     });
 
-    const updated = await prisma.deliveryOrder.update({
-      where: { id: id },
-      data: { ...updateData, status: "CANCELLED" },
-    });
-
-    if (dispatchedCylinders.length > 0) {
-      await prisma.cylinderUnit.updateMany({
-        where: { id: { in: dispatchedCylinders.map(c => c.id) } },
-        data: {
-          status:            CylinderStatus.WAREHOUSE_FULL,
-          currentCustomerId: null,
-        },
+    const updated = await prisma.$transaction(async (tx) => {
+      const updatedDo = await tx.deliveryOrder.update({
+        where: { id },
+        data: { ...updateData, status: "CANCELLED" },
       });
-    }
+
+      // Reverse the holdings that were added when this DO was created
+      const holding = await tx.customerCylinderHolding.findUnique({
+        where: { customerId_branchId: { customerId, branchId: order.branchId } },
+      });
+      if (holding) {
+        await tx.customerCylinderHolding.update({
+          where: { customerId_branchId: { customerId, branchId: order.branchId } },
+          data: {
+            kg12HeldQty: Math.max(0, holding.kg12HeldQty - order.kg12Released),
+            kg50HeldQty: Math.max(0, holding.kg50HeldQty - order.kg50Released),
+          },
+        });
+      }
+
+      if (dispatchedCylinders.length > 0) {
+        await tx.cylinderUnit.updateMany({
+          where: { id: { in: dispatchedCylinders.map(c => c.id) } },
+          data: {
+            status: CylinderStatus.WAREHOUSE_FULL,
+            currentCustomerId: null,
+          },
+        });
+      }
+
+      return updatedDo;
+    });
 
     return NextResponse.json(updated);
   }
 
   // ── DELIVERED / PARTIAL ───────────────────────────────────────────────────────
+  // Holdings are NOT touched here anymore — they were set at DO creation.
+  // The only thing that reduces holdings is an EmptyReturn record.
+  // We still update warehouse stock (on-transit → empty) here.
   if (status === "DELIVERED" || status === "PARTIAL") {
     const kg12Del = typeof kg12Delivered === "number" ? kg12Delivered : order.kg12Released;
     const kg50Del = typeof kg50Delivered === "number" ? kg50Delivered : order.kg50Released;
@@ -184,32 +193,7 @@ export async function PATCH(
 
     const weightMode = await isWeightBasedGasback();
 
-    // Customer cylinder holdings update
-    const lastHolding = await prisma.customerCylinderHolding.findFirst({
-      where: { customerId, branchId: order.branchId },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const net12 = kg12Del - (order.kg12Delivered ?? 0);
-    const net50 = kg50Del - (order.kg50Delivered ?? 0);
-
-    const holdingOp = prisma.customerCylinderHolding.upsert({
-      where: { customerId_branchId: { customerId, branchId: order.branchId } },
-      create: {
-        customerId,
-        branchId: order.branchId,
-        date: today,
-        kg12HeldQty: Math.max(0, kg12Del),
-        kg50HeldQty: Math.max(0, kg50Del),
-      },
-      update: {
-        kg12HeldQty: Math.max(0, (lastHolding?.kg12HeldQty ?? 0) + net12),
-        kg50HeldQty: Math.max(0, (lastHolding?.kg50HeldQty ?? 0) + net50),
-      },
-    });
-
-
-    // Stock update
+    // Stock update: move from onTransit → empty
     const stockOp = prisma.warehouseStock.upsert({
       where: { branchId_date: { branchId: order.branchId, date: today } },
       update: {
@@ -230,7 +214,7 @@ export async function PATCH(
       where: { id },
       data: {
         ...updateData,
-        status: status as DoStatus,   
+        status: status as DoStatus,
         kg12Delivered: kg12Del,
         kg50Delivered: kg50Del,
         deliveredAt: new Date(),
@@ -238,15 +222,13 @@ export async function PATCH(
     });
 
     if (weightMode) {
-      // WEIGHT MODE: no auto gasback — cylinders will be weighed on return
-      const [updatedDo] = await prisma.$transaction([doUpdateOp, holdingOp, stockOp]);
+      const [updatedDo] = await prisma.$transaction([doUpdateOp, stockOp]);
       return NextResponse.json({
         ...updatedDo,
         _gasbackMode: "WEIGHT",
         _gasbackNote: "Gasback akan dihitung saat tabung ditimbang di gudang (mode WEIGHT aktif)",
       });
     } else {
-      // LEGACY MODE: auto-credit flat rate gasback on delivery
       const { rateKg12, rateKg50 } = await getGasbackRates();
 
       const lastLedger = await prisma.gasbackLedger.findFirst({
@@ -272,7 +254,7 @@ export async function PATCH(
         },
       });
 
-      const [updatedDo] = await prisma.$transaction([doUpdateOp, gasbackOp, holdingOp, stockOp]);
+      const [updatedDo] = await prisma.$transaction([doUpdateOp, gasbackOp, stockOp]);
       return NextResponse.json(updatedDo);
     }
   }
@@ -282,7 +264,7 @@ export async function PATCH(
     where: { id },
     data: {
       ...updateData,
-      ...(status ? { status: status as DoStatus } : {}),  
+      ...(status ? { status: status as DoStatus } : {}),
     },
   });
 

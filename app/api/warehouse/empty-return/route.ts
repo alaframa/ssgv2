@@ -1,6 +1,4 @@
 // app/api/warehouse/empty-return/route.ts
-// SPRINT 11 UPDATE: Added LOCKED period check to POST
-// SPRINT 11 FIX: returnNumber is now auto-generated server-side
 
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -8,10 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-// ─── Schema ───────────────────────────────────────────────────────────────────
 const CreateSchema = z.object({
   branchId: z.string().min(1),
-  // returnNumber removed — auto-generated server-side
   returnedAt: z.string().min(1),
   source: z.enum(["CUSTOMER", "DRIVER"]),
   customerId: z.string().optional().nullable(),
@@ -27,7 +23,6 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-
   const branchId =
     session.user.role === "SUPER_ADMIN"
       ? searchParams.get("branchId") ?? session.user.branchId ?? undefined
@@ -56,17 +51,10 @@ export async function GET(req: NextRequest) {
     prisma.emptyReturn.count({ where: { branchId } }),
   ]);
 
-  return NextResponse.json({
-    records,
-    total,
-    page,
-    totalPages: Math.ceil(total / limit),
-  });
+  return NextResponse.json({ records, total, page, totalPages: Math.ceil(total / limit) });
 }
 
 // ── Auto-generate returnNumber ────────────────────────────────────────────────
-// Format: RET-{BRANCH}-{YYYY}{MM}-{NNN}
-// Example: RET-JKT-202604-001
 async function generateReturnNumber(branchId: string, date: Date): Promise<string> {
   const branch = await prisma.branch.findUnique({
     where: { id: branchId },
@@ -78,7 +66,6 @@ async function generateReturnNumber(branchId: string, date: Date): Promise<strin
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const prefix = `RET-${branch.code}-${yyyy}${mm}-`;
 
-  // Find the highest sequence for this branch+month
   const last = await prisma.emptyReturn.findFirst({
     where: { returnNumber: { startsWith: prefix } },
     orderBy: { returnNumber: "desc" },
@@ -101,11 +88,8 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   let body: unknown;
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
-  }
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const parsed = CreateSchema.safeParse(body);
   if (!parsed.success) {
@@ -115,40 +99,28 @@ export async function POST(req: NextRequest) {
   const data = parsed.data;
   const branchId = data.branchId;
 
-  // Auth: non-SUPER_ADMIN can only post to their own branch
   if (session.user.role !== "SUPER_ADMIN" && session.user.branchId !== branchId) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Validate optional FKs
   if (data.customerId) {
     const customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
-    if (!customer) {
-      return NextResponse.json({ error: "Customer tidak ditemukan" }, { status: 404 });
-    }
+    if (!customer) return NextResponse.json({ error: "Customer tidak ditemukan" }, { status: 404 });
   }
   if (data.driverId) {
     const driver = await prisma.employee.findUnique({ where: { id: data.driverId } });
-    if (!driver) {
-      return NextResponse.json({ error: "Driver tidak ditemukan" }, { status: 404 });
-    }
+    if (!driver) return NextResponse.json({ error: "Driver tidak ditemukan" }, { status: 404 });
   }
 
   // ── LOCKED period check ───────────────────────────────────────────────────
   const retDate = new Date(data.returnedAt);
   const locked  = await prisma.monthlyRecon.findFirst({
-    where: {
-      branchId,
-      month:  retDate.getMonth() + 1,
-      year:   retDate.getFullYear(),
-      status: "LOCKED",
-    },
+    where: { branchId, month: retDate.getMonth() + 1, year: retDate.getFullYear(), status: "LOCKED" },
   });
   if (locked) {
     return NextResponse.json({ error: "Periode ini sudah dikunci (LOCKED)" }, { status: 423 });
   }
 
-  // ── Auto-generate returnNumber ────────────────────────────────────────────
   let returnNumber: string;
   try {
     returnNumber = await generateReturnNumber(branchId, retDate);
@@ -157,31 +129,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 404 });
   }
 
-  // Stock date (midnight)
   const stockDate = new Date(data.returnedAt);
   stockDate.setHours(0, 0, 0, 0);
 
-  // Carry-forward base for WarehouseStock
   const todayStock = await prisma.warehouseStock.findUnique({
     where: { branchId_date: { branchId, date: stockDate } },
   });
   const base =
     todayStock ??
-    (await prisma.warehouseStock.findFirst({
-      where: { branchId },
-      orderBy: { date: "desc" },
-    })) ?? {
+    (await prisma.warehouseStock.findFirst({ where: { branchId }, orderBy: { date: "desc" } })) ??
+    {
       kg12FullQty: 0, kg12EmptyQty: 0, kg12OnTransitQty: 0, kg12HmtQty: 0, kg12KuotaWo: 0,
       kg50FullQty: 0, kg50EmptyQty: 0, kg50OnTransitQty: 0, kg50HmtQty: 0, kg50KuotaWo: 0,
     };
 
-  // ── $transaction ──────────────────────────────────────────────────────────
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Create EmptyReturn
+    // 1. Create EmptyReturn record
     const emptyReturn = await tx.emptyReturn.create({
       data: {
         branch:       { connect: { id: branchId } },
-        returnNumber,                                   // ← auto-generated
+        returnNumber,
         source:       data.source,
         returnedAt:   new Date(data.returnedAt),
         kg12Qty:      data.kg12Qty,
@@ -223,6 +190,26 @@ export async function POST(req: NextRequest) {
           kg50KuotaWo:      base.kg50KuotaWo,
         },
       });
+    }
+
+    // 3. Decrement CustomerCylinderHolding when source is CUSTOMER.
+    //    This frees up quota: available_to_order = creditLimit - currentHoldings.
+    //    DRIVER returns don't map to a specific customer so holdings are not touched.
+    if (data.source === "CUSTOMER" && data.customerId) {
+      const holding = await tx.customerCylinderHolding.findUnique({
+        where: { customerId_branchId: { customerId: data.customerId, branchId } },
+      });
+      if (holding) {
+        await tx.customerCylinderHolding.update({
+          where: { customerId_branchId: { customerId: data.customerId, branchId } },
+          data: {
+            // Clamp to 0 — never go negative
+            kg12HeldQty: Math.max(0, holding.kg12HeldQty - data.kg12Qty),
+            kg50HeldQty: Math.max(0, holding.kg50HeldQty - data.kg50Qty),
+          },
+        });
+      }
+      // If no holding record exists yet, there's nothing to decrement — that's fine.
     }
 
     return emptyReturn;
