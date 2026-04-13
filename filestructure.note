@@ -1,0 +1,264 @@
+tree  [error opening dir]
+.
+├── app
+│   ├── api
+│   │   ├── auth
+│   │   │   └── [...nextauth]
+│   │   │       └── route.ts
+│   │   ├── branches
+│   │   │   └── route.ts
+│   │   ├── customer-po
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── customers
+│   │   │   ├── [id]
+│   │   │   │   ├── cylinder-holdings
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── cylinders
+│   │   │   ├── dispatch
+│   │   │   │   └── route.ts
+│   │   │   ├── [id]
+│   │   │   │   ├── history
+│   │   │   │   │   └── route.ts
+│   │   │   │   ├── route.ts
+│   │   │   │   └── weigh-return
+│   │   │   │       └── route.ts
+│   │   │   ├── lookup
+│   │   │   │   └── route.ts
+│   │   │   ├── route.ts
+│   │   │   └── types
+│   │   │       └── route.ts
+│   │   ├── dashboard
+│   │   │   └── route.ts
+│   │   ├── delivery-orders
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── employees
+│   │   │   ├── [id]
+│   │   │   │   ├── roles
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── gasback
+│   │   │   ├── claims
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   ├── ledger
+│   │   │   │   └── route.ts
+│   │   │   └── summary
+│   │   │       └── route.ts
+│   │   ├── orders
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── recon
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── reports
+│   │   │   ├── do-vs-po
+│   │   │   │   └── route.ts
+│   │   │   ├── pencapaian
+│   │   │   │   └── route.ts
+│   │   │   ├── rekap-kirim
+│   │   │   │   └── route.ts
+│   │   │   └── stock-tabung
+│   │   │       └── route.ts
+│   │   ├── settings
+│   │   │   ├── gasback
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── suppliers
+│   │   │   ├── [id]
+│   │   │   │   ├── hmt-quota
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── users
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   └── warehouse
+│   │       ├── empty-return
+│   │       │   └── route.ts
+│   │       ├── inbound
+│   │       │   ├── next-number
+│   │       │   │   └── route.ts
+│   │       │   └── route.ts
+│   │       ├── stock
+│   │       │   └── route.ts
+│   │       └── writeoff
+│   │           └── route.ts
+│   ├── (auth)
+│   │   ├── layout.tsx
+│   │   └── login
+│   │       └── page.tsx
+│   ├── (dashboard)
+│   │   ├── customer-po
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── customers
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── cylinders
+│   │   │   ├── dispatch
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── register
+│   │   │   │   └── page.tsx
+│   │   │   └── weigh
+│   │   │       └── page.tsx
+│   │   ├── delivery
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── employees
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── gasback
+│   │   │   ├── claims
+│   │   │   │   ├── add
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── [id]
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   ├── ledger
+│   │   │   │   └── [customerId]
+│   │   │   │       └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── recon
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── reports
+│   │   │   ├── do-vs-po
+│   │   │   │   └── page.tsx
+│   │   │   ├── page.tsx
+│   │   │   ├── pencapaian
+│   │   │   │   └── page.tsx
+│   │   │   ├── rekap-kirim
+│   │   │   │   └── page.tsx
+│   │   │   └── stock-tabung
+│   │   │       └── page.tsx
+│   │   ├── settings
+│   │   │   ├── cylinder-types
+│   │   │   │   └── page.tsx
+│   │   │   ├── gasback
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── supplier-po
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── suppliers
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   ├── edit
+│   │   │   │   │   └── page.tsx
+│   │   │   │   ├── hmt-quota
+│   │   │   │   │   └── add
+│   │   │   │   │       └── page.tsx
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── users
+│   │   │   ├── add
+│   │   │   │   └── page.tsx
+│   │   │   ├── [id]
+│   │   │   │   └── edit
+│   │   │   │       └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── warehouse
+│   │       ├── inbound
+│   │       │   └── add
+│   │       │       └── page.tsx
+│   │       ├── page.tsx
+│   │       ├── returns
+│   │       │   └── add
+│   │       │       └── page.tsx
+│   │       └── writeoff
+│   │           └── add
+│   │               └── page.tsx
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── not-found.tsx
+├── components
+│   ├── BranchSwitcher.tsx
+│   ├── Breadcrumb.tsx
+│   ├── EmptyState.tsx
+│   ├── FormPageLayout.tsx
+│   ├── RootProviders.tsx
+│   ├── SessionWrapper.tsx
+│   ├── Sidebar.tsx
+│   ├── Skeleton.tsx
+│   └── Topbar.tsx
+├── eslint.config.mjs
+├── filestructure.note
+├── lib
+│   ├── auth.ts
+│   ├── branch-context.tsx
+│   ├── document-numbers.ts
+│   ├── gasback-settings.ts
+│   ├── prisma.ts
+│   └── sidebar-store.ts
+├── next.config.js
+├── next-env.d.ts
+├── notes.note
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── prisma
+│   ├── schema.prisma
+│   ├── seed-cylinder-types.ts
+│   ├── seed-data.json
+│   ├── seed-gasback-settings.ts
+│   └── seed.ts
+├── prisma.config.ts
+├── proxy.ts
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── README.md
+├── scripts
+│   └── test-db.ts
+├── script.sh
+├── tailwind.config.ts
+├── tsconfig.json
+└── types
+    └── next-auth.d.ts
+
+117 directories, 144 files

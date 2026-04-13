@@ -24,8 +24,6 @@ model Branch {
   customers         Customer[]
   cylinderHoldings  CustomerCylinderHolding[]
   customerPos       CustomerPo[]
-  cylinderEvents    CylinderEvent[]
-  cylinderUnits     CylinderUnit[]
   cylinderWriteoffs CylinderWriteoff[]
   deliveryOrders    DeliveryOrder[]
   employees         Employee[]
@@ -91,7 +89,6 @@ model Customer {
   branch           Branch                    @relation(fields: [branchId], references: [id])
   cylinderHoldings CustomerCylinderHolding[]
   customerPos      CustomerPo[]
-  cylinderEvents   CylinderEvent[]
   emptyReturns     EmptyReturn[]
   gasbackClaims    GasbackClaim[]
   gasbackLedgers   GasbackLedger[]
@@ -199,7 +196,6 @@ model DeliveryOrder {
   notes          String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  cylinderEvents CylinderEvent[]
   branch         Branch          @relation(fields: [branchId], references: [id])
   customerPo     CustomerPo      @relation(fields: [customerPoId], references: [id])
   driver         Employee?       @relation("Driver", fields: [driverId], references: [id])
@@ -220,7 +216,6 @@ model EmptyReturn {
   notes          String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  cylinderEvents CylinderEvent[]
   branch         Branch          @relation(fields: [branchId], references: [id])
   customer       Customer?       @relation(fields: [customerId], references: [id])
   driver         Employee?       @relation(fields: [driverId], references: [id])
@@ -237,7 +232,6 @@ model CylinderWriteoff {
   notes          String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  cylinderEvents CylinderEvent[]
   branch         Branch          @relation(fields: [branchId], references: [id])
 }
 
@@ -287,14 +281,12 @@ model GasbackLedger {
   runningBalance  Decimal        @db.Decimal(14, 4)
   deliveryOrderId String?
   claimId         String?
-  cylinderEventId String?
   txDate          DateTime
   notes           String?
   createdAt       DateTime       @default(now())
   branch          Branch         @relation(fields: [branchId], references: [id])
   claim           GasbackClaim?  @relation(fields: [claimId], references: [id])
   customer        Customer       @relation(fields: [customerId], references: [id])
-  cylinderEvent   CylinderEvent? @relation(fields: [cylinderEventId], references: [id])
   deliveryOrder   DeliveryOrder? @relation(fields: [deliveryOrderId], references: [id])
 }
 
@@ -366,53 +358,11 @@ model CylinderType {
   nominalFullKg Decimal        @db.Decimal(8, 3)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  cylinders     CylinderUnit[]
+  
 }
 
-model CylinderUnit {
-  id                String            @id @default(cuid())
-  branchId          String
-  serialCode        String            @unique @db.VarChar(60)
-  typeId            String
-  tareWeightKg      Decimal?          @db.Decimal(8, 3)
-  status            CylinderStatus    @default(WAREHOUSE_FULL)
-  condition         CylinderCondition @default(GOOD)
-  currentCustomerId String?
-  locationNote      String?           @db.VarChar(120)
-  notes             String?
-  isActive          Boolean           @default(true)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  events            CylinderEvent[]
-  branch            Branch            @relation(fields: [branchId], references: [id])
-  type              CylinderType      @relation(fields: [typeId], references: [id])
-}
 
-model CylinderEvent {
-  id                 String            @id @default(cuid())
-  branchId           String
-  cylinderUnitId     String
-  eventType          CylinderEventType
-  eventAt            DateTime
-  deliveryOrderId    String?
-  emptyReturnId      String?
-  writeoffId         String?
-  customerId         String?
-  weightDispatchedKg Decimal?          @db.Decimal(8, 3)
-  weightReturnedKg   Decimal?          @db.Decimal(8, 3)
-  gasbackKg          Decimal?          @db.Decimal(8, 3)
-  condition          CylinderCondition @default(GOOD)
-  notes              String?
-  recordedBy         String?           @db.VarChar(120)
-  createdAt          DateTime          @default(now())
-  branch             Branch            @relation(fields: [branchId], references: [id])
-  customer           Customer?         @relation(fields: [customerId], references: [id])
-  cylinderUnit       CylinderUnit      @relation(fields: [cylinderUnitId], references: [id])
-  deliveryOrder      DeliveryOrder?    @relation(fields: [deliveryOrderId], references: [id])
-  emptyReturn        EmptyReturn?      @relation(fields: [emptyReturnId], references: [id])
-  writeoff           CylinderWriteoff? @relation(fields: [writeoffId], references: [id])
-  gasbackLedgers     GasbackLedger[]
-}
+
 
 enum BranchCode {
   SBY
@@ -486,14 +436,7 @@ enum ReturnSource {
   DRIVER
 }
 
-enum CylinderStatus {
-  WAREHOUSE_FULL
-  WAREHOUSE_EMPTY
-  IN_TRANSIT
-  WITH_CUSTOMER
-  RETURNED_TO_SUPPLIER
-  WRITTEN_OFF
-}
+
 
 enum EmployeeRoleType {
   DRIVER
@@ -507,18 +450,4 @@ enum EmployeeRoleType {
   OTHER
 }
 
-enum CylinderEventType {
-  RECEIVED_FROM_SUPPLIER
-  DISPATCHED_TO_CUSTOMER
-  RETURNED_FROM_CUSTOMER
-  TRANSFERRED_BETWEEN_BRANCH
-  WRITTEN_OFF
-  INSPECTION
-}
 
-enum CylinderCondition {
-  GOOD
-  DAMAGED
-  NEEDS_INSPECTION
-  CONDEMNED
-}

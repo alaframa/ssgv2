@@ -10,7 +10,7 @@ interface CylinderType {
   label: string;
   nominalTareKg: string;
   nominalFullKg: string;
-  _count: { cylinders: number };
+ 
 }
 
 const SIZE_DESCRIPTIONS: Record<string, string> = {
@@ -198,9 +198,7 @@ export default function CylinderTypesSettingsPage() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-[10px] text-[var(--text-muted)]">
-                      {type._count.cylinders} tabung terdaftar menggunakan jenis ini
-                    </p>
+                   
                   </div>
                   <button className="btn-gho text-xs" onClick={() => startEdit(type)}>Edit</button>
                 </div>

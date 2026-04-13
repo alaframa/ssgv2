@@ -16,9 +16,7 @@ export async function GET() {
 
   const types = await prisma.cylinderType.findMany({
     orderBy: { size: "asc" },
-    include: {
-      _count: { select: { cylinders: true } },
-    },
+    
   });
 
   return NextResponse.json(types);

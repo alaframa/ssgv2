@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGasbackRates, isWeightBasedGasback } from "@/lib/gasback-settings";
-import { CylinderStatus } from "@prisma/client";
 import { DoStatus } from "@prisma/client";
 
 // GET /api/delivery-orders/[id]
@@ -30,16 +29,7 @@ export async function GET(
       gasbackLedgers: {
         orderBy: { createdAt: "desc" },
         take: 5,
-      },
-      cylinderEvents: {
-        where: { eventType: "DISPATCHED_TO_CUSTOMER" },
-        include: {
-          cylinderUnit: {
-            include: { type: { select: { size: true, label: true } } },
-          },
-        },
-        orderBy: { eventAt: "asc" },
-      },
+      }
     },
   });
 
@@ -102,48 +92,18 @@ export async function PATCH(
   if (notes         !== undefined) updateData.notes         = notes         || null;
 
   // ── IN_TRANSIT: update dispatched cylinders to WITH_CUSTOMER ────────────────
-  if (status === "IN_TRANSIT") {
-    const dispatchedCylinders = await prisma.cylinderUnit.findMany({
-      where: {
-        events: { some: { deliveryOrderId: id, eventType: "DISPATCHED_TO_CUSTOMER" } },
-        status: CylinderStatus.IN_TRANSIT,
-      },
-      select: { id: true },
-    });
-
+   if (status === "IN_TRANSIT") {
     const updated = await prisma.deliveryOrder.update({
       where: { id },
       data: { ...updateData, status: "IN_TRANSIT" },
     });
-
-    if (dispatchedCylinders.length > 0) {
-      await prisma.cylinderUnit.updateMany({
-        where: { id: { in: dispatchedCylinders.map(c => c.id) } },
-        data: {
-          status:            CylinderStatus.WITH_CUSTOMER,
-          currentCustomerId: customerId,
-        },
-      });
-    }
-
-    return NextResponse.json({
-      ...updated,
-      _cylindersUpdated: dispatchedCylinders.length,
-    });
+    return NextResponse.json(updated);
   }
 
   // ── CANCELLED: return cylinders to warehouse + DECREMENT holdings ───────────
   // When a DO is cancelled, the cylinders are back in the warehouse.
   // We need to reverse the holdings increment that happened at DO creation.
   if (status === "CANCELLED") {
-    const dispatchedCylinders = await prisma.cylinderUnit.findMany({
-      where: {
-        events: { some: { deliveryOrderId: id, eventType: "DISPATCHED_TO_CUSTOMER" } },
-        status: { in: [CylinderStatus.IN_TRANSIT, CylinderStatus.WITH_CUSTOMER] },
-      },
-      select: { id: true },
-    });
-
     const updated = await prisma.$transaction(async (tx) => {
       const updatedDo = await tx.deliveryOrder.update({
         where: { id },
@@ -160,16 +120,6 @@ export async function PATCH(
           data: {
             kg12HeldQty: Math.max(0, holding.kg12HeldQty - order.kg12Released),
             kg50HeldQty: Math.max(0, holding.kg50HeldQty - order.kg50Released),
-          },
-        });
-      }
-
-      if (dispatchedCylinders.length > 0) {
-        await tx.cylinderUnit.updateMany({
-          where: { id: { in: dispatchedCylinders.map(c => c.id) } },
-          data: {
-            status: CylinderStatus.WAREHOUSE_FULL,
-            currentCustomerId: null,
           },
         });
       }
