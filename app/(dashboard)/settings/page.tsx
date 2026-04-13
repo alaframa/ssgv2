@@ -1,4 +1,3 @@
-// app/(dashboard)/settings/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -11,7 +10,8 @@ interface SettingsCard {
   title: string;
   description: string;
   icon: React.ReactNode;
-  roles?: string[]; // if undefined = all allowed roles can see
+  roles?: string[];
+  disabled?: boolean; // Added property
 }
 
 const SETTINGS_CARDS: SettingsCard[] = [
@@ -20,17 +20,9 @@ const SETTINGS_CARDS: SettingsCard[] = [
     title: "Pengaturan Gasback",
     description:
       "Konfigurasi mode kalkulasi, tarif per tabung, threshold redemption, dan ukuran isi gratis.",
+    disabled: true, // Set to true to blur/lock
     icon: (
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="12" y1="1" x2="12" y2="23" />
         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
       </svg>
@@ -42,16 +34,7 @@ const SETTINGS_CARDS: SettingsCard[] = [
     description:
       "Kelola jenis tabung gas — kapasitas, berat kosong (tare), dan konfigurasi untuk mode timbang.",
     icon: (
-      <svg
-        width="22"
-        height="22"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <ellipse cx="12" cy="5" rx="9" ry="3" />
         <path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
         <path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6" />
@@ -82,55 +65,76 @@ export default function SettingsPage() {
 
   return (
     <div className="page-container space-y-6 max-w-2xl">
-      {/* Header */}
       <div>
         <h1 className="page-title">Pengaturan</h1>
         <p className="page-desc">Konfigurasi sistem distribusi gas</p>
       </div>
 
-      {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {visibleCards.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="card p-5 flex gap-4 items-start hover:border-[var(--accent)]/50
-              hover:bg-[var(--surface-raised)] transition-all group"
-          >
-            {/* Icon */}
-            <div
-              className="shrink-0 w-10 h-10 rounded-xl bg-[var(--accent-light)]
-              flex items-center justify-center text-[var(--accent)]
-              group-hover:bg-[var(--accent)] group-hover:text-white transition-colors"
-            >
-              {card.icon}
-            </div>
+        {visibleCards.map((card) => {
+          const isDisabled = card.disabled;
 
-            {/* Text */}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-1">
-                {card.title}
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5
-                    transition-all shrink-0"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
-              </p>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                {card.description}
-              </p>
-            </div>
-          </Link>
-        ))}
+          return (
+            <Link
+              key={card.href}
+              href={isDisabled ? "#" : card.href}
+              onClick={(e) => isDisabled && e.preventDefault()}
+              className={`card p-5 flex gap-4 items-start transition-all group relative overflow-hidden ${
+                isDisabled
+                  ? "opacity-60 cursor-not-allowed grayscale pointer-events-none select-none"
+                  : "hover:border-[var(--accent)]/50 hover:bg-[var(--surface-raised)]"
+              }`}
+            >
+              {/* Blur Layer for Disabled State */}
+              {isDisabled && (
+                <div className="absolute inset-0 backdrop-blur-[2px] z-10" />
+              )}
+
+              {/* Icon */}
+              <div
+                className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-colors relative z-20 ${
+                  isDisabled
+                    ? "bg-gray-500/20 text-gray-400"
+                    : "bg-[var(--accent-light)] text-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white"
+                }`}
+              >
+                {isDisabled ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                ) : (
+                  card.icon
+                )}
+              </div>
+
+              {/* Text */}
+              <div className="min-w-0 relative z-20">
+                <p className="text-sm font-semibold text-[var(--text-primary)] mb-1 flex items-center gap-1">
+                  {card.title}
+                  {!isDisabled && (
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  )}
+                </p>
+                <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                  {isDisabled ? "Fitur ini dinonaktifkan sementara." : card.description}
+                </p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
